@@ -1,0 +1,3980 @@
+topic,level,id,problem,solution,url,buggy_submission,bug_description,gt_status,gt_input,gt_actual_output,gt_expected_output,gt_reason,llm_model,prompt_strategy,pred_status,pred_input,pred_actual_output,pred_expected_output,pred_reason,match,label,filtered_label
+String,Easy,6,"Roman numerals are represented by seven different symbols: I, V, X, L, C, D and M.
+
+Symbol       Value
+I             1
+V             5
+X             10
+L             50
+C             100
+D             500
+M             1000
+
+For example, 2 is written as II in Roman numeral, just two ones added together. 12 is written as XII, which is simply X + II. The number 27 is written as XXVII, which is XX + V + II.
+
+Roman numerals are usually written largest to smallest from left to right. However, the numeral for four is not IIII. Instead, the number four is written as IV. Because the one is before the five we subtract it making four. The same principle applies to the number nine, which is written as IX. There are six instances where subtraction is used:
+
+        I can be placed before V (5) and X (10) to make 4 and 9. 
+        X can be placed before L (50) and C (100) to make 40 and 90. 
+        C can be placed before D (500) and M (1000) to make 400 and 900.
+
+Given a roman numeral, convert it to an integer.
+
+Example 1:
+
+Input: s = ""III""
+Output: 3
+Explanation: III = 3.
+
+Example 2:
+
+Input: s = ""LVIII""
+Output: 58
+Explanation: L = 50, V= 5, III = 3.
+
+Example 3:
+
+Input: s = ""MCMXCIV""
+Output: 1994
+Explanation: M = 1000, CM = 900, XC = 90 and IV = 4.
+
+Constraints:
+
+        1 <= s.length <= 15
+        s contains only the characters ('I', 'V', 'X', 'L', 'C', 'D', 'M').
+        It is guaranteed that s is a valid roman numeral in the range [1, 3999].","			
+
+class Solution {
+ public:
+  int romanToInt(string s) {
+    int ans = 0;
+    vector<int> roman(128);
+
+    roman['I'] = 1;
+    roman['V'] = 5;
+    roman['X'] = 10;
+    roman['L'] = 50;
+    roman['C'] = 100;
+    roman['D'] = 500;
+    roman['M'] = 1000;
+
+    for (int i = 0; i + 1 < s.length(); ++i)
+      if (roman[s[i]] < roman[s[i + 1]])
+        ans -= roman[s[i]];
+      else
+        ans += roman[s[i]];
+
+    return ans + roman[s.back()];
+  }
+};",https://leetcode.com/problems/roman-to-integer,"class Solution {
+ public:
+  int romanToInt(string s) {
+    int ans = 0;
+    vector<int> roman(128);
+
+    roman['I'] = 1;
+    roman['V'] = 5;
+    roman['X'] = 10;
+    roman['L'] = 50;
+    roman['C'] = 100;
+    roman['D'] = 500;
+    roman['M'] = 1000;
+
+    roman.clear();
+
+    for (int i = 0; i + 1 < s.length(); ++i)
+      if (roman[s[i]] < roman[s[i + 1]])
+        ans -= roman[s[i]];
+      else
+        ans += roman[s[i]];
+
+    return ans + roman[s.back()];
+  }
+};","[Logic – Fake optimization] Added an unnecessary clear of the Roman value table before it is used, which removes all initialized mappings.",Accepted,,,,,claude-opus-4-8,zero-shot,Runtime Error,"""\""III\""""",,"""3""","roman.clear() empties the vector to size 0, so subsequent index accesses like roman[s[i]] go out of bounds causing undefined behavior/crash.",diff,3,3
+String,Easy,7,"Given two strings needle and haystack, return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
+
+Example 1:
+
+Input: haystack = ""sadbutsad"", needle = ""sad""
+Output: 0
+Explanation: ""sad"" occurs at index 0 and 6.
+The first occurrence is at index 0, so we return 0.
+
+Example 2:
+
+Input: haystack = ""leetcode"", needle = ""leeto""
+Output: -1
+Explanation: ""leeto"" did not occur in ""leetcode"", so we return -1.
+
+Constraints:
+
+	1 <= haystack.length, needle.length <= 104
+	haystack and needle consist of only lowercase English characters.","			
+
+class Solution {
+ public:
+  int strStr(string haystack, string needle) {
+    const int m = haystack.length();
+    const int n = needle.length();
+
+    for (int i = 0; i < m - n + 1; i++)
+      if (haystack.substr(i, n) == needle)
+        return i;
+
+    return -1;
+  }
+};",https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string,"class Solution {
+ public:
+  int strStr(string haystack, string needle) {
+    const int m = haystack.length();
+    const int n = needle.length();
+
+    for (int i = 1; i < m - n + 1; i++)
+      if (haystack.substr(i, n) == needle)
+        return i;
+
+    return -1;
+  }
+};","[Logic – Missing edge case handling] Changed the search loop to start at index 1, causing matches at the beginning of the haystack to be missed.",Wrong Answer,"haystack =
+""sadbutsad""
+needle =
+""sad""",6,0,,claude-opus-4-8,zero-shot,Wrong Answer,"""haystack = \""sadbutsad\"", needle = \""sad\""""","""6""","""0""","The loop starts at i=1 instead of i=0, missing a match at index 0.",sim,1,1
+String,Medium,22,"We define the string base to be the infinite wraparound string of ""abcdefghijklmnopqrstuvwxyz"", so base will look like this:
+ 
+  ""...zabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcd...."".
+ 
+ Given a string s, return the number of unique non-empty substrings of s are present in base.
+ 
+ Example 1:
+ 
+ Input: s = ""a""
+ Output: 1
+ Explanation: Only the substring ""a"" of s is in base.
+ 
+ Example 2:
+ 
+ Input: s = ""cac""
+ Output: 2
+ Explanation: There are two substrings (""a"", ""c"") of s in base.
+ 
+ Example 3:
+ 
+ Input: s = ""zab""
+ Output: 6
+ Explanation: There are six substrings (""z"", ""a"", ""b"", ""za"", ""ab"", and ""zab"") of s in base.
+ 
+ Constraints:
+ 
+  1 <= s.length <= 105
+  s consists of lowercase English letters.","class Solution {
+public:
+    int findSubstringInWraproundString(string p) {
+        vector<int> maxLen(26, 0);
+        int k = 0;
+        
+        for (int i = 0; i < p.size(); i++) {
+            if (i > 0 && ((p[i] - p[i-1] + 26) % 26 == 1)) {
+                k++;
+            } else {
+                k = 1;
+            }
+            int idx = p[i] - 'a';
+            maxLen[idx] = max(maxLen[idx], k);
+        }
+        
+        int result = 0;
+        for (int len : maxLen) {
+            result += len;
+        }
+        return result;
+    }
+};",https://leetcode.com/problems/unique-substrings-in-wraparound-string,"class Solution {
+public:
+    int findSubstringInWraproundString(string p) {
+        vector<int> maxLen(26, 0);
+        int k = 0;
+        
+        for (int i = 0; i < p.size(); i++) {
+            if (i > 0 & ((p[i] - p[i-1] + 26) % 26 == 1)) {
+                k++;
+            } else {
+                k = 1;
+            }
+            int idx = p[i] - 'a';
+            maxLen[idx] = max(maxLen[idx], k);
+        }
+        
+        int result = 0;
+        for (int len : maxLen) {
+            result += len;
+        }
+        return result;
+    }
+};",[Logic – Logical/bitwise operator confusion] Replaced the short-circuiting logical AND with bitwise AND in the wraparound continuity check.,Runtime Error,"s =
+""a""",,,"Line 1263: Char 9: runtime error: addition of unsigned offset to 0x7fc06ec00130 overflowed to 0x7fc06ec0012f (basic_string.h)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/basic_string.h:1272:9",claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""",,diff,3,3
+String,Medium,23,"Given a string s, find the length of the longest substring without duplicate characters.
+
+Example 1:
+
+Input: s = ""abcabcbb""
+Output: 3
+Explanation: The answer is ""abc"", with the length of 3.
+
+Example 2:
+
+Input: s = ""bbbbb""
+Output: 1
+Explanation: The answer is ""b"", with the length of 1.
+
+Example 3:
+
+Input: s = ""pwwkew""
+Output: 3
+Explanation: The answer is ""wke"", with the length of 3.
+Notice that the answer must be a substring, ""pwke"" is a subsequence and not a substring.
+
+Constraints:
+
+	0 <= s.length <= 5 * 104
+	s consists of English letters, digits, symbols and spaces.","			
+
+class Solution {
+ public:
+  int lengthOfLongestSubstring(string s) {
+    int ans = 0;
+    vector<int> count(128);
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      ++count[s[r]];
+      while (count[s[r]] > 1)
+        --count[s[l++]];
+      ans = max(ans, r - l + 1);
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/longest-substring-without-repeating-characters,"class Solution {
+ public:
+  int lengthOfLongestSubstring(string s) {
+    int ans = 0;
+    vector<int> count(128);
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      ++count[s[l]];
+      while (count[s[r]] > 1)
+        --count[s[l++]];
+      ans = max(ans, r - l + 1);
+    }
+
+    return ans;
+  }
+};","[Logic – Wrong variable name] Changed the character counted at the right pointer to use the left pointer instead, so the window frequency update tracks `s[l]` rather than `s[r]`.",Runtime Error,"s =
+""abcabcbb""",,,"Line 10: Char 17:
+=================================================================
+==21==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7fa9e0200140 at pc 0x55f71ffa74a4 bp 0x7fffe4311d40 sp 0x7fffe4311d38
+READ of size 1 at 0x7fa9e0200140 thread T0
+    #0 0x55f71ffa74a3 in Solution::lengthOfLongestSubstring(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>) solution.cpp:10:17
+    #1 0x55f71ffa6f4d in __DriverSolution__::__helper__(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>) solution.cpp:10:28
+    #2 0x55f71ffa6736 in main solution.cpp:10:40
+    #3 0x7fa9e1fba1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #4 0x7fa9e1fba28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #5 0x55f71fed0224 in _start (solution+0xae224)
+Address 0x7fa9e0200140 is located in stack of thread T0 at offset 64 in frame
+    #0 0x55f71ffa6e2f in __DriverSolution__::__helper__(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>) solution.cpp:10
+  This frame has 1 object(s):
+    [32, 64) 'agg.tmp' <== Memory access at offset 64 overflows this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow solution.cpp:10:17 in Solution::lengthOfLongestSubstring(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>)
+Shadow bytes around the buggy address:
+  0x7fa9e01ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e01fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e01fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x7fa9e0200080: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+=>0x7fa9e0200100: f1 f1 f1 f1 00 00 00 00[f3]f3 f3 f3 00 00 00 00
+  0x7fa9e0200180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200380: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==21==ABORTING",claude-opus-4-8,zero-shot,Wrong Answer,"""abcabcbb""","""1""","""3""","The code increments count[s[l]] instead of count[s[r]] when adding the new character, corrupting the sliding window logic and producing incorrect results.",diff,3,3
+String,Medium,26,"Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. Return the answer in any order.
+
+A mapping of digits to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+
+Example 1:
+
+Input: digits = ""23""
+Output: [""ad"",""ae"",""af"",""bd"",""be"",""bf"",""cd"",""ce"",""cf""]
+
+Example 2:
+
+Input: digits = """"
+Output: []
+
+Example 3:
+
+Input: digits = ""2""
+Output: [""a"",""b"",""c""]
+
+Constraints:
+
+        0 <= digits.length <= 4
+        digits[i] is a digit in the range ['2', '9'].","class Solution {
+ public:
+  vector<string> letterCombinations(string digits) {
+    if (digits.empty())
+      return {};
+
+    vector<string> ans;
+
+    dfs(digits, 0, """", ans);
+    return ans;
+  }
+
+ private:
+  const vector<string> digitToLetters{"""",    """",    ""abc"",  ""def"", ""ghi"",
+                                      ""jkl"", ""mno"", ""pqrs"", ""tuv"", ""wxyz""};
+
+  void dfs(const string& digits, int i, string&& path, vector<string>& ans) {
+    if (i == digits.length()) {
+      ans.push_back(path);
+      return;
+    }
+
+    for (const char letter : digitToLetters[digits[i] - '0']) {
+      path.push_back(letter);
+      dfs(digits, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/letter-combinations-of-a-phone-number,"class Solution {
+ public:
+  vector<string> letterCombinations(string digits) {
+    vector<string> ans;
+
+    dfs(digits, 0, """", ans);
+    return ans;
+  }
+
+ private:
+  const vector<string> digitToLetters{"""",    """",    ""abc"",  ""def"", ""ghi"",
+                                      ""jkl"", ""mno"", ""pqrs"", ""tuv"", ""wxyz""};
+
+  void dfs(const string& digits, int i, string&& path, vector<string>& ans) {
+    if (i == digits.length()) {
+      ans.push_back(path);
+      return;
+    }
+
+    for (const char letter : digitToLetters[digits[i] - '0']) {
+      path.push_back(letter);
+      dfs(digits, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Logic – Missing edge case handling] Removed the early return for empty input, causing an empty string combination to be produced for empty digits.",Wrong Answer,"digits =
+""""",[],"[""""]",,claude-opus-4-8,zero-shot,Wrong Answer,"""digits = \""\""""","""[\""\""]""","""[]""","For empty input, dfs immediately pushes an empty string producing [""""] instead of [].",sim,1,2
+String,Medium,30,"You are given an absolute path for a Unix-style file system, which always begins with a slash '/'. Your task is to transform this absolute path into its simplified canonical path.
+
+The rules of a Unix-style file system are as follows:
+
+	A single period '.' represents the current directory.
+	A double period '..' represents the previous/parent directory.
+	Multiple consecutive slashes such as '//' and '///' are treated as a single slash '/'.
+	Any sequence of periods that does not match the rules above should be treated as a valid directory or file name. For example, '...' and '....' are valid directory or file names.
+
+The simplified canonical path should follow these rules:
+
+	The path must start with a single slash '/'.
+	Directories within the path must be separated by exactly one slash '/'.
+	The path must not end with a slash '/', unless it is the root directory.
+	The path must not have any single or double periods ('.' and '..') used to denote current or parent directories.
+
+Return the simplified canonical path.
+
+Example 1:
+
+Input: path = ""/home/""
+
+Output: ""/home""
+
+Explanation:
+
+The trailing slash should be removed.
+
+Example 2:
+
+Input: path = ""/home//foo/""
+
+Output: ""/home/foo""
+
+Explanation:
+
+Multiple consecutive slashes are replaced by a single one.
+
+Example 3:
+
+Input: path = ""/home/user/Documents/../Pictures""
+
+Output: ""/home/user/Pictures""
+
+Explanation:
+
+A double period "".."" refers to the directory up a level (the parent directory).
+
+Example 4:
+
+Input: path = ""/../""
+
+Output: ""/""
+
+Explanation:
+
+Going one level up from the root directory is not possible.
+
+Example 5:
+
+Input: path = ""/.../a/../b/c/../d/./""
+
+Output: ""/.../b/d""
+
+Explanation:
+
+""..."" is a valid name for a directory in this problem.
+
+Constraints:
+
+	1 <= path.length <= 3000
+	path consists of English letters, digits, period '.', slash '/' or '_'.
+	path is a valid absolute Unix path.","			
+
+class Solution {
+ public:
+  string simplifyPath(string path) {
+    string ans;
+    istringstream iss(path);
+    vector<string> stack;
+
+    for (string dir; getline(iss, dir, '/');) {
+      if (dir.empty() || dir == ""."")
+        continue;
+      if (dir == "".."") {
+        if (!stack.empty())
+          stack.pop_back();
+      } else {
+        stack.push_back(dir);
+      }
+    }
+
+    for (const string& s : stack)
+      ans += ""/"" + s;
+
+    return ans.empty() ? ""/"" : ans;
+  }
+};",https://leetcode.com/problems/simplify-path,"class Solution {
+ public:
+  string simplifyPath(string path) {
+    string ans;
+    istringstream iss(path);
+    vector<string> stack;
+
+    for (string dir; getline(iss, dir, '/');) {
+      if (dir.empty() && dir == ""."")
+        continue;
+      if (dir == "".."") {
+        if (!stack.empty())
+          stack.pop_back();
+      } else {
+        stack.push_back(dir);
+      }
+    }
+
+    for (const string& s : stack)
+      ans += ""/"" + s;
+
+    return ans.empty() ? ""/"" : ans;
+  }
+};","[Logic – Logical/bitwise operator confusion] Changed the skip condition for empty path segments or `.` from `||` to `&&`, so those segments are no longer correctly ignored.",Wrong Answer,"path =
+""/home/""","""//home""","""/home""",,claude-opus-4-8,zero-shot,Wrong Answer,"""/home/""","""//home/""","""/home""","The condition `dir.empty() && dir == "".""` can never be true (empty string can't equal "".""), so empty tokens and ""."" are pushed onto the stack instead of being skipped.",sim,1,2
+String,Hard,35,"Given a string s, return whether s is a valid number.
+ 
+ For example, all the following are valid numbers: ""2"", ""0089"", ""-0.1"", ""+3.14"", ""4."", ""-.9"", ""2e10"", ""-90E3"", ""3e+7"", ""+6e-1"", ""53.5e93"", ""-123.456e789"", while the following are not valid numbers: ""abc"", ""1a"", ""1e"", ""e3"", ""99e2.5"", ""--6"", ""-+3"", ""95a54e53"".
+ 
+ Formally, aÂ valid number is defined using one of the following definitions:
+ 
+  An integer number followed by an optional exponent.
+  A decimal number followed by an optional exponent.
+ 
+ An integer number is defined with an optional sign '-' or '+' followed by digits.
+ 
+ A decimal number is defined with an optional sign '-' or '+' followed by one of the following definitions:
+ 
+  Digits followed by a dot '.'.
+  Digits followed by a dot '.' followed by digits.
+  A dot '.' followed by digits.
+ 
+ An exponent is defined with an exponent notation 'e' or 'E' followed by an integer number.
+ 
+ The digits are defined as one or more digits.
+ 
+ Example 1:
+ 
+ Input: s = ""0""
+ 
+ Output: true
+ 
+ Example 2:
+ 
+ Input: s = ""e""
+ 
+ Output: false
+ 
+ Example 3:
+ 
+ Input: s = "".""
+ 
+ Output: false
+ 
+ Constraints:
+ 
+  1 <= s.length <= 20
+  s consists of only English letters (both uppercase and lowercase), digits (0-9), plus '+', minus '-', or dot '.'.","class Solution {
+public:
+    bool isNumber(span<char> s) {
+        if (s[0] == '+' || s[0] == '-') s = s.subspan(1);
+
+        auto s_ = strip_int(s);
+
+        if (s_[0] == '.') {
+            bool empty_before_dot = s_.size() == s.size();
+            s = s_.subspan(1);
+            s_ = strip_int(s);
+            if (empty_before_dot && s_.size() == s.size()) return false;
+        } else if (s_.size() == s.size()) return false;
+
+        if (s_.empty()) return true;
+        if (s_[0] == 'e' || s_[0] == 'E') {
+            s = s_.subspan(1);
+            if (!s.empty() && (s[0] == '+' || s[0] == '-')) s = s.subspan(1);
+            s_ = strip_int(s);
+            if (s_.size() == s.size()) return false;
+        }
+
+        return s_.empty();
+    }
+
+    span<char> strip_int(span<char> s) {
+        size_t i = 0;
+
+        while (i < s.size() && is_digit(s[i])) ++i;
+        
+        return s.subspan(i);
+    }
+
+    bool is_digit(char c) {
+        return isdigit(c);
+    }
+};",https://leetcode.com/problems/valid-number,"class Solution {
+public:
+    bool isNumber(span<char> s) {
+        if (s[0] == '+' || s[0] == '-') s = s.subspan(1);
+
+        auto s_ = strip_int(s);
+
+        if (s_[0] == '.') {
+            bool empty_before_dot = s_.size() == s.size();
+            s = s_.subspan(1);
+            s_ = strip_int(s);
+            if (empty_before_dot && s_.size() == s.size()) return false;
+        } else if (s_.size() == s.size()) return false;
+
+        if (s_.empty()) return true;
+        if (s_[0] == 'e' || s_[0] == 'E') {
+            s = s_.subspan(1);
+            if (!s.empty() & (s[0] == '+' || s[0] == '-')) s = s.subspan(1);
+            s_ = strip_int(s);
+            if (s_.size() == s.size()) return false;
+        }
+
+        return s_.empty();
+    }
+
+    span<char> strip_int(span<char> s) {
+        size_t i = 0;
+
+        while (i < s.size() && is_digit(s[i])) ++i;
+        
+        return s.subspan(i);
+    }
+
+    bool is_digit(char c) {
+        return isdigit(c);
+    }
+};","[Logic – Logical/bitwise operator confusion] Replaced the short-circuiting exponent sign check `&&` with bitwise `&`, causing `s[0]` to be evaluated even when the span is empty.",Accepted,,,,,claude-opus-4-8,zero-shot,Compilation Error,"""""","""""","""""","The function signature uses span<char> instead of the required string parameter, causing a signature mismatch with LeetCode's expected isNumber(string s), and the code accesses s[0] without any header guarantees; it will not compile/link against the expected interface.",diff,3,3
+String,Hard,40,"Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+	'.' Matches any single character.​​​​
+	'*' Matches zero or more of the preceding element.
+
+The matching should cover the entire input string (not partial).
+
+Example 1:
+
+Input: s = ""aa"", p = ""a""
+Output: false
+Explanation: ""a"" does not match the entire string ""aa"".
+
+Example 2:
+
+Input: s = ""aa"", p = ""a*""
+Output: true
+Explanation: '*' means zero or more of the preceding element, 'a'. Therefore, by repeating 'a' once, it becomes ""aa"".
+
+Example 3:
+
+Input: s = ""ab"", p = "".*""
+Output: true
+Explanation: "".*"" means ""zero or more (*) of any character (.)"".
+
+Constraints:
+
+	1 <= s.length <= 20
+	1 <= p.length <= 20
+	s contains only lowercase English letters.
+	p contains only lowercase English letters, '.', and '*'.
+	It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.","                        
+
+class Solution {
+ public:
+  bool isMatch(string s, string p) {
+    const int m = s.length();
+    const int n = p.length();
+    // dp[i][j] := true if s[0..i) matches p[0..j)
+    vector<vector<bool>> dp(m + 1, vector<bool>(n + 1));
+    dp[0][0] = true;
+
+    auto isMatch = [&](int i, int j) -> bool {
+      return j >= 0 && p[j] == '.' || s[i] == p[j];
+    };
+
+    for (int j = 0; j < p.length(); ++j)
+      if (p[j] == '*' && dp[0][j - 1])
+        dp[0][j + 1] = true;
+
+    for (int i = 0; i < m; ++i)
+      for (int j = 0; j < n; ++j)
+        if (p[j] == '*') {
+          const bool noRepeat = dp[i + 1][j - 1];  // Min index of '*' is 1
+          const bool doRepeat = isMatch(i, j - 1) && dp[i][j + 1];
+          dp[i + 1][j + 1] = noRepeat || doRepeat;
+        } else if (isMatch(i, j)) {
+          dp[i + 1][j + 1] = dp[i][j];
+        }
+
+    return dp[m][n];
+  }
+};",https://leetcode.com/problems/regular-expression-matching,"class Solution {
+ public:
+  bool isMatch(string s, string p) {
+    const int m = s.length();
+    const int n = p.length();
+    // dp[i][j] := true if s[0..i) matches p[0..j)
+    vector<vector<bool>> dp(m + 1, vector<bool>(n + 1));
+    dp[0][0] = true;
+
+    auto isMatch = [&](int i, int j) -> bool {
+      return j >= 0 && p[j] == '.' || s[i] == p[j];
+    };
+
+    for (int j = 0; j < p.length(); ++j)
+      if (p[j] == '*' && dp[0][j - 1])
+        dp[0][j + 1] = true;
+
+    for (int i = 0; i < m; ++i)
+      for (int j = 0; j < n; ++j)
+        if (p[j] == '*') {
+          const bool noRepeat = dp[i][j - 1];  // Min index of '*' is 1
+          const bool doRepeat = isMatch(i, j - 1) && dp[i][j + 1];
+          dp[i + 1][j + 1] = noRepeat || doRepeat;
+        } else if (isMatch(i, j)) {
+          dp[i + 1][j + 1] = dp[i][j];
+        }
+
+    return dp[m][n];
+  }
+};",[Logic – Wrong variable name] Changed the zero-repeat '*' transition to read from dp[i][j - 1] instead of dp[i + 1][j - 1].,Wrong Answer,"s =
+""a""
+p =
+""b*""",TRUE,FALSE,,claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""",Standard DP solution for regex matching correctly handles '.' and '*' cases and covers the full string.,diff,3,3
+String,Hard,41,"You are given a string s and an array of strings words. All the strings of words are of the same length.
+
+A concatenated string is a string that exactly contains all the strings of any permutation of words concatenated.
+
+	For example, if words = [""ab"",""cd"",""ef""], then ""abcdef"", ""abefcd"", ""cdabef"", ""cdefab"", ""efabcd"", and ""efcdab"" are all concatenated strings. ""acdbef"" is not a concatenated string because it is not the concatenation of any permutation of words.
+
+Return an array of the starting indices of all the concatenated substrings in s. You can return the answer in any order.
+
+Example 1:
+
+Input: s = ""barfoothefoobarman"", words = [""foo"",""bar""]
+
+Output: [0,9]
+
+Explanation:
+
+The substring starting at 0 is ""barfoo"". It is the concatenation of [""bar"",""foo""] which is a permutation of words.
+The substring starting at 9 is ""foobar"". It is the concatenation of [""foo"",""bar""] which is a permutation of words.
+
+Example 2:
+
+Input: s = ""wordgoodgoodgoodbestword"", words = [""word"",""good"",""best"",""word""]
+
+Output: []
+
+Explanation:
+
+There is no concatenated substring.
+
+Example 3:
+
+Input: s = ""barfoofoobarthefoobarman"", words = [""bar"",""foo"",""the""]
+
+Output: [6,9,12]
+
+Explanation:
+
+The substring starting at 6 is ""foobarthe"". It is the concatenation of [""foo"",""bar"",""the""].
+The substring starting at 9 is ""barthefoo"". It is the concatenation of [""bar"",""the"",""foo""].
+The substring starting at 12 is ""thefoobar"". It is the concatenation of [""the"",""foo"",""bar""].
+
+Constraints:
+
+	1 <= s.length <= 104
+	1 <= words.length <= 5000
+	1 <= words[i].length <= 30
+	s and words[i] consist of lowercase English letters.","                        
+
+class Solution {
+ public:
+  vector<int> findSubstring(string s, vector<string>& words) {
+    if (s.empty() || words.empty())
+      return {};
+
+    const int k = words.size();
+    const int n = words[0].length();
+    vector<int> ans;
+    unordered_map<string, int> count;
+
+    for (const string& word : words)
+      ++count[word];
+
+    for (int i = 0; i < s.length() - k * n + 1; ++i) {
+      unordered_map<string, int> seen;
+      int j;
+      for (j = 0; j < k; ++j) {
+        const string& word = s.substr(i + j * n, n);
+        if (++seen[word] > count[word])
+          break;
+      }
+      if (j == k)
+        ans.push_back(i);
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/substring-with-concatenation-of-all-words,"class Solution {
+ public:
+  vector<int> findSubstring(string s, vector<string>& words) {
+    if (s.empty())
+      return {};
+
+    const int k = words.size();
+    const int n = words[0].length();
+    vector<int> ans;
+    unordered_map<string, int> count;
+
+    for (const string& word : words)
+      ++count[word];
+
+    for (int i = 0; i < s.length() - k * n + 1; ++i) {
+      unordered_map<string, int> seen;
+      int j;
+      for (j = 0; j < k; ++j) {
+        const string& word = s.substr(i + j * n, n);
+        if (++seen[word] > count[word])
+          break;
+      }
+      if (j == k)
+        ans.push_back(i);
+    }
+
+    return ans;
+  }
+};",[Logic – Missing edge case handling] Removed the empty words guard so the code can access words[0] when words is empty.,Runtime Error,"s =
+""b""
+words =
+[""bbb"",""bbb""]",,,,claude-opus-4-8,zero-shot,Runtime Error,"""s = \""aaa\"", words = [\""a\"",\""a\"",\""a\"",\""a\"",\""a\""]""",,"""[]""","s.length() is unsigned, so when k*n exceeds s.length()+1 the loop bound underflows to a huge value, causing s.substr with an out-of-range position to throw std::out_of_range.",sim,2,2
+String,Hard,44,"Given an array of strings words and a width maxWidth, format the text such that each line has exactly maxWidth characters and is fully (left and right) justified.
+
+You should pack your words in a greedy approach; that is, pack as many words as you can in each line. Pad extra spaces ' ' when necessary so that each line has exactly maxWidth characters.
+
+Extra spaces between words should be distributed as evenly as possible. If the number of spaces on a line does not divide evenly between words, the empty slots on the left will be assigned more spaces than the slots on the right.
+
+For the last line of text, it should be left-justified, and no extra space is inserted between words.
+
+Note:
+
+	A word is defined as a character sequence consisting of non-space characters only.
+	Each word's length is guaranteed to be greater than 0 and not exceed maxWidth.
+	The input array words contains at least one word.
+
+Example 1:
+
+Input: words = [""This"", ""is"", ""an"", ""example"", ""of"", ""text"", ""justification.""], maxWidth = 16
+Output:
+[
+   ""This    is    an"",
+   ""example  of text"",
+   ""justification.  ""
+]
+
+Example 2:
+
+Input: words = [""What"",""must"",""be"",""acknowledgment"",""shall"",""be""], maxWidth = 16
+Output:
+[
+  ""What   must   be"",
+  ""acknowledgment  "",
+  ""shall be        ""
+]
+Explanation: Note that the last line is ""shall be    "" instead of ""shall     be"", because the last line must be left-justified instead of fully-justified.
+Note that the second line is also left-justified because it contains only one word.
+
+Example 3:
+
+Input: words = [""Science"",""is"",""what"",""we"",""understand"",""well"",""enough"",""to"",""explain"",""to"",""a"",""computer."",""Art"",""is"",""everything"",""else"",""we"",""do""], maxWidth = 20
+Output:
+[
+  ""Science  is  what we"",
+  ""understand      well"",
+  ""enough to explain to"",
+  ""a  computer.  Art is"",
+  ""everything  else  we"",
+  ""do                  ""
+]
+
+Constraints:
+
+	1 <= words.length <= 300
+	1 <= words[i].length <= 20
+	words[i] consists of only English letters and symbols.
+	1 <= maxWidth <= 100
+	words[i].length <= maxWidth","			
+
+class Solution {
+ public:
+  vector<string> fullJustify(vector<string>& words, size_t maxWidth) {
+    vector<string> ans;
+    vector<string> row;
+    size_t rowLetters = 0;
+
+    for (const string& word : words) {
+      // If we put the word in this row, it'll exceed the maxWidth,
+      // So we cannot put the word to this row and have to pad spaces to
+      // Each word in this row
+      if (rowLetters + row.size() + word.length() > maxWidth) {
+        const int spaces = maxWidth - rowLetters;
+        if (row.size() == 1) {
+          // Pad all spaces after row[0]
+          for (int i = 0; i < spaces; ++i)
+            row[0] += "" "";
+        } else {
+          // Evenly pad spaces to each word (expect the last one) in this row
+          for (int i = 0; i < spaces; ++i)
+            row[i % (row.size() - 1)] += "" "";
+        }
+        ans.push_back(join(row, """"));
+        row.clear();
+        rowLetters = 0;
+      }
+      row.push_back(word);
+      rowLetters += word.length();
+    }
+    ans.push_back(ljust(join(row, "" ""), maxWidth));
+
+    return ans;
+  }
+
+ private:
+  string join(const vector<string>& v, const string& c) {
+    string s;
+    for (auto p = begin(v); p != end(v); ++p) {
+      s += *p;
+      if (p != end(v) - 1)
+        s += c;
+    }
+    return s;
+  }
+
+  string ljust(string s, int width) {
+    for (int i = 0; i < s.length() - width; ++i)
+      s += "" "";
+    return s;
+  }
+};",https://leetcode.com/problems/text-justification,"class Solution {
+ public:
+  vector<string> fullJustify(vector<string>& words, size_t maxWidth) {
+    vector<string> ans;
+    vector<string> row;
+    size_t rowLetters = 0;
+
+    for (const string& word : words) {
+      // If we put the word in this row, it'll exceed the maxWidth,
+      // So we cannot put the word to this row and have to pad spaces to
+      // Each word in this row
+      if (rowLetters + row.size() + word.length() > maxWidth) {
+        const int spaces = maxWidth - rowLetters;
+        if (row.size() == 1) {
+          // Pad all spaces before row[0]
+          for (int i = 0; i < spaces; ++i)
+            row[0] += "" "";
+        } else {
+          // Evenly pad spaces to each word (expect the last one) in this row
+          for (int i = 0; i < spaces; ++i)
+            row[i % (row.size() - 1)] += "" "";
+        }
+        ans.push_back(join(row, """"));
+        row.clear();
+        rowLetters = 0;
+      }
+      row.push_back(word);
+      rowLetters += word.length();
+    }
+    ans.push_back(ljust(join(row, "" ""), maxWidth));
+
+    return ans;
+  }
+
+ private:
+  string join(const vector<string>& v, const string& c) {
+    string s;
+    for (auto p = begin(v); p != end(v); ++p) {
+      s += *p;
+      if (p != end(v) - 1)
+        s += c;
+    }
+    return s;
+  }
+
+  string ljust(string s, int width) {
+    for (int i = 0; i < s.length() - width; ++i)
+      s += "" "";
+    return s;
+  }
+};","[Logic – Misleading comment] Changed the single-word row padding comment to falsely state that spaces are added before the word, while the code still appends them after the word.",Accepted,,,,,claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""",,sim,2,2
+String,Hard,45,"Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string """".
+
+The testcases will be generated such that the answer is unique.
+
+Example 1:
+
+Input: s = ""ADOBECODEBANC"", t = ""ABC""
+Output: ""BANC""
+Explanation: The minimum window substring ""BANC"" includes 'A', 'B', and 'C' from string t.
+
+Example 2:
+
+Input: s = ""a"", t = ""a""
+Output: ""a""
+Explanation: The entire string s is the minimum window.
+
+Example 3:
+
+Input: s = ""a"", t = ""aa""
+Output: """"
+Explanation: Both 'a's from t must be included in the window.
+Since the largest window of s only has one 'a', return empty string.
+
+Constraints:
+
+	m == s.length
+	n == t.length
+	1 <= m, n <= 105
+	s and t consist of uppercase and lowercase English letters.
+
+Follow up: Could you find an algorithm that runs in O(m + n) time?","			
+
+class Solution {
+ public:
+  string minWindow(string s, string t) {
+    vector<int> count(128);
+    int required = t.length();
+    int bestLeft = -1;
+    int minLength = s.length() + 1;
+
+    for (const char c : t)
+      ++count[c];
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      if (--count[s[r]] >= 0)
+        --required;
+      while (required == 0) {
+        if (r - l + 1 < minLength) {
+          bestLeft = l;
+          minLength = r - l + 1;
+        }
+        if (++count[s[l++]] > 0)
+          ++required;
+      }
+    }
+
+    return bestLeft == -1 ? """" : s.substr(bestLeft, minLength);
+  }
+};",https://leetcode.com/problems/minimum-window-substring,"class Solution {
+ public:
+  string minWindow(string s, string t) {
+    vector<int> count(128);
+    int required = t.length();
+    int bestLeft = -1;
+    int minLength = s.length() + 1;
+
+    for (const char c : t)
+      ++count[c];
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      if (--count[s[r]] >= 0)
+        --required;
+      while (required == 0) {
+        if (r - l + 1 < minLength) {
+          bestLeft = l;
+          minLength = r - (l + 1);
+        }
+        if (++count[s[l++]] > 0)
+          ++required;
+      }
+    }
+
+    return bestLeft == -1 ? """" : s.substr(bestLeft, minLength);
+  }
+};","[Logic – Operator precedence error] Changed the minimum window length update from `r - l + 1` to `r - (l + 1)`, causing the stored substring length to be too short.",Wrong Answer,"s =
+""ADOBECODEBANC""
+t =
+""ABC""",ADOB,BANC,,claude-opus-4-8,zero-shot,Wrong Answer,"""s = \""a\"", t = \""a\""""","""""","""a""","minLength is incorrectly set to r-(l+1) instead of r-l+1, producing a substring of the wrong (shorter) length.",sim,1,2
+String,Hard,46,"A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:
+
+	Every adjacent pair of words differs by a single letter.
+	Every si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.
+	sk == endWord
+
+Given two words, beginWord and endWord, and a dictionary wordList, return all the shortest transformation sequences from beginWord to endWord, or an empty list if no such sequence exists. Each sequence should be returned as a list of the words [beginWord, s1, s2, ..., sk].
+
+Example 1:
+
+Input: beginWord = ""hit"", endWord = ""cog"", wordList = [""hot"",""dot"",""dog"",""lot"",""log"",""cog""]
+Output: [[""hit"",""hot"",""dot"",""dog"",""cog""],[""hit"",""hot"",""lot"",""log"",""cog""]]
+Explanation: There are 2 shortest transformation sequences:
+""hit"" -> ""hot"" -> ""dot"" -> ""dog"" -> ""cog""
+""hit"" -> ""hot"" -> ""lot"" -> ""log"" -> ""cog""
+
+Example 2:
+
+Input: beginWord = ""hit"", endWord = ""cog"", wordList = [""hot"",""dot"",""dog"",""lot"",""log""]
+Output: []
+Explanation: The endWord ""cog"" is not in wordList, therefore there is no valid transformation sequence.
+
+Constraints:
+
+	1 <= beginWord.length <= 5
+	endWord.length == beginWord.length
+	1 <= wordList.length <= 500
+	wordList[i].length == beginWord.length
+	beginWord, endWord, and wordList[i] consist of lowercase English letters.
+	beginWord != endWord
+	All the words in wordList are unique.
+	The sum of all shortest transformation sequences does not exceed 105.","                        
+
+class Solution {
+ public:
+  vector<vector<string>> findLadders(string beginWord, string endWord,
+                                     vector<string>& wordList) {
+    unordered_set<string> wordSet{begin(wordList), end(wordList)};
+    if (!wordSet.count(endWord))
+      return {};
+
+    // {""hit"": [""hot""], ""hot"": [""dot"", ""lot""], ...}
+    unordered_map<string, vector<string>> graph;
+
+    // Build graph from beginWord -> endWord
+    if (!bfs(beginWord, endWord, wordSet, graph))
+      return {};
+
+    vector<vector<string>> ans;
+
+    dfs(graph, beginWord, endWord, {beginWord}, ans);
+    return ans;
+  }
+
+ private:
+  bool bfs(const string& beginWord, const string& endWord,
+           unordered_set<string>& wordSet,
+           unordered_map<string, vector<string>>& graph) {
+    unordered_set<string> currentLevelWords{beginWord};
+
+    while (!currentLevelWords.empty()) {
+      for (const string& word : currentLevelWords)
+        wordSet.erase(word);
+      unordered_set<string> nextLevelWords;
+      bool reachEndWord = false;
+      for (const string& parent : currentLevelWords) {
+        vector<string> children;
+        getChildren(parent, wordSet, children);
+        for (const string& child : children) {
+          if (wordSet.count(child)) {
+            nextLevelWords.insert(child);
+            graph[parent].push_back(child);
+          }
+          if (child == endWord)
+            reachEndWord = true;
+        }
+      }
+      if (reachEndWord)
+        return true;
+      currentLevelWords = move(nextLevelWords);
+    }
+
+    return true;
+  }
+
+  void getChildren(const string& parent, const unordered_set<string>& wordSet,
+                   vector<string>& children) {
+    string s(parent);
+
+    for (int i = 0; i < s.length(); ++i) {
+      const char cache = s[i];
+      for (char c = 'a'; c <= 'z'; ++c) {
+        if (c == cache)
+          continue;
+        s[i] = c;  // Now is `child`
+        if (wordSet.count(s))
+          children.push_back(s);
+      }
+      s[i] = cache;
+    }
+  }
+
+  void dfs(const unordered_map<string, vector<string>>& graph,
+           const string& word, const string& endWord, vector<string>&& path,
+           vector<vector<string>>& ans) {
+    if (word == endWord) {
+      ans.push_back(path);
+      return;
+    }
+    if (!graph.count(word))
+      return;
+
+    for (const string& child : graph.at(word)) {
+      path.push_back(child);
+      dfs(graph, child, endWord, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/word-ladder-ii,"class Solution {
+ public:
+  vector<vector<string>> findLadders(string beginWord, string endWord,
+                                     vector<string>& wordList) {
+    unordered_set<string> wordSet{begin(wordList), end(wordList)};
+    if (!wordSet.count(endWord))
+      return {};
+
+    // {""hit"": [""hot""], ""hot"": [""dot"", ""lot""], ...}
+    unordered_map<string, vector<string>> graph;
+
+    // Build graph from endWord -> beginWord
+    if (!bfs(beginWord, endWord, wordSet, graph))
+      return {};
+
+    vector<vector<string>> ans;
+
+    dfs(graph, beginWord, endWord, {beginWord}, ans);
+    return ans;
+  }
+
+ private:
+  bool bfs(const string& beginWord, const string& endWord,
+           unordered_set<string>& wordSet,
+           unordered_map<string, vector<string>>& graph) {
+    unordered_set<string> currentLevelWords{beginWord};
+
+    while (!currentLevelWords.empty()) {
+      for (const string& word : currentLevelWords)
+        wordSet.erase(word);
+      unordered_set<string> nextLevelWords;
+      bool reachEndWord = false;
+      for (const string& parent : currentLevelWords) {
+        vector<string> children;
+        getChildren(parent, wordSet, children);
+        for (const string& child : children) {
+          if (wordSet.count(child)) {
+            nextLevelWords.insert(child);
+            graph[parent].push_back(child);
+          }
+          if (child == endWord)
+            reachEndWord = true;
+        }
+      }
+      if (reachEndWord)
+        return true;
+      currentLevelWords = move(nextLevelWords);
+    }
+
+    return true;
+  }
+
+  void getChildren(const string& parent, const unordered_set<string>& wordSet,
+                   vector<string>& children) {
+    string s(parent);
+
+    for (int i = 0; i < s.length(); ++i) {
+      const char cache = s[i];
+      for (char c = 'a'; c <= 'z'; ++c) {
+        if (c == cache)
+          continue;
+        s[i] = c;  // Now is `child`
+        if (wordSet.count(s))
+          children.push_back(s);
+      }
+      s[i] = cache;
+    }
+  }
+
+  void dfs(const unordered_map<string, vector<string>>& graph,
+           const string& word, const string& endWord, vector<string>&& path,
+           vector<vector<string>>& ans) {
+    if (word == endWord) {
+      ans.push_back(path);
+      return;
+    }
+    if (!graph.count(word))
+      return;
+
+    for (const string& child : graph.at(word)) {
+      path.push_back(child);
+      dfs(graph, child, endWord, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",[Logic – Misleading comment] Changed the BFS graph construction comment to incorrectly state that the graph is built from endWord to beginWord.,Time Limit Exceeded,"beginWord =
+""aaaaa""
+endWord =
+""ggggg""
+wordList =
+[""aaaaa"",""caaaa"",""cbaaa"",""daaaa"",""dbaaa"",""eaaaa"",""ebaaa"",""faaaa"",""fbaaa"",""gaaaa"",""gbaaa"",""haaaa"",""hbaaa"",""iaaaa"",""ibaaa"",""jaaaa"",""jbaaa"",""kaaaa"",""kbaaa"",""laaaa"",""lbaaa"",""maaaa"",""mbaaa"",""naaaa"",""nbaaa"",""oaaaa"",""obaaa"",""paaaa"",""pbaaa"",""bbaaa"",""bbcaa"",""bbcba"",""bbdaa"",""bbdba"",""bbeaa"",""bbeba"",""bbfaa"",""bbfba"",""bbgaa"",""bbgba"",""bbhaa"",""bbhba"",""bbiaa"",""bbiba"",""bbjaa"",""bbjba"",""bbkaa"",""bbkba"",""bblaa"",""bblba"",""bbmaa"",""bbmba"",""bbnaa"",""bbnba"",""bboaa"",""bboba"",""bbpaa"",""bbpba"",""bbbba"",""abbba"",""acbba"",""dbbba"",""dcbba"",""ebbba"",""ecbba"",""fbbba"",""fcbba"",""gbbba"",""gcbba"",""hbbba"",""hcbba"",""ibbba"",""icbba"",""jbbba"",""jcbba"",""kbbba"",""kcbba"",""lbbba"",""lcbba"",""mbbba"",""mcbba"",""nbbba"",""ncbba"",""obbba"",""ocbba"",""pbbba"",""pcbba"",""ccbba"",""ccaba"",""ccaca"",""ccdba"",""ccdca"",""cceba"",""cceca"",""ccfba"",""ccfca"",""ccgba"",""ccgca"",""cchba"",""cchca"",""cciba"",""ccica"",""ccjba"",""ccjca"",""cckba"",""cckca"",""cclba"",""cclca"",""ccmba"",""ccmca"",""ccnba"",""ccnca"",""ccoba"",""ccoca"",""ccpba"",""ccpca"",""cccca"",""accca"",""adcca"",""bccca"",""bdcca"",""eccca"",""edcca"",""fccca"",""fdcca"",""gccca"",""gdcca"",""hccca"",""hdcca"",""iccca"",""idcca"",""jccca"",""jdcca"",""kccca"",""kdcca"",""lccca"",""ldcca"",""mccca"",""mdcca"",""nccca"",""ndcca"",""occca"",""odcca"",""pccca"",""pdcca"",""ddcca"",""ddaca"",""ddada"",""ddbca"",""ddbda"",""ddeca"",""ddeda"",""ddfca"",""ddfda"",""ddgca"",""ddgda"",""ddhca"",""ddhda"",""ddica"",""ddida"",""ddjca"",""ddjda"",""ddkca"",""ddkda"",""ddlca"",""ddlda"",""ddmca"",""ddmda"",""ddnca"",""ddnda"",""ddoca"",""ddoda"",""ddpca"",""ddpda"",""dddda"",""addda"",""aedda"",""bddda"",""bedda"",""cddda"",""cedda"",""fddda"",""fedda"",""gddda"",""gedda"",""hddda"",""hedda"",""iddda"",""iedda"",""jddda"",""jedda"",""kddda"",""kedda"",""lddda"",""ledda"",""mddda"",""medda"",""nddda"",""nedda"",""oddda"",""oedda"",""pddda"",""pedda"",""eedda"",""eeada"",""eeaea"",""eebda"",""eebea"",""eecda"",""eecea"",""eefda"",""eefea"",""eegda"",""eegea"",""eehda"",""eehea"",""eeida"",""eeiea"",""eejda"",""eejea"",""eekda"",""eekea"",""eelda"",""eelea"",""eemda"",""eemea"",""eenda"",""eenea"",""eeoda"",""eeoea"",""eepda"",""eepea"",""eeeea"",""ggggg"",""agggg"",""ahggg"",""bgggg"",""bhggg"",""cgggg"",""chggg"",""dgggg"",""dhggg"",""egggg"",""ehggg"",""fgggg"",""fhggg"",""igggg"",""ihggg"",""jgggg"",""jhggg"",""kgggg"",""khggg"",""lgggg"",""lhggg"",""mgggg"",""mhggg"",""ngggg"",""nhggg"",""ogggg"",""ohggg"",""pgggg"",""phggg"",""hhggg"",""hhagg"",""hhahg"",""hhbgg"",""hhbhg"",""hhcgg"",""hhchg"",""hhdgg"",""hhdhg"",""hhegg"",""hhehg"",""hhfgg"",""hhfhg"",""hhigg"",""hhihg"",""hhjgg"",""hhjhg"",""hhkgg"",""hhkhg"",""hhlgg"",""hhlhg"",""hhmgg"",""hhmhg"",""hhngg"",""hhnhg"",""hhogg"",""hhohg"",""hhpgg"",""hhphg"",""hhhhg"",""ahhhg"",""aihhg"",""bhhhg"",""bihhg"",""chhhg"",""cihhg"",""dhhhg"",""dihhg"",""ehhhg"",""eihhg"",""fhhhg"",""fihhg"",""ghhhg"",""gihhg"",""jhhhg"",""jihhg"",""khhhg"",""kihhg"",""lhhhg"",""lihhg"",""mhhhg"",""mihhg"",""nhhhg"",""nihhg"",""ohhhg"",""oihhg"",""phhhg"",""pihhg"",""iihhg"",""iiahg"",""iiaig"",""iibhg"",""iibig"",""iichg"",""iicig"",""iidhg"",""iidig"",""iiehg"",""iieig"",""iifhg"",""iifig"",""iighg"",""iigig"",""iijhg"",""iijig"",""iikhg"",""iikig"",""iilhg"",""iilig"",""iimhg"",""iimig"",""iinhg"",""iinig"",""iiohg"",""iioig"",""iiphg"",""iipig"",""iiiig"",""aiiig"",""ajiig"",""biiig"",""bjiig"",""ciiig"",""cjiig"",""diiig"",""djiig"",""eiiig"",""ejiig"",""fiiig"",""fjiig"",""giiig"",""gjiig"",""hiiig"",""hjiig"",""kiiig"",""kjiig"",""liiig"",""ljiig"",""miiig"",""mjiig"",""niiig"",""njiig"",""oiiig"",""ojiig"",""piiig"",""pjiig"",""jjiig"",""jjaig"",""jjajg"",""jjbig"",""jjbjg"",""jjcig"",""jjcjg"",""jjdig"",""jjdjg"",""jjeig"",""jjejg"",""jjfig"",""jjfjg"",""jjgig"",""jjgjg"",""jjhig"",""jjhjg"",""jjkig"",""jjkjg"",""jjlig"",""jjljg"",""jjmig"",""jjmjg"",""jjnig"",""jjnjg"",""jjoig"",""jjojg"",""jjpig"",""jjpjg"",""jjjjg"",""ajjjg"",""akjjg"",""bjjjg"",""bkjjg"",""cjjjg"",""ckjjg"",""djjjg"",""dkjjg"",""ejjjg"",""ekjjg"",""fjjjg"",""fkjjg"",""gjjjg"",""gkjjg"",""hjjjg"",""hkjjg"",""ijjjg"",""ikjjg"",""ljjjg"",""lkjjg"",""mjjjg"",""mkjjg"",""njjjg"",""nkjjg"",""ojjjg"",""okjjg"",""pjjjg"",""pkjjg"",""kkjjg"",""kkajg"",""kkakg"",""kkbjg"",""kkbkg"",""kkcjg"",""kkckg"",""kkdjg"",""kkdkg"",""kkejg"",""kkekg"",""kkfjg"",""kkfkg"",""kkgjg"",""kkgkg"",""kkhjg"",""kkhkg"",""kkijg"",""kkikg"",""kkljg"",""kklkg"",""kkmjg"",""kkmkg"",""kknjg"",""kknkg"",""kkojg"",""kkokg"",""kkpjg"",""kkpkg"",""kkkkg"",""ggggx"",""gggxx"",""ggxxx"",""gxxxx"",""xxxxx"",""xxxxy"",""xxxyy"",""xxyyy"",""xyyyy"",""yyyyy"",""yyyyw"",""yyyww"",""yywww"",""ywwww"",""wwwww"",""wwvww"",""wvvww"",""vvvww"",""vvvwz"",""avvwz"",""aavwz"",""aaawz"",""aaaaz""]",,,,claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""",,diff,3,3
+String,Hard,49,"Given a string s and a dictionary of strings wordDict, add spaces in s to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in any order.
+
+Note that the same word in the dictionary may be reused multiple times in the segmentation.
+
+Example 1:
+
+Input: s = ""catsanddog"", wordDict = [""cat"",""cats"",""and"",""sand"",""dog""]
+Output: [""cats and dog"",""cat sand dog""]
+
+Example 2:
+
+Input: s = ""pineapplepenapple"", wordDict = [""apple"",""pen"",""applepen"",""pine"",""pineapple""]
+Output: [""pine apple pen apple"",""pineapple pen apple"",""pine applepen apple""]
+Explanation: Note that you are allowed to reuse a dictionary word.
+
+Example 3:
+
+Input: s = ""catsandog"", wordDict = [""cats"",""dog"",""sand"",""and"",""cat""]
+Output: []
+
+Constraints:
+
+	1 <= s.length <= 20
+	1 <= wordDict.length <= 1000
+	1 <= wordDict[i].length <= 10
+	s and wordDict[i] consist of only lowercase English letters.
+	All the strings of wordDict are unique.
+	Input is generated in a way that the length of the answer doesn't exceed 105.","                        
+
+class Solution {
+ public:
+  vector<string> wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordSet{begin(wordDict), end(wordDict)};
+    unordered_map<string, vector<string>> memo;
+    return wordBreak(s, wordSet, memo);
+  }
+
+ private:
+  vector<string> wordBreak(const string& s,
+                           const unordered_set<string>& wordSet,
+                           unordered_map<string, vector<string>>& memo) {
+    if (memo.count(s))
+      return memo[s];
+
+    vector<string> ans;
+
+    // 1 <= prefix.length() < s.length()
+    for (int i = 1; i < s.length(); ++i) {
+      const string& prefix = s.substr(0, i);
+      const string& suffix = s.substr(i);
+      if (wordSet.count(prefix))
+        for (const string& word : wordBreak(suffix, wordSet, memo))
+          ans.push_back(prefix + "" "" + word);
+    }
+
+    // Contains whole string, so don't add any space
+    if (wordSet.count(s))
+      ans.push_back(s);
+
+    return memo[s] = ans;
+  }
+};",https://leetcode.com/problems/word-break-ii,"class Solution {
+ public:
+  vector<string> wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordSet{begin(wordDict), end(wordDict)};
+    unordered_map<string, vector<string>> memo;
+    return wordBreak(s, wordSet, memo);
+  }
+
+ private:
+  vector<string> wordBreak(const string& s,
+                           const unordered_set<string>& wordSet,
+                           unordered_map<string, vector<string>>& memo) {
+    if (memo.count(s))
+      return memo[s];
+
+    vector<string> ans;
+
+    // 1 <= prefix.length() < s.length()
+    for (int i = 1; i < s.length(); ++i) {
+      const string& prefix = s.substr(0, i);
+      const string& suffix = s.substr(i);
+      if (wordSet.count(prefix))
+        for (const string& word : wordBreak(prefix, wordSet, memo))
+          ans.push_back(prefix + "" "" + word);
+    }
+
+    // Contains whole string, so don't add any space
+    if (wordSet.count(s))
+      ans.push_back(s);
+
+    return memo[s] = ans;
+  }
+};","[Logic – Wrong variable name] Replaced the recursive call argument `suffix` with `prefix`, causing the recursion to break the already-used prefix instead of the remaining suffix.",Wrong Answer,"s =
+""catsanddog""
+wordDict =
+[""cat"",""cats"",""and"",""sand"",""dog""]","[""cat cat"",""cats cat cat"",""cats cats""]","[""cats and dog"",""cat sand dog""]",,claude-opus-4-8,zero-shot,Wrong Answer,"""s = \""catsanddog\"", wordDict = [\""cat\"",\""cats\"",\""and\"",\""sand\"",\""dog\""]""","""[]""","""[\""cats and dog\"",\""cat sand dog\""]""","The recursion incorrectly recurses on the prefix instead of the suffix, so it never builds correct segmentations from the remaining string.",sim,1,2
+Bit manipulation,Easy,51,"Given an integer n, return an array ans of length n + 1 such that for each i (0 <= i <= n), ans[i] is the number of 1's in the binary representation of i.
+ 
+ Example 1:
+ 
+ Input: n = 2
+ Output: [0,1,1]
+ Explanation:
+ 0 --> 0
+ 1 --> 1
+ 2 --> 10
+ 
+ Example 2:
+ 
+ Input: n = 5
+ Output: [0,1,1,2,1,2]
+ Explanation:
+ 0 --> 0
+ 1 --> 1
+ 2 --> 10
+ 3 --> 11
+ 4 --> 100
+ 5 --> 101
+ 
+ Constraints:
+ 
+  0 <= n <= 105
+ 
+ Follow up:
+ 
+  It is very easy to come up with a solution with a runtime of O(n log n). Can you do it in linear time O(n) and possibly in a single pass?
+  Can you do it without using any built-in function (i.e., like __builtin_popcount in C++)?","class Solution {
+public:
+    vector<int> countBits(int n) {
+        vector<int>dp(n+1,0);
+        if(n==0) return {0};
+        dp[0]=0;
+        dp[1]=1;
+        for(int i=2;i<=n;i++){
+            dp[i]=dp[i/2]+dp[i%2];
+        }
+        return dp;
+    }
+};
+#pragma GCC target(""abm"")
+#pragma GCC target(""bmi"")
+#pragma GCC target(""avx2"")
+#pragma GCC target(""bmi2"")
+#pragma GCC target(""lzcnt"")
+#pragma GCC target(""popcnt"")
+#pragma GCC target(""native"")
+#pragma GCC optimize(""O3"")
+#pragma GCC optimize(""Ofast"")
+#pragma GCC optimize(""inline"")
+#pragma GCC optimize(""-fgcse"")
+#pragma GCC optimize(""fast-math"")
+#pragma GCC optimize(""-fgcse-lm"")
+#pragma GCC optimize(""-fipa-sra"")
+#pragma GCC optimize(""-ftree-pre"")
+#pragma GCC optimize(""-ftree-vrp"")
+#pragma GCC optimize(""-fpeephole2"")
+#pragma GCC optimize(""-ffast-math"")
+#pragma GCC optimize(""-fsched-spec"")
+#pragma GCC optimize(""unroll-loops"")
+#pragma GCC optimize(""-march=native"")
+#pragma GCC optimize(""-falign-jumps"")
+#pragma GCC optimize(""-falign-loops"")
+#pragma GCC optimize(""-falign-labels"")
+#pragma GCC optimize(""-fdevirtualize"")
+#pragma GCC optimize(""-fcaller-saves"")
+#pragma GCC optimize(""-fcrossjumping"")
+#pragma GCC optimize(""-fthread-jumps"")
+#pragma GCC optimize(""-funroll-loops"")
+#pragma GCC optimize(""-freorder-blocks"")
+#pragma GCC optimize(""-fschedule-insns"")
+#pragma GCC optimize(""inline-functions"")
+#pragma GCC optimize(""-ftree-tail-merge"")
+#pragma GCC optimize(""-fschedule-insnS2"")
+#pragma GCC optimize(""-fstrict-aliasing"")
+#pragma GCC optimize(""-falign-functions"")
+#pragma GCC optimize(""-fcse-follow-jumps"")
+#pragma GCC optimize(""-fsched-interblock"")
+#pragma GCC optimize(""-fpartial-inlining"")
+#pragma GCC optimize(""no-stack-protector"")
+#pragma GCC optimize(""-freorder-functions"")
+#pragma GCC optimize(""-findirect-inlining"")
+#pragma GCC optimize(""-fhoist-adjacent-loads"")
+#pragma GCC optimize(""-frerun-cse-after-loop"")
+#pragma GCC optimize(""inline-small-functions"")
+#pragma GCC optimize(""-finline-small-functions"")
+#pragma GCC optimize(""-ftree-switch-conversion"")
+#pragma GCC optimize(""-foptimize-sibling-calls"")
+#pragma GCC optimize(""-fexpensive-optimizations"")
+#pragma GCC optimize(""inline-functions-called-once"")
+#pragma GCC optimize(""-fdelete-null-Pointer-checks"")
+static const bool __boost = []() {
+   cin.tie(nullptr);
+   cout.tie(nullptr);
+   return std::ios_base::sync_with_stdio(false);
+}();
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+   constexpr std::size_t alignment = alignof(std::max_align_t);
+   size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+   size_t total_size = size + padding;
+   char* aligned_ptr = &buffer[buffer_pos + padding];
+   buffer_pos += total_size;
+   return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}
+const auto __ = []() {
+   struct Leetcode {
+       static void _() { std::ofstream(""display_runtime.txt"") << 0 << '\n'; }
+   };
+   std::atexit(&Leetcode::_);
+   return 0;
+}();",https://leetcode.com/problems/counting-bits,"class Solution {
+public:
+    vector<int> countBits(int n) {
+        vector<int>dp(n+1,0);
+        dp[0]=0;
+        dp[1]=1;
+        for(int i=2;i<=n;i++){
+            dp[i]=dp[i/2]+dp[i%2];
+        }
+        return dp;
+    }
+};
+#pragma GCC target(""abm"")
+#pragma GCC target(""bmi"")
+#pragma GCC target(""avx2"")
+#pragma GCC target(""bmi2"")
+#pragma GCC target(""lzcnt"")
+#pragma GCC target(""popcnt"")
+#pragma GCC target(""native"")
+#pragma GCC optimize(""O3"")
+#pragma GCC optimize(""Ofast"")
+#pragma GCC optimize(""inline"")
+#pragma GCC optimize(""-fgcse"")
+#pragma GCC optimize(""fast-math"")
+#pragma GCC optimize(""-fgcse-lm"")
+#pragma GCC optimize(""-fipa-sra"")
+#pragma GCC optimize(""-ftree-pre"")
+#pragma GCC optimize(""-ftree-vrp"")
+#pragma GCC optimize(""-fpeephole2"")
+#pragma GCC optimize(""-ffast-math"")
+#pragma GCC optimize(""-fsched-spec"")
+#pragma GCC optimize(""unroll-loops"")
+#pragma GCC optimize(""-march=native"")
+#pragma GCC optimize(""-falign-jumps"")
+#pragma GCC optimize(""-falign-loops"")
+#pragma GCC optimize(""-falign-labels"")
+#pragma GCC optimize(""-fdevirtualize"")
+#pragma GCC optimize(""-fcaller-saves"")
+#pragma GCC optimize(""-fcrossjumping"")
+#pragma GCC optimize(""-fthread-jumps"")
+#pragma GCC optimize(""-funroll-loops"")
+#pragma GCC optimize(""-freorder-blocks"")
+#pragma GCC optimize(""-fschedule-insns"")
+#pragma GCC optimize(""inline-functions"")
+#pragma GCC optimize(""-ftree-tail-merge"")
+#pragma GCC optimize(""-fschedule-insnS2"")
+#pragma GCC optimize(""-fstrict-aliasing"")
+#pragma GCC optimize(""-falign-functions"")
+#pragma GCC optimize(""-fcse-follow-jumps"")
+#pragma GCC optimize(""-fsched-interblock"")
+#pragma GCC optimize(""-fpartial-inlining"")
+#pragma GCC optimize(""no-stack-protector"")
+#pragma GCC optimize(""-freorder-functions"")
+#pragma GCC optimize(""-findirect-inlining"")
+#pragma GCC optimize(""-fhoist-adjacent-loads"")
+#pragma GCC optimize(""-frerun-cse-after-loop"")
+#pragma GCC optimize(""inline-small-functions"")
+#pragma GCC optimize(""-finline-small-functions"")
+#pragma GCC optimize(""-ftree-switch-conversion"")
+#pragma GCC optimize(""-foptimize-sibling-calls"")
+#pragma GCC optimize(""-fexpensive-optimizations"")
+#pragma GCC optimize(""inline-functions-called-once"")
+#pragma GCC optimize(""-fdelete-null-Pointer-checks"")
+static const bool __boost = []() {
+   cin.tie(nullptr);
+   cout.tie(nullptr);
+   return std::ios_base::sync_with_stdio(false);
+}();
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+   constexpr std::size_t alignment = alignof(std::max_align_t);
+   size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+   size_t total_size = size + padding;
+   char* aligned_ptr = &buffer[buffer_pos + padding];
+   buffer_pos += total_size;
+   return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}
+const auto __ = []() {
+   struct Leetcode {
+       static void _() { std::ofstream(""display_runtime.txt"") << 0 << '\n'; }
+   };
+   std::atexit(&Leetcode::_);
+   return 0;
+}();","[Logic – Missing edge case handling] Removed the early return for n == 0, causing dp[1] to be written even when the vector has size 1.",Accepted,,,,,claude-opus-4-8,zero-shot,Runtime Error,"""""","""""","""""","When n=0, dp has size 1, but dp[1]=1 writes out of bounds causing undefined behavior/crash.",diff,3,3
+Bit manipulation,Easy,53,"Reverse bits of a given 32 bits unsigned integer.
+  
+  Note:
+  
+  Note that in some languages, such as Java, there is no unsigned integer type. In this case, both input and output will be given as a signed integer type. They should not affect your implementation, as the integer's internal binary representation is the same, whether it is signed or unsigned.
+  In Java, the compiler represents the signed integers using 2's complement notation. Therefore, in Example 2 above, the input represents the signed integer -3 and the output represents the signed integer -1073741825.
+  
+  Example 1:
+  
+  Input: n = 00000010100101000001111010011100
+  Output: 964176192 (00111001011110000010100101000000)
+  Explanation: The input binary string 00000010100101000001111010011100 represents the unsigned integer 43261596, so return 964176192 which its binary representation is 00111001011110000010100101000000.
+  
+  Example 2:
+  
+  Input: n = 11111111111111111111111111111101
+  Output: 3221225471 (10111111111111111111111111111111)
+  Explanation: The input binary string 11111111111111111111111111111101 represents the unsigned integer 4294967293, so return 3221225471 which its binary representation is 10111111111111111111111111111111.
+  
+  Constraints:
+  
+  The input must be a binary string of length 32
+  
+  Follow up: If this function is called many times, how would you optimize it?","class Solution {
+public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t res = 0;
+        for (int i = 0; i < 32; i++) {
+            res <<= 1;
+            res |= (n & 1);
+            n >>= 1;
+        }
+        return res;
+    }
+};",https://leetcode.com/problems/reverse-bits,"class Solution {
+public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t res = 0;
+        for (int i = 0; i < 31; i++) {
+            res <<= 1;
+            res |= (n & 1);
+            n >>= 1;
+        }
+        return res;
+    }
+};","[Logic – Missing edge case handling] Changed the loop to process only 31 bits, missing the highest bit position during reversal.",Wrong Answer,"n =
+00000010100101000001111010011100",00011100101111000001010010100000,00111001011110000010100101000000,,claude-opus-4-8,zero-shot,Wrong Answer,"""00000010100101000001111010011100""","""482088096""","""964176192""","Loop runs only 31 times instead of 32, so it reverses only 31 bits and drops the last bit, producing wrong results.",sim,1,2
+Bit manipulation,Easy,56,"A binary watch has 4 LEDs on the top to represent the hours (0-11), and 6 LEDs on the bottom to representÂ the minutes (0-59). Each LED represents a zero or one, with the least significant bit on the right.
+
+	For example, the below binary watch reads ""4:51"".
+
+Given an integer turnedOn which represents the number of LEDs that are currently on (ignoring the PM), return all possible times the watch could represent. You may return the answer in any order.
+
+The hour must not contain a leading zero.
+
+	For example, ""01:00"" is not valid. It should be ""1:00"".
+
+The minute mustÂ consist of two digits and may contain a leading zero.
+
+	For example, ""10:2"" is not valid. It should be ""10:02"".
+
+Example 1:
+Input: turnedOn = 1
+Output: [""0:01"",""0:02"",""0:04"",""0:08"",""0:16"",""0:32"",""1:00"",""2:00"",""4:00"",""8:00""]
+Example 2:
+Input: turnedOn = 9
+Output: []
+
+Constraints:
+
+	0 <= turnedOn <= 10","class Solution {
+public:
+    vector<string> readBinaryWatch(int turnedOn) {
+        int mh = (1<<4) - 1, mm = (1<<6) - 1;
+        vector<string> ans;
+        for(int ih=0; ih<=mh; ih++){
+            for(int im=0; im<=mm; im++){
+                if(__builtin_popcount(ih) + __builtin_popcount(im) != turnedOn)
+                    continue;
+                int hr = 0, mn = 0;
+                for(int i=0; i<=5; i++){
+                    if((ih>>i)&1)
+                        hr += (1<<i);
+                    if((im>>i)&1)
+                        mn += (1<<i);
+                } 
+                if(hr>=12 || mn>=60)
+                        continue;
+                string tm = ""00:00"";
+                tm[0] += hr/10, tm[1] += hr%10;
+                tm[3] += mn/10, tm[4] += mn%10;
+                if(tm[0]=='0')
+                    tm.erase(tm.begin());
+                ans.push_back(tm);
+                
+            }
+        }
+        return ans;
+    }
+};",https://leetcode.com/problems/binary-watch,"class Solution {
+public:
+    vector<string> readBinaryWatch(int turnedOn) {
+        int mh = (1<<4) - 1, mm = (1<<6) - 1;
+        vector<string> ans;
+        for(int ih=0; ih<=mh; ih++){
+            for(int im=0; im<=mm; im++){
+                if(__builtin_popcount(ih) + __builtin_popcount(im) != turnedOn)
+                    continue;
+                int hr = 0, mn = 0;
+                for(int i=0; i<=5; i++){
+                    if((ih>>i)&1)
+                        hr += (1<<i);
+                    if((im>>i)&1)
+                        mn += (1<<i);
+                } 
+                if(hr>=12 && mn>=60)
+                        continue;
+                string tm = ""00:00"";
+                tm[0] += hr/10, tm[1] += hr%10;
+                tm[3] += mn/10, tm[4] += mn%10;
+                if(tm[0]=='0')
+                    tm.erase(tm.begin());
+                ans.push_back(tm);
+                
+            }
+        }
+        return ans;
+    }
+};",[Logic – Logical/bitwise operator confusion] Changed the invalid time check from rejecting hours or minutes out of range to only rejecting when both are out of range.,Wrong Answer,"turnedOn =
+9","[""7:63"",""11:63"",""15:31"",""15:47"",""15:55"",""15:59""]",[],,claude-opus-4-8,zero-shot,Wrong Answer,"""turnedOn = 2""","""includes invalid time \""12:00\""""","""does not include \""12:00\""""","The validity check uses `hr>=12 && mn>=60` (AND) instead of OR, so invalid times where only the hour (e.g., 12) or only the minute (>=60) is out of range are incorrectly included.",sim,1,2
+Bit manipulation,Easy,63,"You are given two strings s and t.
+
+String t is generated by random shuffling string s and then add one more letter at a random position.
+
+Return the letter that was added to t.
+
+Example 1:
+
+Input: s = ""abcd"", t = ""abcde""
+Output: ""e""
+Explanation: 'e' is the letter that was added.
+
+Example 2:
+
+Input: s = """", t = ""y""
+Output: ""y""
+
+Constraints:
+
+	0 <= s.length <= 1000
+	t.length == s.length + 1
+	s and t consist of lowercase English letters.","			
+
+class Solution {
+ public:
+  char findTheDifference(string s, string t) {
+    char ans = 0;
+
+    for (const char c : s)
+      ans ^= c;
+
+    for (const char c : t)
+      ans ^= c;
+
+    return ans;
+  }
+};",https://leetcode.com/problems/find-the-difference,"class Solution {
+ public:
+  char findTheDifference(string s, string t) {
+    char ans = 0;
+
+    for (const char c : s)
+      ans ^= c;
+
+    for (const char c : t)
+      ans |= c;
+
+    return ans;
+  }
+};","[Logic – Logical/bitwise operator confusion] Changed the XOR accumulation in the second loop to use bitwise OR instead, breaking the cancellation logic.",Wrong Answer,"s =
+""abcd""
+t =
+""abcde""",g,e,,claude-opus-4-8,zero-shot,Wrong Answer,"""s = \""abcd\"", t = \""abcde\""""","""\u007f""","""e""","The second loop uses |= instead of ^=, so it ORs all of t's characters together rather than XORing to cancel out, producing garbage instead of the added letter.",sim,1,2
+Bit manipulation,Easy,66,"Given an n x n binary matrix image, flip the image horizontally, then invert it, and return the resulting image.
+
+To flip an image horizontally means that each row of the image is reversed.
+
+	For example, flipping [1,1,0] horizontally results in [0,1,1].
+
+To invert an image means that each 0 is replaced by 1, and each 1 is replaced by 0.
+
+	For example, inverting [0,1,1] results in [1,0,0].
+
+Example 1:
+
+Input: image = [[1,1,0],[1,0,1],[0,0,0]]
+Output: [[1,0,0],[0,1,0],[1,1,1]]
+Explanation: First reverse each row: [[0,1,1],[1,0,1],[0,0,0]].
+Then, invert the image: [[1,0,0],[0,1,0],[1,1,1]]
+
+Example 2:
+
+Input: image = [[1,1,0,0],[1,0,0,1],[0,1,1,1],[1,0,1,0]]
+Output: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+Explanation: First reverse each row: [[0,0,1,1],[1,0,0,1],[1,1,1,0],[0,1,0,1]].
+Then invert the image: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+
+Constraints:
+
+	n == image.length
+	n == image[i].length
+	1 <= n <= 20
+	images[i][j] is either 0 or 1.","			
+
+class Solution {
+ public:
+  vector<vector<int>> flipAndInvertImage(vector<vector<int>>& A) {
+    const int n = A.size();
+
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < (n + 1) / 2; ++j) {
+        const int temp = A[i][j];
+        A[i][j] = A[i][n - j - 1] ^ 1;
+        A[i][n - j - 1] = temp ^ 1;
+      }
+
+    return A;
+  }
+};",https://leetcode.com/problems/flipping-an-image,"class Solution {
+ public:
+  vector<vector<int>> flipAndInvertImage(vector<vector<int>>& A) {
+    const int n = A.size();
+
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < n + 1 / 2; ++j) {
+        const int temp = A[i][j];
+        A[i][j] = A[i][n - j - 1] ^ 1;
+        A[i][n - j - 1] = temp ^ 1;
+      }
+
+    return A;
+  }
+};","[Logic – Operator precedence error] Changed the inner loop bound from `(n + 1) / 2` to `n + 1 / 2`, causing the expression to evaluate incorrectly due to division precedence.",Wrong Answer,"image =
+[[1,1,0],[1,0,1],[0,0,0]]","[[1,0,0],[1,1,1],[0,1,0]]","[[1,0,0],[0,1,0],[1,1,1]]",,claude-opus-4-8,zero-shot,Wrong Answer,"""[[1,1,0],[1,0,1],[0,0,0]]""","""[[0,0,1],[1,0,1],[0,0,0]]""","""[[1,0,0],[0,1,0],[1,1,1]]""","The loop condition `j < n + 1 / 2` is parsed as `j < n + (1/2)` = `j < n`, so it iterates over all columns and swaps/inverts each pair twice (or middle element), causing incorrect results.",sim,2,2
+Bit manipulation,Medium,76,"Given an integer array nums of unique elements, return all possible subsets (the power set).
+
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+
+Input: nums = [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+Example 2:
+
+Input: nums = [0]
+Output: [[],[0]]
+
+Constraints:
+
+	1 <= nums.length <= 10
+	-10 <= nums[i] <= 10
+	All the numbers of nums are unique.","			
+
+class Solution {
+ public:
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/subsets,"class Solution {
+ public:
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      path.push_back(nums[i]);
+      dfs(nums, i, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Logic – Insufficient recursion base case] Changed the recursive call to pass the same index instead of advancing to the next index, preventing recursion from making progress.",Memory Limit Exceeded,"nums =
+[1,2,3]",,,,claude-opus-4-8,zero-shot,Wrong Answer,"""nums = [1,2,3]""","""infinite recursion / stack overflow""","""[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]""","The recursive call uses dfs(nums, i, ...) instead of i+1, causing the same index to be reused indefinitely leading to infinite recursion and stack overflow.",diff,3,3
+Bit manipulation,Medium,78,"Given an integer array nums that may contain duplicates, return all possible subsets (the power set).
+
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+Input: nums = [1,2,2]
+Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]
+Example 2:
+Input: nums = [0]
+Output: [[],[0]]
+
+Constraints:
+
+	1 <= nums.length <= 10
+	-10 <= nums[i] <= 10","			
+
+class Solution {
+ public:
+  vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(begin(nums), end(nums));
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (i > s && nums[i] == nums[i - 1])
+        continue;
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/subsets-ii,"class Solution {
+ public:
+  vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(begin(nums), end(nums));
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (i > 0 && nums[i] == nums[i - 1])
+        continue;
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Logic – Missing edge case handling] Changed the duplicate-skip condition to compare against the start of the whole array instead of the current recursion level, causing valid duplicate-containing subsets to be omitted.",Wrong Answer,"nums =
+[1,2,2]","[[],[1],[1,2],[1,2,2],[1,2],[2]]","[[],[1],[1,2],[1,2,2],[2],[2,2]]",,claude-opus-4-8,zero-shot,Wrong Answer,"""nums = [1,2,2]""","""[[],[1]]""","""[[],[1],[1,2],[1,2,2],[2],[2,2]]""","The duplicate check uses 'i > 0' instead of 'i > s', so it incorrectly skips elements equal to their predecessor even at the start of a recursion branch, missing valid subsets.",sim,1,2
+Bit manipulation,Medium,82,"Given a positive integer n, you can apply one of the following operations:
+
+	If n is even, replace n with n / 2.
+	If n is odd, replace n with either n + 1 or n - 1.
+
+Return the minimum number of operations needed for n to become 1.
+
+Example 1:
+
+Input: n = 8
+Output: 3
+Explanation: 8 -> 4 -> 2 -> 1
+
+Example 2:
+
+Input: n = 7
+Output: 4
+Explanation: 7 -> 8 -> 4 -> 2 -> 1
+or 7 -> 6 -> 3 -> 2 -> 1
+
+Example 3:
+
+Input: n = 4
+Output: 2
+
+Constraints:
+
+	1 <= n <= 231 - 1","                        
+
+class Solution {
+ public:
+  int integerReplacement(long n) {
+    int ans = 0;
+
+    for (; n > 1; ++ans)
+      if ((n & 1) == 0)  // Ends w/ 0
+        n >>= 1;
+      else if (n == 3 || ((n >> 1) & 1) == 0)  // N = 3 or ends w/ 01
+        --n;
+      else  // Ends w/ 11
+        ++n;
+
+    return ans;
+  }
+};",https://leetcode.com/problems/integer-replacement,"class Solution {
+ public:
+  int integerReplacement(long n) {
+    int ans = 0;
+
+    for (; n > 1; ++ans)
+      if ((n && 1) == 0)  // Ends w/ 0
+        n >>= 1;
+      else if (n == 3 || ((n >> 1) & 1) == 0)  // N = 3 or ends w/ 01
+        --n;
+      else  // Ends w/ 11
+        ++n;
+
+    return ans;
+  }
+};","[Logic – Logical/bitwise operator confusion] Replaced the bitwise odd/even check `n & 1` with logical `n && 1`, causing even numbers greater than 1 to be handled as odd.",Runtime Error,"n =
+8",,,"Line 6: Char 19: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:15:19",claude-opus-4-8,zero-shot,Wrong Answer,"""8""","""infinite loop / timeout""","""3""","The condition uses `n && 1` (logical AND) instead of `n & 1` (bitwise AND), so for any n>1 it evaluates to 1, making the even-branch never taken and causing incorrect/infinite behavior.",diff,3,3
+Bit manipulation,Medium,83,"Given an integer array nums, return the maximum result of nums[i] XOR nums[j], where 0 <= i <= j < n.
+
+Example 1:
+
+Input: nums = [3,10,5,25,2,8]
+Output: 28
+Explanation: The maximum result is 5 XOR 25 = 28.
+
+Example 2:
+
+Input: nums = [14,70,53,83,49,91,36,80,92,51,66,70]
+Output: 127
+
+Constraints:
+
+	1 <= nums.length <= 2 * 105
+	0 <= nums[i] <= 231 - 1","			
+
+class Solution {
+ public:
+  int findMaximumXOR(vector<int>& nums) {
+    int ans = 0;
+    int mask = 0;
+
+    // If ans is 11100 at i = 2, it means before we reach the last two bits,
+    // 11100 is the maximum XOR we have, and we're going to explore if we can
+    // Get another two '1's and put them into ans
+    for (int i = 31; i >= 0; --i) {
+      // Mask grows like: 100...000, 110...000, 111...000, ..., 111...111
+      mask |= 1 << i;
+      unordered_set<int> prefixes;
+      // We only care about the left parts,
+      // If i = 2, nums = {1110, 1011, 0111}
+      // -> prefixes = {1100, 1000, 0100}
+      for (const int num : nums)
+        prefixes.insert(num & mask);
+      // If i = 1 and before this iteration, the ans is 1100,
+      // We hope to grow ans to 1110, so find a candidate
+      // Which can give a greedy try
+      const int candidate = ans | 1 << i;
+      for (const int prefix : prefixes)
+        if (prefixes.count(prefix ^ candidate)) {
+          ans = candidate;
+          break;
+        }
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array,"class Solution {
+ public:
+  int findMaximumXOR(vector<int>& nums) {
+    int ans = 0;
+    int mask = 0;
+
+    // If ans is 11100 at i = 2, it means before we reach the last two bits,
+    // 11100 is the maximum XOR we have, and we're going to explore if we can
+    // Get another two '1's and put them into ans
+    for (int i = 31; i >= 0; --i) {
+      // Mask grows like: 100...000, 110...000, 111...000, ..., 111...111
+      mask |= 1 << i;
+      unordered_set<int> prefixes;
+      // We only care about the left parts,
+      // If i = 2, nums = {1110, 1011, 0111}
+      // -> prefixes = {1100, 1000, 0100}
+      for (const int num : nums)
+        prefixes.insert(num & mask);
+      // If i = 1 and before this iteration, the ans is 1100,
+      // We hope to grow ans to 1110, so find a candidate
+      // Which can give a greedy try
+      const int candidate = ans | 1 << i - 1;
+      for (const int prefix : prefixes)
+        if (prefixes.count(prefix ^ candidate)) {
+          ans = candidate;
+          break;
+        }
+    }
+
+    return ans;
+  }
+};","[Logic – Operator precedence error] Changed the candidate bit update to use `ans | 1 << i - 1`, so the shift applies to `i - 1` instead of the intended current bit `i`.",Runtime Error,"nums =
+[3,10,5,25,2,8]",,,"Line 22: Char 37: runtime error: shift exponent -1 is negative (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:31:37",claude-opus-4-8,zero-shot,Wrong Answer,"""nums = [3,10,5,25,2,8]""","""0""","""28""","The candidate uses `1 << (i-1)` instead of `1 << i`, so the tested bit is below the masked prefixes' lowest bit and can never match, leaving ans at 0 (and `1<<-1` at i=0 is undefined behavior).",diff,3,3
+Bit manipulation,Medium,85,"You are given an integer array matchsticks where matchsticks[i] is the length of the ith matchstick. You want to use all the matchsticks to make one square. You should not break any stick, but you can link them up, and each matchstick must be used exactly one time.
+
+Return true if you can make this square and false otherwise.
+
+Example 1:
+
+Input: matchsticks = [1,1,2,2,2]
+Output: true
+Explanation: You can form a square with length 2, one side of the square came two sticks with length 1.
+
+Example 2:
+
+Input: matchsticks = [3,3,3,3,4]
+Output: false
+Explanation: You cannot find a way to form a square with all the matchsticks.
+
+Constraints:
+
+	1 <= matchsticks.length <= 15
+	1 <= matchsticks[i] <= 108","			
+
+class Solution {
+ public:
+  bool makesquare(vector<int>& matchsticks) {
+    if (matchsticks.size() < 4)
+      return false;
+
+    const int perimeter = accumulate(begin(matchsticks), end(matchsticks), 0);
+    if (perimeter % 4 != 0)
+      return false;
+
+    sort(begin(matchsticks), end(matchsticks), greater<int>());
+    return dfs(matchsticks, 0, vector<int>(4, perimeter / 4));
+  }
+
+ private:
+  bool dfs(const vector<int>& matchsticks, int selected, vector<int>&& edges) {
+    if (selected == matchsticks.size())
+      return all_of(begin(edges), end(edges),
+                    [](int edge) { return edge == 0; });
+
+    for (int i = 0; i < 4; ++i) {
+      if (matchsticks[selected] > edges[i])
+        continue;
+      edges[i] -= matchsticks[selected];
+      if (dfs(matchsticks, selected + 1, move(edges)))
+        return true;
+      edges[i] += matchsticks[selected];
+    }
+
+    return false;
+  }
+};",https://leetcode.com/problems/matchsticks-to-square,"class Solution {
+ public:
+  bool makesquare(vector<int>& matchsticks) {
+    if (matchsticks.size() < 4)
+      return false;
+
+    const int perimeter = accumulate(begin(matchsticks), end(matchsticks), 0);
+    if (perimeter % 4 != 0)
+      return false;
+
+    sort(begin(matchsticks), end(matchsticks), greater<int>());
+    return dfs(matchsticks, 0, vector<int>(4, perimeter / 4));
+  }
+
+ private:
+  bool dfs(const vector<int>& matchsticks, int selected, vector<int>&& edges) {
+    if (selected > matchsticks.size())
+      return all_of(begin(edges), end(edges),
+                    [](int edge) { return edge == 0; });
+
+    for (int i = 0; i < 4; ++i) {
+      if (matchsticks[selected] > edges[i])
+        continue;
+      edges[i] -= matchsticks[selected];
+      if (dfs(matchsticks, selected + 1, move(edges)))
+        return true;
+      edges[i] += matchsticks[selected];
+    }
+
+    return false;
+  }
+};","[Logic – Insufficient recursion base case] Changed the DFS termination condition from `selected == matchsticks.size()` to `selected > matchsticks.size()`, so recursion does not stop when all matchsticks are used.",Wrong Answer,"matchsticks =
+[1,1,2,2,2]",FALSE,TRUE,,claude-opus-4-8,zero-shot,Runtime Error,"""matchsticks = [1,1,2,2,2]""",,"""true""","The base case uses 'selected > matchsticks.size()' but accesses matchsticks[selected] when selected == size(), causing an out-of-bounds read; it should be 'selected == size()'.",diff,3,3
+Bit manipulation,Medium,87,"Given an integer array nums, return all the different possible non-decreasing subsequences of the given array with at least two elements. You may return the answer in any order.
+
+Example 1:
+
+Input: nums = [4,6,7,7]
+Output: [[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]
+
+Example 2:
+
+Input: nums = [4,4,3,2,1]
+Output: [[4,4]]
+
+Constraints:
+
+	1 <= nums.length <= 15
+	-100 <= nums[i] <= 100","			
+
+class Solution {
+ public:
+  vector<vector<int>> findSubsequences(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    if (path.size() > 1)
+      ans.push_back(path);
+
+    unordered_set<int> used;
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (used.count(nums[i]))
+        continue;
+      if (path.empty() || nums[i] >= path.back()) {
+        used.insert(nums[i]);
+        path.push_back(nums[i]);
+        dfs(nums, i + 1, move(path), ans);
+        path.pop_back();
+      }
+    }
+  }
+};",https://leetcode.com/problems/non-decreasing-subsequences,"class Solution {
+ public:
+  vector<vector<int>> findSubsequences(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    if (path.size() > 1)
+      ans.push_back(path);
+
+    unordered_set<int> used;
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (used.count(nums[i]))
+        continue;
+      if (path.empty() && nums[i] >= path.back()) {
+        used.insert(nums[i]);
+        path.push_back(nums[i]);
+        dfs(nums, i + 1, move(path), ans);
+        path.pop_back();
+      }
+    }
+  }
+};","[Logic – Logical/bitwise operator confusion] Changed the subsequence extension condition from logical OR to logical AND, preventing any element from being added when the path is empty.",Runtime Error,"nums =
+[4,6,7,7]",,,"Line 1140: Char 45: runtime error: applying non-zero offset 18446744073709551612 to null pointer (stl_iterator.h)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/stl_iterator.h:1149:45",claude-opus-4-8,zero-shot,Runtime Error,"""[4,6,7,7]""",,"""[[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]""","Calling path.back() when path is empty (the condition checks path.empty() then accesses path.back()) causes undefined behavior/out-of-bounds access, and the logic condition is inverted preventing correct subsequence building.",sim,1,1
+Bit manipulation,Medium,89,"In LeetCode Store, there are n items to sell. Each item has a price. However, there are some special offers, and a special offer consists of one or more different kinds of items with a sale price.
+
+You are given an integer array price where price[i] is the price of the ith item, and an integer array needs where needs[i] is the number of pieces of the ith item you want to buy.
+
+You are also given an array special where special[i] is of size n + 1 where special[i][j] is the number of pieces of the jth item in the ith offer and special[i][n] (i.e., the last integer in the array) is the price of the ith offer.
+
+Return the lowest price you have to pay for exactly certain items as given, where you could make optimal use of the special offers. You are not allowed to buy more items than you want, even if that would lower the overall price. You could use any of the special offers as many times as you want.
+
+Example 1:
+
+Input: price = [2,5], special = [[3,0,5],[1,2,10]], needs = [3,2]
+Output: 14
+Explanation: There are two kinds of items, A and B. Their prices are $2 and $5 respectively. 
+In special offer 1, you can pay $5 for 3A and 0B
+In special offer 2, you can pay $10 for 1A and 2B. 
+You need to buy 3A and 2B, so you may pay $10 for 1A and 2B (special offer #2), and $4 for 2A.
+
+Example 2:
+
+Input: price = [2,3,4], special = [[1,1,0,4],[2,2,1,9]], needs = [1,2,1]
+Output: 11
+Explanation: The price of A is $2, and $3 for B, $4 for C. 
+You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
+You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 for 1C. 
+You cannot add more items, though only $9 for 2A ,2B and 1C.
+
+Constraints:
+
+	n == price.length == needs.length
+	1 <= n <= 6
+	0 <= price[i], needs[i] <= 10
+	1 <= special.length <= 100
+	special[i].length == n + 1
+	0 <= special[i][j] <= 50
+	The input is generated that at least one of special[i][j] is non-zero for 0 <= j <= n - 1.","			
+
+class Solution {
+ public:
+  int shoppingOffers(vector<int>& price, vector<vector<int>>& special,
+                     vector<int>& needs) {
+    return dfs(price, special, needs, 0);
+  }
+
+ private:
+  int dfs(const vector<int>& price, const vector<vector<int>>& special,
+          vector<int>& needs, int s) {
+    int ans = 0;
+    for (int i = 0; i < price.size(); ++i)
+      ans += price[i] * needs[i];
+
+    for (int i = s; i < special.size(); ++i)
+      if (isValid(special[i], needs)) {
+        // Use special[i]
+        for (int j = 0; j < needs.size(); ++j)
+          needs[j] -= special[i][j];
+        ans = min(ans, special[i].back() + dfs(price, special, needs, i));
+        // Backtracking - unuse special[i]
+        for (int j = 0; j < needs.size(); ++j)
+          needs[j] += special[i][j];
+      }
+
+    return ans;
+  }
+
+  // Check if this special offer is a valid one
+  bool isValid(const vector<int>& offer, const vector<int>& needs) {
+    for (int i = 0; i < needs.size(); ++i)
+      if (needs[i] < offer[i])
+        return false;
+    return true;
+  }
+};",https://leetcode.com/problems/shopping-offers,"class Solution {
+ public:
+  int shoppingOffers(vector<int>& price, vector<vector<int>>& special,
+                     vector<int>& needs) {
+    return dfs(price, special, needs, 0);
+  }
+
+ private:
+  int dfs(const vector<int>& price, const vector<vector<int>>& special,
+          vector<int>& needs, int s) {
+    int ans = 0;
+    for (int i = 0; i < price.size(); ++i)
+      ans += price[i] * needs[i];
+
+    for (int i = s; i < special.size(); ++i)
+      if (isValid(special[i], needs)) {
+        // Use special[i]
+        for (int j = 0; j < needs.size(); ++j)
+          needs[j] -= special[i][j];
+        ans = min(ans, special[i].back() + dfs(price, special, needs, i));
+        // Backtracking - use special[i] again
+        for (int j = 0; j < needs.size(); ++j)
+          needs[j] += special[i][j];
+      }
+
+    return ans;
+  }
+
+  // Check if this special offer is a valid one
+  bool isValid(const vector<int>& offer, const vector<int>& needs) {
+    for (int i = 0; i < needs.size(); ++i)
+      if (needs[i] < offer[i])
+        return false;
+    return true;
+  }
+};",[Logic – Misleading comment] Changed the backtracking comment to falsely state that the offer is used again instead of undone.,Accepted,,,,,claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""",,sim,1,1
+Tree,Easy,103,"Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+ 
+ Example 1:
+ 
+ Input: root = [1,2,2,3,4,4,3]
+ Output: true
+ 
+ Example 2:
+ 
+ Input: root = [1,2,2,null,3,null,3]
+ Output: false
+ 
+ Constraints:
+ 
+ The number of nodes in the tree is in the range [1, 1000].
+ -100 <= Node.val <= 100
+ 
+ Follow up: Could you solve it both recursively and iteratively?","class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        return root==NULL || isSymmetrichelp(root->left,root->right);
+    }
+    bool isSymmetrichelp(TreeNode*left, TreeNode*right){
+if(left==NULL ||right==NULL){
+    return left==right;
+}
+if(left->val!=right->val)return false;
+return isSymmetrichelp(left->left,right->right)&&isSymmetrichelp(left->right,right->left);
+    }
+};
+
+static const bool __boost = []() {
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}",https://leetcode.com/problems/symmetric-tree,"class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        return root==NULL || isSymmetrichelp(root->left,root->right);
+    }
+    bool isSymmetrichelp(TreeNode*left, TreeNode*right){
+if(left==NULL ||right==NULL){
+    return left==right;
+}
+if(left->val!=right->val)return false;
+return isSymmetrichelp(left->left,right->right)||isSymmetrichelp(left->right,right->left);
+    }
+};
+
+static const bool __boost = []() {
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}","[Logic – Logical/bitwise operator confusion] Replaced the final recursive mirror check operator from && to ||, allowing a tree to be considered symmetric if only one mirrored subtree pair matches.",Wrong Answer,"root =
+[5,2,2,4,null,null,1,null,1,null,4,2,null,2,null]",TRUE,FALSE,,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1,2,2,null,3,null,3]""","""true""","""false""","The recursion uses || instead of && to combine subtree checks, so it returns true if either mirror pair matches rather than requiring both.",diff,3,3
+Tree,Easy,111,"Given the root of a binary tree, invert the tree, and return its root.
+
+Example 1:
+
+Input: root = [4,2,7,1,3,6,9]
+Output: [4,7,2,9,6,3,1]
+
+Example 2:
+
+Input: root = [2,1,3]
+Output: [2,3,1]
+
+Example 3:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100","                        
+
+class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(left);
+    return root;
+  }
+};",https://leetcode.com/problems/invert-binary-tree,"class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(right);
+    return root;
+  }
+};","[Logic – Wrong variable name] Changed the recursive assignment for root->right to use right instead of left, causing both children to be built from the original right subtree.",Runtime Error,"root =
+[4,2,7,1,3,6,9]",,,"Line 52: Char 9:
+=================================================================
+==22==ERROR: AddressSanitizer: heap-use-after-free on address 0x503000000198 at pc 0x55f08732ed93 bp 0x7ffcfa4214f0 sp 0x7ffcfa4214e8
+READ of size 8 at 0x503000000198 thread T0
+    #0 0x55f08732ed92 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd92)
+    #1 0x55f08732ed64 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd64)
+    #2 0x55f08732ed47 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd47)
+    #3 0x55f08732ecda in __TreeNodeUtils__::freeTree(TreeNode*&) (solution+0x1abcda)
+    #4 0x55f08730c241 in main solution.cpp:52:9
+    #5 0x7f5eaf18a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #6 0x7f5eaf18a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #7 0x55f087235d54 in _start (solution+0xb2d54)
+0x503000000198 is located 8 bytes inside of 24-byte region [0x503000000190,0x5030000001a8)
+freed by thread T0 here:
+    #0 0x55f08730a5e2 in operator delete(void*, unsigned long) /root/llvm-project/compiler-rt/lib/asan/asan_new_delete.cpp:155:3
+    #1 0x55f08732ed47 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd47)
+    #2 0x55f08732ed47 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd47)
+    #3 0x55f08732ecda in __TreeNodeUtils__::freeTree(TreeNode*&) (solution+0x1abcda)
+    #4 0x55f08730c241 in main solution.cpp:52:9
+    #5 0x7f5eaf18a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #6 0x7f5eaf18a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #7 0x55f087235d54 in _start (solution+0xb2d54)
+previously allocated by thread T0 here:
+    #0 0x55f08730997d in operator new(unsigned long) /root/llvm-project/compiler-rt/lib/asan/asan_new_delete.cpp:86:3
+    #1 0x55f087324487 in TreeNode* _Deserializer_::deserialize<TreeNode*>(rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>>&, TreeNode**) (solution+0x1a1487)
+    #2 0x55f087326322 in TreeNode* _Deserializer_::deserialize<TreeNode*>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const&) (solution+0x1a3322)
+    #3 0x55f08730c191 in main solution.cpp:52:35
+    #4 0x7f5eaf18a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #5 0x7f5eaf18a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #6 0x55f087235d54 in _start (solution+0xb2d54)
+SUMMARY: AddressSanitizer: heap-use-after-free (solution+0x1abd92) in __TreeNodeUtils__::freeTreeHelper(TreeNode*)
+Shadow bytes around the buggy address:
+  0x502fffffff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x502fffffff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x503000000000: fa fa 00 00 00 fa fa fa fd fd fd fa fa fa 00 00
+  0x503000000080: 00 fa fa fa 00 00 00 fa fa fa 00 00 00 fa fa fa
+  0x503000000100: 00 00 00 fa fa fa 00 00 00 fa fa fa 00 00 00 fa
+=>0x503000000180: fa fa fd[fd]fd fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000380: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000400: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==22==ABORTING",claude-opus-4-8,zero-shot,Wrong Answer,"""root = [4,2,7,1,3,6,9]""","""[4,7,7,9,6,9,6]""","""[4,7,2,9,6,3,1]""","The code inverts 'right' into both left and right children, discarding the original left subtree instead of assigning invertTree(left) to root->right.",diff,3,3
+Tree,Medium,123,"Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).
+ 
+ Example 1:
+ 
+ Input: root = [3,9,20,null,null,15,7]
+ Output: [[3],[9,20],[15,7]]
+ 
+ Example 2:
+ 
+ Input: root = [1]
+ Output: [[1]]
+ 
+ Example 3:
+ 
+ Input: root = []
+ Output: []
+ 
+ Constraints:
+ 
+ The number of nodes in the tree is in the range [0, 2000].
+ -1000 <= Node.val <= 1000","class Solution {
+    vector<vector<int>> result;   
+    queue<TreeNode *>que;
+    void levelorder(TreeNode *p){
+        if(p){
+            que.push(p);
+        }
+        while(!que.empty()){
+            vector<int>temp;
+            int size=que.size();
+            for(int i=0;i<size;i++){
+                TreeNode *t=que.front();
+                que.pop();
+                temp.push_back(t->val);
+                if(t->left){
+                    que.push(t->left);
+                }
+                if(t->right){
+                    que.push(t->right);
+                }
+            }
+            result.push_back(temp);
+        }
+    }
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if(root==NULL){
+            return {};
+        }
+        levelorder(root);
+        return result;
+        
+    }
+};
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas (std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void *
+operator new (size_t size)
+{
+    constexpr std::size_t alignment = alignof (std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char *aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void
+operator delete (void * /*unused*/, unsigned long /*unused*/) noexcept
+{
+}
+void
+operator delete (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/, size_t /*unused*/) noexcept
+{
+}",https://leetcode.com/problems/binary-tree-level-order-traversal,"class Solution {
+    vector<vector<int>> result;   
+    queue<TreeNode *>que;
+    void levelorder(TreeNode *p){
+        if(p){
+            que.push(p);
+        }
+        while(!que.empty()){
+            vector<int>temp;
+            int size=result.size();
+            for(int i=0;i<size;i++){
+                TreeNode *t=que.front();
+                que.pop();
+                temp.push_back(t->val);
+                if(t->left){
+                    que.push(t->left);
+                }
+                if(t->right){
+                    que.push(t->right);
+                }
+            }
+            result.push_back(temp);
+        }
+    }
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if(root==NULL){
+            return {};
+        }
+        levelorder(root);
+        return result;
+        
+    }
+};
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas (std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void *
+operator new (size_t size)
+{
+    constexpr std::size_t alignment = alignof (std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char *aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void
+operator delete (void * /*unused*/, unsigned long /*unused*/) noexcept
+{
+}
+void
+operator delete (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/, size_t /*unused*/) noexcept
+{
+}","[Logic – Wrong variable name] Changed the level size calculation to use result.size() instead of que.size(), preventing the queue from being processed correctly.",Runtime Error,"root =
+[3,9,20,null,null,15,7]",,,"Line 14: Char 35: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:23:35",claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1]""",,"""[[1]]""","The loop uses `int size=result.size()` instead of `que.size()`, so on the first level result.size() is 0, making the inner loop never execute and causing an infinite loop or wrong output.",diff,3,3
+Tree,Medium,125,"Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.
+ 
+ Example 1:
+ 
+ Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+ Output: [3,9,20,null,null,15,7]
+ 
+ Example 2:
+ 
+ Input: preorder = [-1], inorder = [-1]
+ Output: [-1]
+ 
+ Constraints:
+ 
+ 1 <= preorder.length <= 3000
+ inorder.length == preorder.length
+ -3000 <= preorder[i], inorder[i] <= 3000
+ preorder and inorder consist of unique values.
+ Each value of inorder also appears in preorder.
+ preorder is guaranteed to be the preorder traversal of the tree.
+ inorder is guaranteed to be the inorder traversal of the tree.","class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if (inorder.size() == 1) return new TreeNode(inorder[0]);
+        return build(preorder, inorder, 0, inorder.size() - 1, 0, preorder.size() - 1);
+    }
+
+    TreeNode* build(vector<int>& preorder, vector<int>& inorder, int inorderStart, int inorderEnd, int preorderStart, int preorderEnd) {
+        if (inorderStart > inorderEnd || preorderStart > preorderEnd) return nullptr;
+
+        int rootValue = preorder[preorderStart];
+        TreeNode* root = new TreeNode(rootValue);
+        auto it = find(inorder.begin(), inorder.end(), rootValue);
+        int rootIndex = std::distance(inorder.begin(), it);
+        int left = rootIndex - inorderStart;
+        root->left = build(preorder, inorder, inorderStart, rootIndex - 1, preorderStart + 1, preorderStart + left);
+        root->right = build(preorder, inorder, rootIndex + 1, inorderEnd, preorderStart + left + 1, preorderEnd);
+        return root;
+     }
+};
+static const bool __boost = []() {
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void operator delete(void* /*unused*/, unsigned long /*unused*/) noexcept {}
+void operator delete(void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/, size_t /*unused*/) noexcept {}",https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal,"class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if (inorder.size() == 1) return new TreeNode(inorder[0]);
+        return build(preorder, inorder, 0, inorder.size() - 1, 0, preorder.size() - 1);
+    }
+
+    TreeNode* build(vector<int>& preorder, vector<int>& inorder, int inorderStart, int inorderEnd, int preorderStart, int preorderEnd) {
+        if (inorderStart > inorderEnd && preorderStart > preorderEnd) return nullptr;
+
+        int rootValue = preorder[preorderStart];
+        TreeNode* root = new TreeNode(rootValue);
+        auto it = find(inorder.begin(), inorder.end(), rootValue);
+        int rootIndex = std::distance(inorder.begin(), it);
+        int left = rootIndex - inorderStart;
+        root->left = build(preorder, inorder, inorderStart, rootIndex - 1, preorderStart + 1, preorderStart + left);
+        root->right = build(preorder, inorder, rootIndex + 1, inorderEnd, preorderStart + left + 1, preorderEnd);
+        return root;
+     }
+};
+static const bool __boost = []() {
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void operator delete(void* /*unused*/, unsigned long /*unused*/) noexcept {}
+void operator delete(void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/, size_t /*unused*/) noexcept {}","[Logic – Logical/bitwise operator confusion] Changed the recursive base case to use && instead of ||, so recursion only stops when both traversal ranges are invalid.",Accepted,,,,,claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""",The recursive construction correctly partitions preorder/inorder ranges; the find is O(n) making it O(n^2) worst case but n<=3000 so ~9M operations is fine within limits.,sim,2,2
+Tree,Medium,127,"You are given the root of a binary search tree (BST), where the values of exactly two nodes of the tree were swapped by mistake. Recover the tree without changing its structure.
+
+Example 1:
+
+Input: root = [1,3,null,null,2]
+Output: [3,1,null,null,2]
+Explanation: 3 cannot be a left child of 1 because 3 > 1. Swapping 1 and 3 makes the BST valid.
+
+Example 2:
+
+Input: root = [3,1,4,null,null,2]
+Output: [2,1,4,null,null,3]
+Explanation: 2 cannot be in the right subtree of 3 because 2 < 3. Swapping 2 and 3 makes the BST valid.
+
+Constraints:
+
+	The number of nodes in the tree is in the range [2, 1000].
+	-231 <= Node.val <= 231 - 1
+
+Follow up: A solution using O(n) space is pretty straight-forward. Could you devise a constant O(1) space solution?","			
+
+class Solution {
+ public:
+  void recoverTree(TreeNode* root) {
+    inorder(root);
+    swap(x, y);
+  }
+
+ private:
+  TreeNode* pred = nullptr;
+  TreeNode* x = nullptr;  // 1st wrong node
+  TreeNode* y = nullptr;  // 2nd wrond node
+
+  void inorder(TreeNode* root) {
+    if (root == nullptr)
+      return;
+
+    inorder(root->left);
+
+    if (pred && root->val < pred->val) {
+      y = root;
+      if (x == nullptr)
+        x = pred;
+      else
+        return;
+    }
+    pred = root;
+
+    inorder(root->right);
+  }
+
+  void swap(TreeNode* x, TreeNode* y) {
+    const int temp = x->val;
+    x->val = y->val;
+    y->val = temp;
+  }
+};",https://leetcode.com/problems/recover-binary-search-tree,"class Solution {
+ public:
+  void recoverTree(TreeNode* root) {
+    inorder(root);
+    swap(x, y);
+  }
+
+ private:
+  TreeNode* pred = nullptr;
+  TreeNode* x = nullptr;  // 2nd wrong node
+  TreeNode* y = nullptr;  // 2nd wrond node
+
+  void inorder(TreeNode* root) {
+    if (root == nullptr)
+      return;
+
+    inorder(root->left);
+
+    if (pred && root->val < pred->val) {
+      y = root;
+      if (x == nullptr)
+        x = pred;
+      else
+        return;
+    }
+    pred = root;
+
+    inorder(root->right);
+  }
+
+  void swap(TreeNode* x, TreeNode* y) {
+    const int temp = x->val;
+    x->val = y->val;
+    y->val = temp;
+  }
+};",[Logic – Misleading comment] Changed the comment for `x` to incorrectly describe it as the second wrong node while the code still uses it as the first wrong node.,Accepted,,,,,claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""",,sim,1,1
+Tree,Medium,128,"Given two integer arrays inorder and postorder where inorder is the inorder traversal of a binary tree and postorder is the postorder traversal of the same tree, construct and return the binary tree.
+
+Example 1:
+
+Input: inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
+Output: [3,9,20,null,null,15,7]
+
+Example 2:
+
+Input: inorder = [-1], postorder = [-1]
+Output: [-1]
+
+Constraints:
+
+	1 <= inorder.length <= 3000
+	postorder.length == inorder.length
+	-3000 <= inorder[i], postorder[i] <= 3000
+	inorder and postorder consist of unique values.
+	Each value of postorder also appears in inorder.
+	inorder is guaranteed to be the inorder traversal of the tree.
+	postorder is guaranteed to be the postorder traversal of the tree.","                        
+
+class Solution {
+ public:
+  TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+    unordered_map<int, int> inToIndex;
+
+    for (int i = 0; i < inorder.size(); ++i)
+      inToIndex[inorder[i]] = i;
+
+    return build(inorder, 0, inorder.size() - 1, postorder, 0,
+                 postorder.size() - 1, inToIndex);
+  }
+
+ private:
+  TreeNode* build(const vector<int>& inorder, int inStart, int inEnd,
+                  const vector<int>& postorder, int postStart, int postEnd,
+                  const unordered_map<int, int>& inToIndex) {
+    if (inStart > inEnd)
+      return nullptr;
+
+    const int rootVal = postorder[postEnd];
+    const int rootInIndex = inToIndex.at(rootVal);
+    const int leftSize = rootInIndex - inStart;
+
+    TreeNode* root = new TreeNode(rootVal);
+    root->left = build(inorder, inStart, rootInIndex - 1, postorder, postStart,
+                       postStart + leftSize - 1, inToIndex);
+    root->right = build(inorder, rootInIndex + 1, inEnd, postorder,
+                        postStart + leftSize, postEnd - 1, inToIndex);
+    return root;
+  }
+};",https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal,"class Solution {
+ public:
+  TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+    unordered_map<int, int> inToIndex;
+
+    for (int i = 0; i < inorder.size(); ++i)
+      inToIndex[inorder[i]] = i;
+
+    return build(inorder, 0, inorder.size() - 1, postorder, 0,
+                 postorder.size() - 1, inToIndex);
+  }
+
+ private:
+  TreeNode* build(const vector<int>& inorder, int inStart, int inEnd,
+                  const vector<int>& postorder, int postStart, int postEnd,
+                  const unordered_map<int, int>& inToIndex) {
+    if (inStart > inEnd)
+      return nullptr;
+
+    const int rootVal = postorder[postStart];
+    const int rootInIndex = inToIndex.at(rootVal);
+    const int leftSize = rootInIndex - inStart;
+
+    TreeNode* root = new TreeNode(rootVal);
+    root->left = build(inorder, inStart, rootInIndex - 1, postorder, postStart,
+                       postStart + leftSize - 1, inToIndex);
+    root->right = build(inorder, rootInIndex + 1, inEnd, postorder,
+                        postStart + leftSize, postEnd - 1, inToIndex);
+    return root;
+  }
+};","[Logic – Wrong variable name] Changed the root value lookup to use `postStart` instead of `postEnd`, selecting the wrong element from postorder.",Runtime Error,"inorder =
+[9,3,15,20,7]
+postorder =
+[9,15,7,20,3]",,,"Line 1141: Char 34: runtime error: addition of unsigned offset to 0x5030000000d0 overflowed to 0x5030000000cc (stl_vector.h)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/stl_vector.h:1150:34",claude-opus-4-8,zero-shot,Wrong Answer,"""inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]""","""[9,null,15,null,7,null,20,null,3]""","""[3,9,20,null,null,15,7]""","The postorder root should be at postEnd (last element), not postStart; using postorder[postStart] and shifting indices from the front produces an incorrect tree.",diff,3,3
+Tree,Medium,133,"You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition:
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6,7]
+Output: [1,#,2,3,#,4,5,6,7,#]
+Explanation: Given the above perfect binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 212 - 1].
+	-1000 <= Node.val <= 1000
+
+Follow-up:
+
+	You may only use constant extra space.
+	The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.","			
+
+class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p == nullptr)
+      return;
+    p->next = q;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};",https://leetcode.com/problems/populating-next-right-pointers-in-each-node,"class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p == nullptr)
+      return;
+    p->next = p;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};",[Logic – Wrong variable name] Changed the next pointer assignment to point to p instead of q.,Time Limit Exceeded,"root =
+[1,2,3,4,5,6,7]",,,,claude-opus-4-8,zero-shot,Compilation Error,"""root = [1,2,3,4,5,6,7]""",,"""[1,#,2,3,#,4,5,6,7,#]""","The code sets p->next = p (pointing to itself, incorrect logic) and also fails to connect q's subtree properly, producing wrong next pointers.",diff,3,3
+Tree,Medium,134,"Given a binary tree
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,null,7]
+Output: [1,#,2,3,#,4,5,7,#]
+Explanation: Given the above binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 6000].
+	-100 <= Node.val <= 100
+
+Follow-up:
+
+	You may only use constant extra space.
+	The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.","			
+
+class Solution {
+ public:
+  Node* connect(Node* root) {
+    Node* node = root;  // The node just above current needling
+
+    while (node) {
+      Node dummy(0);  // Dummy node before needling
+      // Needle children of node
+      for (Node* needle = &dummy; node; node = node->next) {
+        if (node->left) {  // Needle left child
+          needle->next = node->left;
+          needle = needle->next;
+        }
+        if (node->right) {  // Needle right child
+          needle->next = node->right;
+          needle = needle->next;
+        }
+      }
+      node = dummy.next;  // Move node to the next level
+    }
+
+    return root;
+  }
+};",https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii,"class Solution {
+ public:
+  Node* connect(Node* root) {
+    Node* node = root;  // The node just above current needling
+
+    while (node) {
+      Node dummy(0);  // Dummy node before needling
+      // Needle children of node
+      for (Node* needle = &dummy; node; node = node->next) {
+        if (node->left) {  // Needle left child
+          needle->next = node->left;
+          needle = needle->next;
+        }
+        if (node->right) {  // Needle right child
+          needle->next = node->right;
+          needle = needle->next;
+        }
+      }
+      root = dummy.next;  // Move node to the next level
+    }
+
+    return root;
+  }
+};","[Logic – Wrong variable name] Changed the next-level assignment from `node = dummy.next` to `root = dummy.next`, updating the wrong variable.",Wrong Answer,"root =
+[1,2,3,4,5,null,7]","[2,3,#,4,#]","[1,#,2,3,#,4,5,7,#]",,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1,2,3,4,5,null,7]""","""[4,5,7,#]""","""[1,#,2,3,#,4,5,7,#]""","The code sets root = dummy.next inside the loop but node = dummy.next should update node; instead node becomes NULL after the inner loop and the outer while uses node which is NULL, and root is overwritten so the original root is lost and only the last level's first node is returned.",sim,1,2
+Tree,Medium,138,"Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.
+
+Example 1:
+
+Input: root = [3,1,4,null,2], k = 1
+Output: 1
+
+Example 2:
+
+Input: root = [5,3,6,2,4,null,null,1], k = 3
+Output: 3
+
+Constraints:
+
+	The number of nodes in the tree is n.
+	1 <= k <= n <= 104
+	0 <= Node.val <= 104
+
+Follow up: If the BST is modified often (i.e., we can do insert and delete operations) and you need to find the kth smallest frequently, how would you optimize?","                        
+
+class Solution {
+ public:
+  int kthSmallest(TreeNode* root, int k) {
+    const int leftCount = countNodes(root->left);
+
+    if (leftCount == k - 1)
+      return root->val;
+    if (leftCount >= k)
+      return kthSmallest(root->left, k);
+    return kthSmallest(root->right, k - 1 - leftCount);  // LeftCount < k
+  }
+
+ private:
+  int countNodes(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};",https://leetcode.com/problems/kth-smallest-element-in-a-bst,"class Solution {
+ public:
+  int kthSmallest(TreeNode* root, int k) {
+    const int leftCount = countNodes(root->left);
+
+    if (leftCount == k - 1)
+      return root->val;
+    if (leftCount >= k)
+      return kthSmallest(root->left, k);
+    return kthSmallest(root->right, k - 1 - leftCount);  // LeftCount >= k
+  }
+
+ private:
+  int countNodes(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};",[Logic – Misleading comment] Changed the final recursive call comment to incorrectly state that leftCount is greater than or equal to k.,Accepted,,,,,claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""","The logic correctly uses left subtree node count to navigate to the kth smallest, handling all cases correctly within the given constraints.",sim,1,1
+Tree,Hard,142,"A city's skyline is the outer contour of the silhouette formed by all the buildings in that city when viewed from a distance. Given the locations and heights of all the buildings, return the skyline formed by these buildings collectively.
+ 
+ The geometric information of each building is given in the array buildings where buildings[i] = [lefti, righti, heighti]:
+ 
+ lefti is the x coordinate of the left edge of the ith building.
+ righti is the x coordinate of the right edge of the ith building.
+ heighti is the height of the ith building.
+ 
+ You may assume all buildings are perfect rectangles grounded on an absolutely flat surface at height 0.
+ 
+ The skyline should be represented as a list of ""key points"" sorted by their x-coordinate in the form [[x1,y1],[x2,y2],...]. Each key point is the left endpoint of some horizontal segment in the skyline except the last point in the list, which always has a y-coordinate 0 and is used to mark the skyline's termination where the rightmost building ends. Any ground between the leftmost and rightmost buildings should be part of the skyline's contour.
+ 
+ Note: There must be no consecutive horizontal lines of equal height in the output skyline. For instance, [...,[2 3],[4 5],[7 5],[11 5],[12 7],...] is not acceptable; the three lines of height 5 should be merged into one in the final output as such: [...,[2 3],[4 5],[12 7],...]
+ 
+ Example 1:
+ 
+ Input: buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]
+ Output: [[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]
+ Explanation:
+ Figure A shows the buildings of the input.
+ Figure B shows the skyline formed by those buildings. The red points in figure B represent the key points in the output list.
+ 
+ Example 2:
+ 
+ Input: buildings = [[0,2,3],[2,5,3]]
+ Output: [[0,3],[5,0]]
+ 
+ Constraints:
+ 
+ 1 <= buildings.length <= 104
+ 0 <= lefti < righti <= 231 - 1
+ 1 <= heighti <= 231 - 1
+ buildings is sorted by lefti inÂ non-decreasing order.","class Solution {
+public:
+    vector<vector<int>> getSkyline(vector<vector<int>>& buildings) {
+        vector<vector<int>> res;
+        priority_queue<pair<int,int>> pq;
+        int curr_h = 0, curr_x = INT_MIN;
+
+        sort(buildings.begin(), buildings.end());
+
+        for (int i = 0; i <= buildings.size(); ++i) {
+            while (!pq.empty() && (i == buildings.size() || buildings[i][0] >= pq.top().second)) {
+                while (!pq.empty() && pq.top().second <= curr_x) pq.pop();
+                
+                int end_x = INT_MIN;
+                int end_h = pq.top().first;
+                if (end_h < curr_h) {
+                    pq.pop();
+                } else if (end_h == curr_h) {
+                    do {
+                        end_x = max(end_x, pq.top().second);
+                        pq.pop();
+                    } while (!pq.empty() && pq.top().first == curr_h);
+                    
+                    while (!pq.empty() && pq.top().second <= end_x) pq.pop();
+                    curr_h = pq.empty() ? 0 : pq.top().first;
+                    if (curr_x < end_x) {
+                        curr_x = end_x;
+                        res.push_back({curr_x, curr_h});
+                    }
+                } else {
+                    ++end_x;
+                }
+            }
+            if (i < buildings.size()) {
+                const auto& b = buildings[i];
+                pq.emplace(b[2], b[1]);
+                if (curr_h < b[2] || curr_x == b[0]) {
+                    if (curr_x < b[0])
+                        res.push_back({b[0], b[2]});
+                    else if (b[2] > curr_h) {
+                        if (res.back()[0] == curr_x)
+                            res.pop_back();
+                        if (res.empty() || res.back()[1] != b[2])
+                            res.push_back({b[0], b[2]});
+                    }
+                    curr_h = res.back()[1];
+                }
+                curr_x = b[0];
+            }
+        }
+        return res;
+    }
+};",https://leetcode.com/problems/the-skyline-problem,"class Solution {
+public:
+    vector<vector<int>> getSkyline(vector<vector<int>>& buildings) {
+        vector<vector<int>> res;
+        priority_queue<pair<int,int>> pq;
+        int curr_h = 0, curr_x = INT_MIN;
+
+        sort(buildings.begin(), buildings.end());
+
+        for (int i = 0; i <= buildings.size(); ++i) {
+            while (!pq.empty() && (i == buildings.size() | buildings[i][0] >= pq.top().second)) {
+                while (!pq.empty() && pq.top().second <= curr_x) pq.pop();
+                
+                int end_x = INT_MIN;
+                int end_h = pq.top().first;
+                if (end_h < curr_h) {
+                    pq.pop();
+                } else if (end_h == curr_h) {
+                    do {
+                        end_x = max(end_x, pq.top().second);
+                        pq.pop();
+                    } while (!pq.empty() && pq.top().first == curr_h);
+                    
+                    while (!pq.empty() && pq.top().second <= end_x) pq.pop();
+                    curr_h = pq.empty() ? 0 : pq.top().first;
+                    if (curr_x < end_x) {
+                        curr_x = end_x;
+                        res.push_back({curr_x, curr_h});
+                    }
+                } else {
+                    ++end_x;
+                }
+            }
+            if (i < buildings.size()) {
+                const auto& b = buildings[i];
+                pq.emplace(b[2], b[1]);
+                if (curr_h < b[2] || curr_x == b[0]) {
+                    if (curr_x < b[0])
+                        res.push_back({b[0], b[2]});
+                    else if (b[2] > curr_h) {
+                        if (res.back()[0] == curr_x)
+                            res.pop_back();
+                        if (res.empty() || res.back()[1] != b[2])
+                            res.push_back({b[0], b[2]});
+                    }
+                    curr_h = res.back()[1];
+                }
+                curr_x = b[0];
+            }
+        }
+        return res;
+    }
+};","[Logic – Logical/bitwise operator confusion] Replaced the short-circuit logical OR with bitwise OR in the priority queue draining condition, causing both operands to be evaluated.",Runtime Error,"buildings =
+[[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]",,,"Line 1122: Char 9: runtime error: reference binding to misaligned address 0xbebebebebebebebe for type 'int', which requires 4 byte alignment (stl_vector.h)
+0xbebebebebebebebe: note: pointer points here
+<memory cannot be printed>
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/stl_vector.h:1131:9",claude-opus-4-8,zero-shot,Wrong Answer,"""buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]""",,"""[[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]""","The logic is convoluted with bugs (bitwise | instead of ||, undefined end_x handling with ++end_x, popping top without recording) and does not correctly implement the standard skyline sweep, producing incorrect key points.",diff,3,3
+Tree,Hard,143,"Given an integer array nums, return an integer array counts where counts[i] is the number of smaller elements to the right of nums[i].
+ 
+ Example 1:
+ 
+ Input: nums = [5,2,6,1]
+ Output: [2,1,1,0]
+ Explanation:
+ To the right of 5 there are 2 smaller elements (2 and 1).
+ To the right of 2 there is only 1 smaller element (1).
+ To the right of 6 there is 1 smaller element (1).
+ To the right of 1 there is 0 smaller element.
+ 
+ Example 2:
+ 
+ Input: nums = [-1]
+ Output: [0]
+ 
+ Example 3:
+ 
+ Input: nums = [-1,-1]
+ Output: [0,0]
+ 
+ Constraints:
+ 
+ 1 <= nums.length <= 105
+ -104 <= nums[i] <= 104","class Solution {
+public:
+    vector<int> countSmaller(vector<int>& nums) {
+        BinaryIndexedTree tree{};
+        vector<int> ans(nums.size());
+        for (auto i{nums.size() - 1}; ~i; --i) {
+            const auto num{nums[i]};
+            ans[i] = tree.Query(num);
+            tree.Update(num);
+        }
+
+        return ans;
+    }
+
+private:
+    class BinaryIndexedTree {
+    public:
+
+        BinaryIndexedTree() { }
+
+        void Update(int val) {
+            auto i{val + 10001};
+            while (i < n_) {
+                ++data_[i];
+                i += i & -i;
+            }
+        }
+
+        int Query(int val) {
+            int result{0};
+            auto i{val + 10000};
+            while (i > 0) {
+                result += data_[i];
+                i -= i & -i;
+            }
+            return result;
+        }
+
+    private:
+        static constexpr size_t n_{20001};
+        array<int, n_> data_{};
+    };
+};",https://leetcode.com/problems/count-of-smaller-numbers-after-self,"class Solution {
+public:
+    vector<int> countSmaller(vector<int>& nums) {
+        BinaryIndexedTree tree{};
+        vector<int> ans(nums.size());
+        for (auto i{nums.size() - 1}; ~i; --i) {
+            const auto num{nums[i]};
+            ans[i] = tree.Query(num);
+            tree.Update(num);
+        }
+
+        return ans;
+    }
+
+private:
+    class BinaryIndexedTree {
+    public:
+
+        BinaryIndexedTree() { }
+
+        void Update(int val) {
+            auto i{val + 10001};
+            while (i < n_) {
+                ++data_[i];
+                i += i & -i;
+            }
+        }
+
+        int Query(int val) {
+            int result{0};
+            auto i{val + 10001};
+            while (i > 0) {
+                result += data_[i];
+                i -= i & -i;
+            }
+            return result;
+        }
+
+    private:
+        static constexpr size_t n_{20001};
+        array<int, n_> data_{};
+    };
+};","[Logic – Missing edge case handling] Changed the query offset so equal values are included in the count, causing duplicates to be treated as smaller elements.",Wrong Answer,"nums =
+[-1,-1]","[1,0]","[0,0]",,claude-opus-4-8,zero-shot,Wrong Answer,"""nums = [-1,-1]""","""[1,0]""","""[0,0]""","Query(val) sums indices up to and including val's position, counting equal elements as smaller, so it produces counts of <= rather than strictly < elements.",sim,1,1
+Graph,Medium,153,"There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+ 
+ For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+ 
+ Return true if you can finish all courses. Otherwise, return false.
+ 
+ Example 1:
+ 
+ Input: numCourses = 2, prerequisites = [[1,0]]
+ Output: true
+ Explanation: There are a total of 2 courses to take. 
+ To take course 1 you should have finished course 0. So it is possible.
+ 
+ Example 2:
+ 
+ Input: numCourses = 2, prerequisites = [[1,0],[0,1]]
+ Output: false
+ Explanation: There are a total of 2 courses to take. 
+ To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+ 
+ Constraints:
+ 
+ 1 <= numCourses <= 2000
+ 0 <= prerequisites.length <= 5000
+ prerequisites[i].length == 2
+ 0 <= ai, bi < numCourses
+ All the pairs prerequisites[i] are unique.","#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int head[2005];
+    int to[5005];
+    int nxt[5005];
+    int degree[2005];
+    int q[2005];
+    int edge_cnt;
+
+    int add_edge(int u, int v) {
+        to[edge_cnt] = v;
+        nxt[edge_cnt] = head[u];
+        head[u] = edge_cnt++;
+        return 0;
+    }
+
+    bool canFinish(int n, vector<vector<int>>& pre) {
+        edge_cnt = 0;
+        for (int i = 0; i < n; i++) {
+            head[i] = -1;
+            degree[i] = 0;
+        }
+
+        for (auto& p : pre) {
+            add_edge(p[1], p[0]);
+            degree[p[0]]++;
+        }
+
+        int h = 0, t = 0;
+        for (int i = 0; i < n; i++) {
+            if (degree[i] == 0) {
+                q[t++] = i;
+            }
+        }
+
+        int visited_count = 0;
+        while (h < t) {
+            int curr = q[h++];
+            visited_count++;
+
+            for (int i = head[curr]; i != -1; i = nxt[i]) {
+                int neighbor = to[i];
+
+                if (--degree[neighbor] == 0) {
+                    q[t++] = neighbor;
+                }
+            }
+        }
+
+        return visited_count == n;
+    }
+};",https://leetcode.com/problems/course-schedule,"#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int head[2005];
+    int to[5005];
+    int nxt[5005];
+    int degree[2005];
+    int q[2005];
+    int edge_cnt;
+
+    int add_edge(int u, int v) {
+        to[edge_cnt] = v;
+        nxt[edge_cnt] = head[u];
+        head[u] = edge_cnt++;
+        return 0;
+    }
+
+    bool canFinish(int n, vector<vector<int>>& pre) {
+        for (int i = 0; i < n; i++) {
+            head[i] = -1;
+            degree[i] = 0;
+        }
+
+        for (auto& p : pre) {
+            add_edge(p[1], p[0]);
+            degree[p[0]]++;
+        }
+
+        int h = 0, t = 0;
+        for (int i = 0; i < n; i++) {
+            if (degree[i] == 0) {
+                q[t++] = i;
+            }
+        }
+
+        int visited_count = 0;
+        while (h < t) {
+            int curr = q[h++];
+            visited_count++;
+
+            for (int i = head[curr]; i != -1; i = nxt[i]) {
+                int neighbor = to[i];
+
+                if (--degree[neighbor] == 0) {
+                    q[t++] = neighbor;
+                }
+            }
+        }
+
+        return visited_count == n;
+    }
+};","[Logic – Forgetting to reset global/static state] Removed the reset of edge_cnt at the start of canFinish, causing adjacency data to accumulate across calls.",Accepted,,,,,claude-opus-4-8,zero-shot,Wrong Answer,"""""","""""","""""","edge_cnt is not initialized to 0 before adding edges, so it starts with an indeterminate value causing out-of-bounds writes and incorrect graph construction.",diff,2,2
+Graph,Medium,156,"You are given a network of n nodes, labeled from 1 to n. You are also given times, a list of travel times as directed edges times[i] = (ui, vi, wi), where ui is the source node, vi is the target node, and wi is the time it takes for a signal to travel from source to target.
+ 
+ We will send a signal from a given node k. Return the minimum time it takes for all the n nodes to receive the signal. If it is impossible for all the n nodes to receive the signal, return -1.
+ 
+ Example 1:
+ 
+ Input: times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2
+ Output: 2
+ 
+ Example 2:
+ 
+ Input: times = [[1,2,1]], n = 2, k = 1
+ Output: 1
+ 
+ Example 3:
+ 
+ Input: times = [[1,2,1]], n = 2, k = 2
+ Output: -1
+ 
+ Constraints:
+ 
+ 1 <= k <= n <= 100
+ 1 <= times.length <= 6000
+ times[i].length == 3
+ 1 <= ui, vi <= n
+ ui != vi
+ 0 <= wi <= 100
+ All the pairs (ui, vi) are unique. (i.e., no multiple edges.)","class Solution {
+public:
+    int networkDelayTime(vector<vector<int>>& times, int n, int k) {
+        unordered_map<int, vector<pair<int, int>>> adj;
+        for(auto& time : times){
+            adj[time[0]].emplace_back(time[1], time[2]);
+        }
+        vector<int> dist(n + 1, INT_MAX);
+        dfs(k, 0, adj, dist);
+
+        int res = *max_element(dist.begin() + 1, dist.end());
+        return res == INT_MAX ? -1 : res;
+    }
+
+    void dfs(int node, int time, unordered_map<int, vector<pair<int, int>>>& adj, vector<int>& dist){
+        if(time >= dist[node]) return;
+        dist[node] = time;
+        for(auto& [nei, w] : adj[node]){
+            dfs(nei, time + w, adj, dist);
+        }
+    }
+};
+auto init = atexit([]() { ofstream(""display_runtime.txt"") << ""0"";});",https://leetcode.com/problems/network-delay-time,"class Solution {
+public:
+    int networkDelayTime(vector<vector<int>>& times, int n, int k) {
+        unordered_map<int, vector<pair<int, int>>> adj;
+        for(auto& time : times){
+            adj[time[0]].emplace_back(time[1], time[2]);
+        }
+        vector<int> dist(n + 1, INT_MAX);
+        dfs(k, 0, adj, dist);
+
+        int res = *max_element(dist.begin(), dist.end());
+        return res == INT_MAX ? -1 : res;
+    }
+
+    void dfs(int node, int time, unordered_map<int, vector<pair<int, int>>>& adj, vector<int>& dist){
+        if(time >= dist[node]) return;
+        dist[node] = time;
+        for(auto& [nei, w] : adj[node]){
+            dfs(nei, time + w, adj, dist);
+        }
+    }
+};
+auto init = atexit([]() { ofstream(""display_runtime.txt"") << ""0"";});","[Logic – Missing edge case handling] Changed the final maximum-distance scan to include the unused 0-index entry, causing the result to incorrectly treat every graph as unreachable.",Wrong Answer,"times =
+[[2,1,1],[2,3,1],[3,4,1]]
+n =
+4
+k =
+2",-1,2,,claude-opus-4-8,zero-shot,Wrong Answer,"""times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2""","""-1""","""2""","dist has size n+1 with index 0 never updated (nodes are 1..n), so max_element always includes INT_MAX at index 0, causing the function to always return -1.",sim,1,1
+Graph,Medium,158,"There are n cities connected by some number of flights. You are given an array flights where flights[i] = [fromi, toi, pricei] indicates that there is a flight from city fromi to city toi with cost pricei.
+ 
+ You are also given three integers src, dst, and k, return the cheapest price from src to dst with at most k stops. If there is no such route, return -1.
+ 
+ Example 1:
+ 
+ Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
+ Output: 700
+ Explanation:
+ The graph is shown above.
+ The optimal path with at most 1 stop from city 0 to 3 is marked in red and has cost 100 + 600 = 700.
+ Note that the path through cities [0,1,2,3] is cheaper but is invalid because it uses 2 stops.
+ 
+ Example 2:
+ 
+ Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
+ Output: 200
+ Explanation:
+ The graph is shown above.
+ The optimal path with at most 1 stop from city 0 to 2 is marked in red and has cost 100 + 100 = 200.
+ 
+ Example 3:
+ 
+ Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
+ Output: 500
+ Explanation:
+ The graph is shown above.
+ The optimal path with no stops from city 0 to 2 is marked in red and has cost 500.
+ 
+ Constraints:
+ 
+ 1 <= n <= 100
+ 0 <= flights.length <= (n * (n - 1) / 2)
+ flights[i].length == 3
+ 0 <= fromi, toi < n
+ fromi != toi
+ 1 <= pricei <= 104
+ There will not be any multiple flights between two cities.
+ 0 <= src, dst, k < n
+ src != dst","int dist[4950] = {INT_MAX};
+int saved[4950];
+
+class Solution {
+public:
+    int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+        for (int i = 0; i < n; i++) dist[i] = INT_MAX;
+        dist[src] = 0;
+        for (int i = 0; i <= k; i++) {
+            memcpy(saved, dist, sizeof(int) * n);
+            for (auto& v : flights) {
+                auto from = v[0];
+                auto to = v[1];
+                auto price = v[2];
+                if (dist[from] != INT_MAX && dist[from] + price < saved[to]) {
+                    saved[to] = dist[from] + price;
+                }
+            }
+            memcpy(dist, saved, sizeof(int) * n);
+        }
+        return dist[dst] == INT_MAX ? -1 : dist[dst];
+    }
+};",https://leetcode.com/problems/cheapest-flights-within-k-stops,"int dist[4950] = {INT_MAX};
+int saved[4950];
+
+class Solution {
+public:
+    int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+        for (int i = 0; i < n; i++) dist[i] = INT_MAX;
+        dist[src] = 0;
+        for (int i = 0; i <= k; i++) {
+            memcpy(saved, dist, sizeof(int) * n);
+            for (auto& v : flights) {
+                auto from = v[0];
+                auto to = v[1];
+                auto price = v[2];
+                if (dist[to] != INT_MAX && dist[from] + price < saved[to]) {
+                    saved[to] = dist[from] + price;
+                }
+            }
+            memcpy(dist, saved, sizeof(int) * n);
+        }
+        return dist[dst] == INT_MAX ? -1 : dist[dst];
+    }
+};",[Logic – Wrong variable name] Replaced `dist[from]` with `dist[to]` in the edge relaxation reachability check.,Runtime Error,"n =
+4
+flights =
+[[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]]
+src =
+0
+dst =
+3
+k =
+1",,,"Line 15: Char 55: runtime error: signed integer overflow: 2147483647 + 100 cannot be represented in type 'int' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:24:55",claude-opus-4-8,zero-shot,Wrong Answer,"""n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1""","""500""","""200""","The relaxation condition checks `dist[to] != INT_MAX` instead of `dist[from] != INT_MAX`, so it never relaxes edges from cities whose destination hasn't been reached yet, causing missed valid paths.",diff,3,3
+Graph,Medium,163,"There is a directed graph of n nodes with each node labeled from 0 to n - 1. The graph is represented by a 0-indexed 2D integer array graph where graph[i] is an integer array of nodes adjacent to node i, meaning there is an edge from node i to each node in graph[i].
+
+A node is a terminal node if there are no outgoing edges. A node is a safe node if every possible path starting from that node leads to a terminal node (or another safe node).
+
+Return an array containing all the safe nodes of the graph. The answer should be sorted in ascending order.
+
+Example 1:
+
+Input: graph = [[1,2],[2,3],[5],[0],[5],[],[]]
+Output: [2,4,5,6]
+Explanation: The given graph is shown above.
+Nodes 5 and 6 are terminal nodes as there are no outgoing edges from either of them.
+Every path starting at nodes 2, 4, 5, and 6 all lead to either node 5 or 6.
+
+Example 2:
+
+Input: graph = [[1,2,3,4],[1,2],[3,4],[0,4],[]]
+Output: [4]
+Explanation:
+Only node 4 is a terminal node, and every path starting at node 4 leads to node 4.
+
+Constraints:
+
+        n == graph.length
+        1 <= n <= 104
+        0 <= graph[i].length <= n
+        0 <= graph[i][j] <= n - 1
+        graph[i] is sorted in a strictly increasing order.
+        The graph may contain self-loops.
+        The number of edges in the graph will be in the range [1, 4 * 104].","                        
+
+enum class State { kInit, kVisiting, kVisited };
+
+class Solution {
+ public:
+  vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
+    vector<int> ans;
+    vector<State> state(graph.size());
+
+    for (int i = 0; i < graph.size(); ++i)
+      if (!hasCycle(graph, i, state))
+        ans.push_back(i);
+
+    return ans;
+  }
+
+ private:
+  bool hasCycle(const vector<vector<int>>& graph, int u, vector<State>& state) {
+    if (state[u] == State::kVisiting)
+      return true;
+    if (state[u] == State::kVisited)
+      return false;
+
+    state[u] = State::kVisiting;
+    for (const int v : graph[u])
+      if (hasCycle(graph, v, state))
+        return true;
+    state[u] = State::kVisited;
+
+    return false;
+  }
+};",https://leetcode.com/problems/find-eventual-safe-states,"enum class State { kInit, kVisiting, kVisited };
+
+class Solution {
+ public:
+  vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
+    vector<int> ans;
+    vector<State> state(graph.size());
+
+    for (int i = 1; i < graph.size(); ++i)
+      if (!hasCycle(graph, i, state))
+        ans.push_back(i);
+
+    return ans;
+  }
+
+ private:
+  bool hasCycle(const vector<vector<int>>& graph, int u, vector<State>& state) {
+    if (state[u] == State::kVisiting)
+      return true;
+    if (state[u] == State::kVisited)
+      return false;
+
+    state[u] = State::kVisiting;
+    for (const int v : graph[u])
+      if (hasCycle(graph, v, state))
+        return true;
+    state[u] = State::kVisited;
+
+    return false;
+  }
+};","[Logic – Missing edge case handling] Changed the traversal to start from node 1, causing node 0 to be ignored even when it is safe.",Wrong Answer,"graph =
+[[],[0]]",[1],"[0,1]",,claude-opus-4-8,zero-shot,Wrong Answer,"""graph = [[1,2],[2,3],[5],[0],[5],[],[]]""","""[2,4,5,6]""","""[2,4,5,6]""","The loop starts at i=1 instead of i=0, so node 0 is never evaluated; while node 0 is unsafe in the examples, any test where node 0 is safe would produce wrong output.",sim,1,1
+Graph,Hard,172,"There is a safe protected by a password. The password is a sequence of n digits where each digit can be in the range [0, k - 1].
+ 
+ The safe has a peculiar way of checking the password. When you enter in a sequence, it checks the most recent n digits that were entered each time you type a digit.
+ 
+ For example, the correct password is ""345"" and you enter in ""012345"":
+ 
+ After typing 0, the most recent 3 digits is ""0"", which is incorrect.
+ After typing 1, the most recent 3 digits is ""01"", which is incorrect.
+ After typing 2, the most recent 3 digits is ""012"", which is incorrect.
+ After typing 3, the most recent 3 digits is ""123"", which is incorrect.
+ After typing 4, the most recent 3 digits is ""234"", which is incorrect.
+ After typing 5, the most recent 3 digits is ""345"", which is correct and the safe unlocks.
+ 
+ Return any string of minimum length that will unlock the safe at some point of entering it.
+ 
+ Example 1:
+ 
+ Input: n = 1, k = 2
+ Output: ""10""
+ Explanation: The password is a single digit, so enter each digit. ""01"" would also unlock the safe.
+ 
+ Example 2:
+ 
+ Input: n = 2, k = 2
+ Output: ""01100""
+ Explanation: For each possible password:
+ - ""00"" is typed in starting from the 4th digit.
+ - ""01"" is typed in starting from the 1st digit.
+ - ""10"" is typed in starting from the 3rd digit.
+ - ""11"" is typed in starting from the 2nd digit.
+ Thus ""01100"" will unlock the safe. ""10011"", and ""11001"" would also unlock the safe.
+ 
+ Constraints:
+ 
+ 1 <= n <= 4
+ 1 <= k <= 10
+ 1 <= kn <= 4096","namespace {
+constexpr int ipow(int k, int n) noexcept {
+    int result = 1;
+    while (n--)
+        result *= k;
+    return result;
+}
+
+struct Solution {
+    static constexpr std::string crackSafe(int n, int k) noexcept {
+        int size = k == 1 ? n : ipow(k, n) + n - 1;
+        std::string result(size, '\0');
+        auto write = result.begin();
+        if (k == 1) {
+            std::fill(result.begin(), result.end(), '0');
+        } else {
+            std::string a(k*n, '0');
+            [&](this const auto& de_bruijn, int t, int p) noexcept -> void {
+                if (t > n) {
+                    if (n % p == 0)
+                        write = std::copy(a.begin() + 1, a.begin() + p + 1, write);
+                    return;
+                }
+                a[t] = a[t-p];
+                de_bruijn(t+1, p);
+                for (char j = a[t-p] + 1; j < k+'0'; ++j) {
+                    a[t] = j;
+                    de_bruijn(t+1, t);
+                }
+            }(1, 1);
+            std::copy(result.begin(), result.begin() + (n-1), write);
+        }
+        return result;
+    }
+};
+}",https://leetcode.com/problems/cracking-the-safe,"namespace {
+constexpr int ipow(int k, int n) noexcept {
+    int result = 1;
+    while (n--)
+        result *= k;
+    return result;
+}
+
+struct Solution {
+    static constexpr std::string crackSafe(int n, int k) noexcept {
+        int size = k == 1 ? n : ipow(k, n) + n - 1;
+        std::string result(size, '\0');
+        auto write = result.begin();
+        if (k == 1) {
+            std::fill(result.begin(), result.end(), '0');
+        } else {
+            std::string a(k*n, '0');
+            [&](this const auto& de_bruijn, int t, int p) noexcept -> void {
+                if (t > n) {
+                    if (n & p == 0)
+                        write = std::copy(a.begin() + 1, a.begin() + p + 1, write);
+                    return;
+                }
+                a[t] = a[t-p];
+                de_bruijn(t+1, p);
+                for (char j = a[t-p] + 1; j < k+'0'; ++j) {
+                    a[t] = j;
+                    de_bruijn(t+1, t);
+                }
+            }(1, 1);
+            std::copy(result.begin(), result.begin() + (n-1), write);
+        }
+        return result;
+    }
+};
+}","[Logic – Operator precedence error] Changed the de Bruijn emission condition from `n % p == 0` to `n & p == 0`, which is parsed incorrectly and prevents valid sequence segments from being written.",Wrong Answer,"n =
+1
+k =
+2","""\u0000""","""10""",,claude-opus-4-8,zero-shot,Wrong Answer,"""n = 1, k = 2""","""\u0000\u0000""","""10""","The condition `if (n & p == 0)` parses as `n & (p==0)` which is always 0/false since p>=1, so no digits are ever copied and the result remains all null bytes.",sim,1,2

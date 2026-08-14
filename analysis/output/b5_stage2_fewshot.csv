@@ -1,0 +1,13 @@
+﻿variant,model,strategy,run,n,acc
+logic1,claude-opus-4-8,few-shot,1,16,0.375
+logic1,claude-opus-4-8,few-shot,2,16,0.25
+logic1,gpt-5.6-sol,few-shot,1,16,0.625
+logic1,gpt-5.6-sol,few-shot,2,16,0.5
+logic2,claude-opus-4-8,few-shot,1,22,0.5909
+logic2,claude-opus-4-8,few-shot,2,22,0.4545
+logic2,gpt-5.6-sol,few-shot,1,22,0.3636
+logic2,gpt-5.6-sol,few-shot,2,22,0.3636
+reference1,claude-opus-4-8,few-shot,1,35,0.4
+reference1,claude-opus-4-8,few-shot,2,35,0.4571
+reference1,gpt-5.6-sol,few-shot,1,35,0.3714
+reference1,gpt-5.6-sol,few-shot,2,35,0.2857

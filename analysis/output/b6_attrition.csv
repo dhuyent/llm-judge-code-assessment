@@ -1,0 +1,4 @@
+﻿variant,D0,D1,D2,pct_D1,pct_D2,solved_S1,solved_S2,residual_claudeFS,residual_gptFS,residual_ca_hai,acc_cuoi_claudeFS,acc_cuoi_gptFS
+logic1,179,38,16,0.2123,0.0894,141,22,13,9,9,0.1875,0.4375
+logic2,179,41,22,0.2291,0.1229,138,19,13,14,11,0.4091,0.3636
+reference1,179,51,35,0.2849,0.1955,128,16,21,26,19,0.4,0.2571

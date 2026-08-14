@@ -1,0 +1,2330 @@
+topic,level,id,problem,solution,url,buggy_submission,bug_description,gt_status,gt_input,gt_actual_output,gt_expected_output,gt_reason,filtered_label,llm_model,prompt_strategy,pred_status,pred_input,pred_actual_output,pred_expected_output,pred_reason
+String,Easy,6,"Roman numerals are represented by seven different symbols: I, V, X, L, C, D and M.
+
+Symbol       Value
+I             1
+V             5
+X             10
+L             50
+C             100
+D             500
+M             1000
+
+For example, 2 is written as II in Roman numeral, just two ones added together. 12 is written as XII, which is simply X + II. The number 27 is written as XXVII, which is XX + V + II.
+
+Roman numerals are usually written largest to smallest from left to right. However, the numeral for four is not IIII. Instead, the number four is written as IV. Because the one is before the five we subtract it making four. The same principle applies to the number nine, which is written as IX. There are six instances where subtraction is used:
+
+        I can be placed before V (5) and X (10) to make 4 and 9. 
+        X can be placed before L (50) and C (100) to make 40 and 90. 
+        C can be placed before D (500) and M (1000) to make 400 and 900.
+
+Given a roman numeral, convert it to an integer.
+
+Example 1:
+
+Input: s = ""III""
+Output: 3
+Explanation: III = 3.
+
+Example 2:
+
+Input: s = ""LVIII""
+Output: 58
+Explanation: L = 50, V= 5, III = 3.
+
+Example 3:
+
+Input: s = ""MCMXCIV""
+Output: 1994
+Explanation: M = 1000, CM = 900, XC = 90 and IV = 4.
+
+Constraints:
+
+        1 <= s.length <= 15
+        s contains only the characters ('I', 'V', 'X', 'L', 'C', 'D', 'M').
+        It is guaranteed that s is a valid roman numeral in the range [1, 3999].","			
+
+class Solution {
+ public:
+  int romanToInt(string s) {
+    int ans = 0;
+    vector<int> roman(128);
+
+    roman['I'] = 1;
+    roman['V'] = 5;
+    roman['X'] = 10;
+    roman['L'] = 50;
+    roman['C'] = 100;
+    roman['D'] = 500;
+    roman['M'] = 1000;
+
+    for (int i = 0; i + 1 < s.length(); ++i)
+      if (roman[s[i]] < roman[s[i + 1]])
+        ans -= roman[s[i]];
+      else
+        ans += roman[s[i]];
+
+    return ans + roman[s.back()];
+  }
+};",https://leetcode.com/problems/roman-to-integer,"class Solution {
+ public:
+  int romanToInt(string s) {
+    int ans = 0;
+    vector<int> roman(128);
+
+    roman['I'] = 1;
+    roman['V'] = 5;
+    roman['X'] = 10;
+    roman['L'] = 50;
+    roman['C'] = 100;
+    roman['D'] = 500;
+    roman['M'] = 1000;
+
+    roman.clear();
+
+    for (int i = 0; i + 1 < s.length(); ++i)
+      if (roman[s[i]] < roman[s[i + 1]])
+        ans -= roman[s[i]];
+      else
+        ans += roman[s[i]];
+
+    return ans + roman[s.back()];
+  }
+};","[Logic – Fake optimization] Added an unnecessary clear of the Roman value table before it is used, which removes all initialized mappings.",Accepted,,,,,3,gpt-5.6-sol,few-shot,Runtime Error,"""s = \""I\""""",null,"""1""","Calling roman.clear() makes the vector empty, so roman[s.back()] performs an out-of-bounds access and causes undefined behavior."
+String,Medium,23,"Given a string s, find the length of the longest substring without duplicate characters.
+
+Example 1:
+
+Input: s = ""abcabcbb""
+Output: 3
+Explanation: The answer is ""abc"", with the length of 3.
+
+Example 2:
+
+Input: s = ""bbbbb""
+Output: 1
+Explanation: The answer is ""b"", with the length of 1.
+
+Example 3:
+
+Input: s = ""pwwkew""
+Output: 3
+Explanation: The answer is ""wke"", with the length of 3.
+Notice that the answer must be a substring, ""pwke"" is a subsequence and not a substring.
+
+Constraints:
+
+	0 <= s.length <= 5 * 104
+	s consists of English letters, digits, symbols and spaces.","			
+
+class Solution {
+ public:
+  int lengthOfLongestSubstring(string s) {
+    int ans = 0;
+    vector<int> count(128);
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      ++count[s[r]];
+      while (count[s[r]] > 1)
+        --count[s[l++]];
+      ans = max(ans, r - l + 1);
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/longest-substring-without-repeating-characters,"class Solution {
+ public:
+  int lengthOfLongestSubstring(string s) {
+    int ans = 0;
+    vector<int> count(128);
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      ++count[s[l]];
+      while (count[s[r]] > 1)
+        --count[s[l++]];
+      ans = max(ans, r - l + 1);
+    }
+
+    return ans;
+  }
+};","[Logic – Wrong variable name] Changed the character counted at the right pointer to use the left pointer instead, so the window frequency update tracks `s[l]` rather than `s[r]`.",Runtime Error,"s =
+""abcabcbb""",,,"Line 10: Char 17:
+=================================================================
+==21==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7fa9e0200140 at pc 0x55f71ffa74a4 bp 0x7fffe4311d40 sp 0x7fffe4311d38
+READ of size 1 at 0x7fa9e0200140 thread T0
+    #0 0x55f71ffa74a3 in Solution::lengthOfLongestSubstring(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>) solution.cpp:10:17
+    #1 0x55f71ffa6f4d in __DriverSolution__::__helper__(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>) solution.cpp:10:28
+    #2 0x55f71ffa6736 in main solution.cpp:10:40
+    #3 0x7fa9e1fba1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #4 0x7fa9e1fba28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #5 0x55f71fed0224 in _start (solution+0xae224)
+Address 0x7fa9e0200140 is located in stack of thread T0 at offset 64 in frame
+    #0 0x55f71ffa6e2f in __DriverSolution__::__helper__(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>) solution.cpp:10
+  This frame has 1 object(s):
+    [32, 64) 'agg.tmp' <== Memory access at offset 64 overflows this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow solution.cpp:10:17 in Solution::lengthOfLongestSubstring(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>)
+Shadow bytes around the buggy address:
+  0x7fa9e01ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e01fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e01fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x7fa9e0200080: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+=>0x7fa9e0200100: f1 f1 f1 f1 00 00 00 00[f3]f3 f3 f3 00 00 00 00
+  0x7fa9e0200180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7fa9e0200380: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==21==ABORTING",3,gpt-5.6-sol,few-shot,Wrong Answer,"""s = \""abb\""""","""3""","""2""",
+String,Medium,26,"Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. Return the answer in any order.
+
+A mapping of digits to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+
+Example 1:
+
+Input: digits = ""23""
+Output: [""ad"",""ae"",""af"",""bd"",""be"",""bf"",""cd"",""ce"",""cf""]
+
+Example 2:
+
+Input: digits = """"
+Output: []
+
+Example 3:
+
+Input: digits = ""2""
+Output: [""a"",""b"",""c""]
+
+Constraints:
+
+        0 <= digits.length <= 4
+        digits[i] is a digit in the range ['2', '9'].","class Solution {
+ public:
+  vector<string> letterCombinations(string digits) {
+    if (digits.empty())
+      return {};
+
+    vector<string> ans;
+
+    dfs(digits, 0, """", ans);
+    return ans;
+  }
+
+ private:
+  const vector<string> digitToLetters{"""",    """",    ""abc"",  ""def"", ""ghi"",
+                                      ""jkl"", ""mno"", ""pqrs"", ""tuv"", ""wxyz""};
+
+  void dfs(const string& digits, int i, string&& path, vector<string>& ans) {
+    if (i == digits.length()) {
+      ans.push_back(path);
+      return;
+    }
+
+    for (const char letter : digitToLetters[digits[i] - '0']) {
+      path.push_back(letter);
+      dfs(digits, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/letter-combinations-of-a-phone-number,"class Solution {
+ public:
+  vector<string> letterCombinations(string digits) {
+    vector<string> ans;
+
+    dfs(digits, 0, """", ans);
+    return ans;
+  }
+
+ private:
+  const vector<string> digitToLetters{"""",    """",    ""abc"",  ""def"", ""ghi"",
+                                      ""jkl"", ""mno"", ""pqrs"", ""tuv"", ""wxyz""};
+
+  void dfs(const string& digits, int i, string&& path, vector<string>& ans) {
+    if (i == digits.length()) {
+      ans.push_back(path);
+      return;
+    }
+
+    for (const char letter : digitToLetters[digits[i] - '0']) {
+      path.push_back(letter);
+      dfs(digits, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Logic – Missing edge case handling] Removed the early return for empty input, causing an empty string combination to be produced for empty digits.",Wrong Answer,"digits =
+""""",[],"[""""]",,2,gpt-5.6-sol,few-shot,Wrong Answer,"""digits = \""\""""","""[\""\""]""","""[]""",
+String,Hard,35,"Given a string s, return whether s is a valid number.
+ 
+ For example, all the following are valid numbers: ""2"", ""0089"", ""-0.1"", ""+3.14"", ""4."", ""-.9"", ""2e10"", ""-90E3"", ""3e+7"", ""+6e-1"", ""53.5e93"", ""-123.456e789"", while the following are not valid numbers: ""abc"", ""1a"", ""1e"", ""e3"", ""99e2.5"", ""--6"", ""-+3"", ""95a54e53"".
+ 
+ Formally, aÂ valid number is defined using one of the following definitions:
+ 
+  An integer number followed by an optional exponent.
+  A decimal number followed by an optional exponent.
+ 
+ An integer number is defined with an optional sign '-' or '+' followed by digits.
+ 
+ A decimal number is defined with an optional sign '-' or '+' followed by one of the following definitions:
+ 
+  Digits followed by a dot '.'.
+  Digits followed by a dot '.' followed by digits.
+  A dot '.' followed by digits.
+ 
+ An exponent is defined with an exponent notation 'e' or 'E' followed by an integer number.
+ 
+ The digits are defined as one or more digits.
+ 
+ Example 1:
+ 
+ Input: s = ""0""
+ 
+ Output: true
+ 
+ Example 2:
+ 
+ Input: s = ""e""
+ 
+ Output: false
+ 
+ Example 3:
+ 
+ Input: s = "".""
+ 
+ Output: false
+ 
+ Constraints:
+ 
+  1 <= s.length <= 20
+  s consists of only English letters (both uppercase and lowercase), digits (0-9), plus '+', minus '-', or dot '.'.","class Solution {
+public:
+    bool isNumber(span<char> s) {
+        if (s[0] == '+' || s[0] == '-') s = s.subspan(1);
+
+        auto s_ = strip_int(s);
+
+        if (s_[0] == '.') {
+            bool empty_before_dot = s_.size() == s.size();
+            s = s_.subspan(1);
+            s_ = strip_int(s);
+            if (empty_before_dot && s_.size() == s.size()) return false;
+        } else if (s_.size() == s.size()) return false;
+
+        if (s_.empty()) return true;
+        if (s_[0] == 'e' || s_[0] == 'E') {
+            s = s_.subspan(1);
+            if (!s.empty() && (s[0] == '+' || s[0] == '-')) s = s.subspan(1);
+            s_ = strip_int(s);
+            if (s_.size() == s.size()) return false;
+        }
+
+        return s_.empty();
+    }
+
+    span<char> strip_int(span<char> s) {
+        size_t i = 0;
+
+        while (i < s.size() && is_digit(s[i])) ++i;
+        
+        return s.subspan(i);
+    }
+
+    bool is_digit(char c) {
+        return isdigit(c);
+    }
+};",https://leetcode.com/problems/valid-number,"class Solution {
+public:
+    bool isNumber(span<char> s) {
+        if (s[0] == '+' || s[0] == '-') s = s.subspan(1);
+
+        auto s_ = strip_int(s);
+
+        if (s_[0] == '.') {
+            bool empty_before_dot = s_.size() == s.size();
+            s = s_.subspan(1);
+            s_ = strip_int(s);
+            if (empty_before_dot && s_.size() == s.size()) return false;
+        } else if (s_.size() == s.size()) return false;
+
+        if (s_.empty()) return true;
+        if (s_[0] == 'e' || s_[0] == 'E') {
+            s = s_.subspan(1);
+            if (!s.empty() & (s[0] == '+' || s[0] == '-')) s = s.subspan(1);
+            s_ = strip_int(s);
+            if (s_.size() == s.size()) return false;
+        }
+
+        return s_.empty();
+    }
+
+    span<char> strip_int(span<char> s) {
+        size_t i = 0;
+
+        while (i < s.size() && is_digit(s[i])) ++i;
+        
+        return s.subspan(i);
+    }
+
+    bool is_digit(char c) {
+        return isdigit(c);
+    }
+};","[Logic – Logical/bitwise operator confusion] Replaced the short-circuiting exponent sign check `&&` with bitwise `&`, causing `s[0]` to be evaluated even when the span is empty.",Accepted,,,,,3,gpt-5.6-sol,few-shot,Runtime Error,"""s = \""0\""""",null,"""true""","After stripping all digits, s_ is empty, but the code accesses s_[0], causing an out-of-bounds access and undefined behavior."
+String,Hard,41,"You are given a string s and an array of strings words. All the strings of words are of the same length.
+
+A concatenated string is a string that exactly contains all the strings of any permutation of words concatenated.
+
+	For example, if words = [""ab"",""cd"",""ef""], then ""abcdef"", ""abefcd"", ""cdabef"", ""cdefab"", ""efabcd"", and ""efcdab"" are all concatenated strings. ""acdbef"" is not a concatenated string because it is not the concatenation of any permutation of words.
+
+Return an array of the starting indices of all the concatenated substrings in s. You can return the answer in any order.
+
+Example 1:
+
+Input: s = ""barfoothefoobarman"", words = [""foo"",""bar""]
+
+Output: [0,9]
+
+Explanation:
+
+The substring starting at 0 is ""barfoo"". It is the concatenation of [""bar"",""foo""] which is a permutation of words.
+The substring starting at 9 is ""foobar"". It is the concatenation of [""foo"",""bar""] which is a permutation of words.
+
+Example 2:
+
+Input: s = ""wordgoodgoodgoodbestword"", words = [""word"",""good"",""best"",""word""]
+
+Output: []
+
+Explanation:
+
+There is no concatenated substring.
+
+Example 3:
+
+Input: s = ""barfoofoobarthefoobarman"", words = [""bar"",""foo"",""the""]
+
+Output: [6,9,12]
+
+Explanation:
+
+The substring starting at 6 is ""foobarthe"". It is the concatenation of [""foo"",""bar"",""the""].
+The substring starting at 9 is ""barthefoo"". It is the concatenation of [""bar"",""the"",""foo""].
+The substring starting at 12 is ""thefoobar"". It is the concatenation of [""the"",""foo"",""bar""].
+
+Constraints:
+
+	1 <= s.length <= 104
+	1 <= words.length <= 5000
+	1 <= words[i].length <= 30
+	s and words[i] consist of lowercase English letters.","                        
+
+class Solution {
+ public:
+  vector<int> findSubstring(string s, vector<string>& words) {
+    if (s.empty() || words.empty())
+      return {};
+
+    const int k = words.size();
+    const int n = words[0].length();
+    vector<int> ans;
+    unordered_map<string, int> count;
+
+    for (const string& word : words)
+      ++count[word];
+
+    for (int i = 0; i < s.length() - k * n + 1; ++i) {
+      unordered_map<string, int> seen;
+      int j;
+      for (j = 0; j < k; ++j) {
+        const string& word = s.substr(i + j * n, n);
+        if (++seen[word] > count[word])
+          break;
+      }
+      if (j == k)
+        ans.push_back(i);
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/substring-with-concatenation-of-all-words,"class Solution {
+ public:
+  vector<int> findSubstring(string s, vector<string>& words) {
+    if (s.empty())
+      return {};
+
+    const int k = words.size();
+    const int n = words[0].length();
+    vector<int> ans;
+    unordered_map<string, int> count;
+
+    for (const string& word : words)
+      ++count[word];
+
+    for (int i = 0; i < s.length() - k * n + 1; ++i) {
+      unordered_map<string, int> seen;
+      int j;
+      for (j = 0; j < k; ++j) {
+        const string& word = s.substr(i + j * n, n);
+        if (++seen[word] > count[word])
+          break;
+      }
+      if (j == k)
+        ans.push_back(i);
+    }
+
+    return ans;
+  }
+};",[Logic – Missing edge case handling] Removed the empty words guard so the code can access words[0] when words is empty.,Runtime Error,"s =
+""b""
+words =
+[""bbb"",""bbb""]",,,,3,gpt-5.6-sol,few-shot,Runtime Error,"""s = \""a\"", words = [\""aaa\""]""","""std::out_of_range exception""","""[]""","When the concatenation is longer than s by more than one character, unsigned underflow in the loop bound causes invalid substr positions and eventually throws std::out_of_range."
+String,Hard,44,"Given an array of strings words and a width maxWidth, format the text such that each line has exactly maxWidth characters and is fully (left and right) justified.
+
+You should pack your words in a greedy approach; that is, pack as many words as you can in each line. Pad extra spaces ' ' when necessary so that each line has exactly maxWidth characters.
+
+Extra spaces between words should be distributed as evenly as possible. If the number of spaces on a line does not divide evenly between words, the empty slots on the left will be assigned more spaces than the slots on the right.
+
+For the last line of text, it should be left-justified, and no extra space is inserted between words.
+
+Note:
+
+	A word is defined as a character sequence consisting of non-space characters only.
+	Each word's length is guaranteed to be greater than 0 and not exceed maxWidth.
+	The input array words contains at least one word.
+
+Example 1:
+
+Input: words = [""This"", ""is"", ""an"", ""example"", ""of"", ""text"", ""justification.""], maxWidth = 16
+Output:
+[
+   ""This    is    an"",
+   ""example  of text"",
+   ""justification.  ""
+]
+
+Example 2:
+
+Input: words = [""What"",""must"",""be"",""acknowledgment"",""shall"",""be""], maxWidth = 16
+Output:
+[
+  ""What   must   be"",
+  ""acknowledgment  "",
+  ""shall be        ""
+]
+Explanation: Note that the last line is ""shall be    "" instead of ""shall     be"", because the last line must be left-justified instead of fully-justified.
+Note that the second line is also left-justified because it contains only one word.
+
+Example 3:
+
+Input: words = [""Science"",""is"",""what"",""we"",""understand"",""well"",""enough"",""to"",""explain"",""to"",""a"",""computer."",""Art"",""is"",""everything"",""else"",""we"",""do""], maxWidth = 20
+Output:
+[
+  ""Science  is  what we"",
+  ""understand      well"",
+  ""enough to explain to"",
+  ""a  computer.  Art is"",
+  ""everything  else  we"",
+  ""do                  ""
+]
+
+Constraints:
+
+	1 <= words.length <= 300
+	1 <= words[i].length <= 20
+	words[i] consists of only English letters and symbols.
+	1 <= maxWidth <= 100
+	words[i].length <= maxWidth","			
+
+class Solution {
+ public:
+  vector<string> fullJustify(vector<string>& words, size_t maxWidth) {
+    vector<string> ans;
+    vector<string> row;
+    size_t rowLetters = 0;
+
+    for (const string& word : words) {
+      // If we put the word in this row, it'll exceed the maxWidth,
+      // So we cannot put the word to this row and have to pad spaces to
+      // Each word in this row
+      if (rowLetters + row.size() + word.length() > maxWidth) {
+        const int spaces = maxWidth - rowLetters;
+        if (row.size() == 1) {
+          // Pad all spaces after row[0]
+          for (int i = 0; i < spaces; ++i)
+            row[0] += "" "";
+        } else {
+          // Evenly pad spaces to each word (expect the last one) in this row
+          for (int i = 0; i < spaces; ++i)
+            row[i % (row.size() - 1)] += "" "";
+        }
+        ans.push_back(join(row, """"));
+        row.clear();
+        rowLetters = 0;
+      }
+      row.push_back(word);
+      rowLetters += word.length();
+    }
+    ans.push_back(ljust(join(row, "" ""), maxWidth));
+
+    return ans;
+  }
+
+ private:
+  string join(const vector<string>& v, const string& c) {
+    string s;
+    for (auto p = begin(v); p != end(v); ++p) {
+      s += *p;
+      if (p != end(v) - 1)
+        s += c;
+    }
+    return s;
+  }
+
+  string ljust(string s, int width) {
+    for (int i = 0; i < s.length() - width; ++i)
+      s += "" "";
+    return s;
+  }
+};",https://leetcode.com/problems/text-justification,"class Solution {
+ public:
+  vector<string> fullJustify(vector<string>& words, size_t maxWidth) {
+    vector<string> ans;
+    vector<string> row;
+    size_t rowLetters = 0;
+
+    for (const string& word : words) {
+      // If we put the word in this row, it'll exceed the maxWidth,
+      // So we cannot put the word to this row and have to pad spaces to
+      // Each word in this row
+      if (rowLetters + row.size() + word.length() > maxWidth) {
+        const int spaces = maxWidth - rowLetters;
+        if (row.size() == 1) {
+          // Pad all spaces before row[0]
+          for (int i = 0; i < spaces; ++i)
+            row[0] += "" "";
+        } else {
+          // Evenly pad spaces to each word (expect the last one) in this row
+          for (int i = 0; i < spaces; ++i)
+            row[i % (row.size() - 1)] += "" "";
+        }
+        ans.push_back(join(row, """"));
+        row.clear();
+        rowLetters = 0;
+      }
+      row.push_back(word);
+      rowLetters += word.length();
+    }
+    ans.push_back(ljust(join(row, "" ""), maxWidth));
+
+    return ans;
+  }
+
+ private:
+  string join(const vector<string>& v, const string& c) {
+    string s;
+    for (auto p = begin(v); p != end(v); ++p) {
+      s += *p;
+      if (p != end(v) - 1)
+        s += c;
+    }
+    return s;
+  }
+
+  string ljust(string s, int width) {
+    for (int i = 0; i < s.length() - width; ++i)
+      s += "" "";
+    return s;
+  }
+};","[Logic – Misleading comment] Changed the single-word row padding comment to falsely state that spaces are added before the word, while the code still appends them after the word.",Accepted,,,,,2,gpt-5.6-sol,few-shot,Accepted,"""""","""""","""""",
+String,Hard,46,"A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:
+
+	Every adjacent pair of words differs by a single letter.
+	Every si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.
+	sk == endWord
+
+Given two words, beginWord and endWord, and a dictionary wordList, return all the shortest transformation sequences from beginWord to endWord, or an empty list if no such sequence exists. Each sequence should be returned as a list of the words [beginWord, s1, s2, ..., sk].
+
+Example 1:
+
+Input: beginWord = ""hit"", endWord = ""cog"", wordList = [""hot"",""dot"",""dog"",""lot"",""log"",""cog""]
+Output: [[""hit"",""hot"",""dot"",""dog"",""cog""],[""hit"",""hot"",""lot"",""log"",""cog""]]
+Explanation: There are 2 shortest transformation sequences:
+""hit"" -> ""hot"" -> ""dot"" -> ""dog"" -> ""cog""
+""hit"" -> ""hot"" -> ""lot"" -> ""log"" -> ""cog""
+
+Example 2:
+
+Input: beginWord = ""hit"", endWord = ""cog"", wordList = [""hot"",""dot"",""dog"",""lot"",""log""]
+Output: []
+Explanation: The endWord ""cog"" is not in wordList, therefore there is no valid transformation sequence.
+
+Constraints:
+
+	1 <= beginWord.length <= 5
+	endWord.length == beginWord.length
+	1 <= wordList.length <= 500
+	wordList[i].length == beginWord.length
+	beginWord, endWord, and wordList[i] consist of lowercase English letters.
+	beginWord != endWord
+	All the words in wordList are unique.
+	The sum of all shortest transformation sequences does not exceed 105.","                        
+
+class Solution {
+ public:
+  vector<vector<string>> findLadders(string beginWord, string endWord,
+                                     vector<string>& wordList) {
+    unordered_set<string> wordSet{begin(wordList), end(wordList)};
+    if (!wordSet.count(endWord))
+      return {};
+
+    // {""hit"": [""hot""], ""hot"": [""dot"", ""lot""], ...}
+    unordered_map<string, vector<string>> graph;
+
+    // Build graph from beginWord -> endWord
+    if (!bfs(beginWord, endWord, wordSet, graph))
+      return {};
+
+    vector<vector<string>> ans;
+
+    dfs(graph, beginWord, endWord, {beginWord}, ans);
+    return ans;
+  }
+
+ private:
+  bool bfs(const string& beginWord, const string& endWord,
+           unordered_set<string>& wordSet,
+           unordered_map<string, vector<string>>& graph) {
+    unordered_set<string> currentLevelWords{beginWord};
+
+    while (!currentLevelWords.empty()) {
+      for (const string& word : currentLevelWords)
+        wordSet.erase(word);
+      unordered_set<string> nextLevelWords;
+      bool reachEndWord = false;
+      for (const string& parent : currentLevelWords) {
+        vector<string> children;
+        getChildren(parent, wordSet, children);
+        for (const string& child : children) {
+          if (wordSet.count(child)) {
+            nextLevelWords.insert(child);
+            graph[parent].push_back(child);
+          }
+          if (child == endWord)
+            reachEndWord = true;
+        }
+      }
+      if (reachEndWord)
+        return true;
+      currentLevelWords = move(nextLevelWords);
+    }
+
+    return true;
+  }
+
+  void getChildren(const string& parent, const unordered_set<string>& wordSet,
+                   vector<string>& children) {
+    string s(parent);
+
+    for (int i = 0; i < s.length(); ++i) {
+      const char cache = s[i];
+      for (char c = 'a'; c <= 'z'; ++c) {
+        if (c == cache)
+          continue;
+        s[i] = c;  // Now is `child`
+        if (wordSet.count(s))
+          children.push_back(s);
+      }
+      s[i] = cache;
+    }
+  }
+
+  void dfs(const unordered_map<string, vector<string>>& graph,
+           const string& word, const string& endWord, vector<string>&& path,
+           vector<vector<string>>& ans) {
+    if (word == endWord) {
+      ans.push_back(path);
+      return;
+    }
+    if (!graph.count(word))
+      return;
+
+    for (const string& child : graph.at(word)) {
+      path.push_back(child);
+      dfs(graph, child, endWord, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/word-ladder-ii,"class Solution {
+ public:
+  vector<vector<string>> findLadders(string beginWord, string endWord,
+                                     vector<string>& wordList) {
+    unordered_set<string> wordSet{begin(wordList), end(wordList)};
+    if (!wordSet.count(endWord))
+      return {};
+
+    // {""hit"": [""hot""], ""hot"": [""dot"", ""lot""], ...}
+    unordered_map<string, vector<string>> graph;
+
+    // Build graph from endWord -> beginWord
+    if (!bfs(beginWord, endWord, wordSet, graph))
+      return {};
+
+    vector<vector<string>> ans;
+
+    dfs(graph, beginWord, endWord, {beginWord}, ans);
+    return ans;
+  }
+
+ private:
+  bool bfs(const string& beginWord, const string& endWord,
+           unordered_set<string>& wordSet,
+           unordered_map<string, vector<string>>& graph) {
+    unordered_set<string> currentLevelWords{beginWord};
+
+    while (!currentLevelWords.empty()) {
+      for (const string& word : currentLevelWords)
+        wordSet.erase(word);
+      unordered_set<string> nextLevelWords;
+      bool reachEndWord = false;
+      for (const string& parent : currentLevelWords) {
+        vector<string> children;
+        getChildren(parent, wordSet, children);
+        for (const string& child : children) {
+          if (wordSet.count(child)) {
+            nextLevelWords.insert(child);
+            graph[parent].push_back(child);
+          }
+          if (child == endWord)
+            reachEndWord = true;
+        }
+      }
+      if (reachEndWord)
+        return true;
+      currentLevelWords = move(nextLevelWords);
+    }
+
+    return true;
+  }
+
+  void getChildren(const string& parent, const unordered_set<string>& wordSet,
+                   vector<string>& children) {
+    string s(parent);
+
+    for (int i = 0; i < s.length(); ++i) {
+      const char cache = s[i];
+      for (char c = 'a'; c <= 'z'; ++c) {
+        if (c == cache)
+          continue;
+        s[i] = c;  // Now is `child`
+        if (wordSet.count(s))
+          children.push_back(s);
+      }
+      s[i] = cache;
+    }
+  }
+
+  void dfs(const unordered_map<string, vector<string>>& graph,
+           const string& word, const string& endWord, vector<string>&& path,
+           vector<vector<string>>& ans) {
+    if (word == endWord) {
+      ans.push_back(path);
+      return;
+    }
+    if (!graph.count(word))
+      return;
+
+    for (const string& child : graph.at(word)) {
+      path.push_back(child);
+      dfs(graph, child, endWord, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",[Logic – Misleading comment] Changed the BFS graph construction comment to incorrectly state that the graph is built from endWord to beginWord.,Time Limit Exceeded,"beginWord =
+""aaaaa""
+endWord =
+""ggggg""
+wordList =
+[""aaaaa"",""caaaa"",""cbaaa"",""daaaa"",""dbaaa"",""eaaaa"",""ebaaa"",""faaaa"",""fbaaa"",""gaaaa"",""gbaaa"",""haaaa"",""hbaaa"",""iaaaa"",""ibaaa"",""jaaaa"",""jbaaa"",""kaaaa"",""kbaaa"",""laaaa"",""lbaaa"",""maaaa"",""mbaaa"",""naaaa"",""nbaaa"",""oaaaa"",""obaaa"",""paaaa"",""pbaaa"",""bbaaa"",""bbcaa"",""bbcba"",""bbdaa"",""bbdba"",""bbeaa"",""bbeba"",""bbfaa"",""bbfba"",""bbgaa"",""bbgba"",""bbhaa"",""bbhba"",""bbiaa"",""bbiba"",""bbjaa"",""bbjba"",""bbkaa"",""bbkba"",""bblaa"",""bblba"",""bbmaa"",""bbmba"",""bbnaa"",""bbnba"",""bboaa"",""bboba"",""bbpaa"",""bbpba"",""bbbba"",""abbba"",""acbba"",""dbbba"",""dcbba"",""ebbba"",""ecbba"",""fbbba"",""fcbba"",""gbbba"",""gcbba"",""hbbba"",""hcbba"",""ibbba"",""icbba"",""jbbba"",""jcbba"",""kbbba"",""kcbba"",""lbbba"",""lcbba"",""mbbba"",""mcbba"",""nbbba"",""ncbba"",""obbba"",""ocbba"",""pbbba"",""pcbba"",""ccbba"",""ccaba"",""ccaca"",""ccdba"",""ccdca"",""cceba"",""cceca"",""ccfba"",""ccfca"",""ccgba"",""ccgca"",""cchba"",""cchca"",""cciba"",""ccica"",""ccjba"",""ccjca"",""cckba"",""cckca"",""cclba"",""cclca"",""ccmba"",""ccmca"",""ccnba"",""ccnca"",""ccoba"",""ccoca"",""ccpba"",""ccpca"",""cccca"",""accca"",""adcca"",""bccca"",""bdcca"",""eccca"",""edcca"",""fccca"",""fdcca"",""gccca"",""gdcca"",""hccca"",""hdcca"",""iccca"",""idcca"",""jccca"",""jdcca"",""kccca"",""kdcca"",""lccca"",""ldcca"",""mccca"",""mdcca"",""nccca"",""ndcca"",""occca"",""odcca"",""pccca"",""pdcca"",""ddcca"",""ddaca"",""ddada"",""ddbca"",""ddbda"",""ddeca"",""ddeda"",""ddfca"",""ddfda"",""ddgca"",""ddgda"",""ddhca"",""ddhda"",""ddica"",""ddida"",""ddjca"",""ddjda"",""ddkca"",""ddkda"",""ddlca"",""ddlda"",""ddmca"",""ddmda"",""ddnca"",""ddnda"",""ddoca"",""ddoda"",""ddpca"",""ddpda"",""dddda"",""addda"",""aedda"",""bddda"",""bedda"",""cddda"",""cedda"",""fddda"",""fedda"",""gddda"",""gedda"",""hddda"",""hedda"",""iddda"",""iedda"",""jddda"",""jedda"",""kddda"",""kedda"",""lddda"",""ledda"",""mddda"",""medda"",""nddda"",""nedda"",""oddda"",""oedda"",""pddda"",""pedda"",""eedda"",""eeada"",""eeaea"",""eebda"",""eebea"",""eecda"",""eecea"",""eefda"",""eefea"",""eegda"",""eegea"",""eehda"",""eehea"",""eeida"",""eeiea"",""eejda"",""eejea"",""eekda"",""eekea"",""eelda"",""eelea"",""eemda"",""eemea"",""eenda"",""eenea"",""eeoda"",""eeoea"",""eepda"",""eepea"",""eeeea"",""ggggg"",""agggg"",""ahggg"",""bgggg"",""bhggg"",""cgggg"",""chggg"",""dgggg"",""dhggg"",""egggg"",""ehggg"",""fgggg"",""fhggg"",""igggg"",""ihggg"",""jgggg"",""jhggg"",""kgggg"",""khggg"",""lgggg"",""lhggg"",""mgggg"",""mhggg"",""ngggg"",""nhggg"",""ogggg"",""ohggg"",""pgggg"",""phggg"",""hhggg"",""hhagg"",""hhahg"",""hhbgg"",""hhbhg"",""hhcgg"",""hhchg"",""hhdgg"",""hhdhg"",""hhegg"",""hhehg"",""hhfgg"",""hhfhg"",""hhigg"",""hhihg"",""hhjgg"",""hhjhg"",""hhkgg"",""hhkhg"",""hhlgg"",""hhlhg"",""hhmgg"",""hhmhg"",""hhngg"",""hhnhg"",""hhogg"",""hhohg"",""hhpgg"",""hhphg"",""hhhhg"",""ahhhg"",""aihhg"",""bhhhg"",""bihhg"",""chhhg"",""cihhg"",""dhhhg"",""dihhg"",""ehhhg"",""eihhg"",""fhhhg"",""fihhg"",""ghhhg"",""gihhg"",""jhhhg"",""jihhg"",""khhhg"",""kihhg"",""lhhhg"",""lihhg"",""mhhhg"",""mihhg"",""nhhhg"",""nihhg"",""ohhhg"",""oihhg"",""phhhg"",""pihhg"",""iihhg"",""iiahg"",""iiaig"",""iibhg"",""iibig"",""iichg"",""iicig"",""iidhg"",""iidig"",""iiehg"",""iieig"",""iifhg"",""iifig"",""iighg"",""iigig"",""iijhg"",""iijig"",""iikhg"",""iikig"",""iilhg"",""iilig"",""iimhg"",""iimig"",""iinhg"",""iinig"",""iiohg"",""iioig"",""iiphg"",""iipig"",""iiiig"",""aiiig"",""ajiig"",""biiig"",""bjiig"",""ciiig"",""cjiig"",""diiig"",""djiig"",""eiiig"",""ejiig"",""fiiig"",""fjiig"",""giiig"",""gjiig"",""hiiig"",""hjiig"",""kiiig"",""kjiig"",""liiig"",""ljiig"",""miiig"",""mjiig"",""niiig"",""njiig"",""oiiig"",""ojiig"",""piiig"",""pjiig"",""jjiig"",""jjaig"",""jjajg"",""jjbig"",""jjbjg"",""jjcig"",""jjcjg"",""jjdig"",""jjdjg"",""jjeig"",""jjejg"",""jjfig"",""jjfjg"",""jjgig"",""jjgjg"",""jjhig"",""jjhjg"",""jjkig"",""jjkjg"",""jjlig"",""jjljg"",""jjmig"",""jjmjg"",""jjnig"",""jjnjg"",""jjoig"",""jjojg"",""jjpig"",""jjpjg"",""jjjjg"",""ajjjg"",""akjjg"",""bjjjg"",""bkjjg"",""cjjjg"",""ckjjg"",""djjjg"",""dkjjg"",""ejjjg"",""ekjjg"",""fjjjg"",""fkjjg"",""gjjjg"",""gkjjg"",""hjjjg"",""hkjjg"",""ijjjg"",""ikjjg"",""ljjjg"",""lkjjg"",""mjjjg"",""mkjjg"",""njjjg"",""nkjjg"",""ojjjg"",""okjjg"",""pjjjg"",""pkjjg"",""kkjjg"",""kkajg"",""kkakg"",""kkbjg"",""kkbkg"",""kkcjg"",""kkckg"",""kkdjg"",""kkdkg"",""kkejg"",""kkekg"",""kkfjg"",""kkfkg"",""kkgjg"",""kkgkg"",""kkhjg"",""kkhkg"",""kkijg"",""kkikg"",""kkljg"",""kklkg"",""kkmjg"",""kkmkg"",""kknjg"",""kknkg"",""kkojg"",""kkokg"",""kkpjg"",""kkpkg"",""kkkkg"",""ggggx"",""gggxx"",""ggxxx"",""gxxxx"",""xxxxx"",""xxxxy"",""xxxyy"",""xxyyy"",""xyyyy"",""yyyyy"",""yyyyw"",""yyyww"",""yywww"",""ywwww"",""wwwww"",""wwvww"",""wvvww"",""vvvww"",""vvvwz"",""avvwz"",""aavwz"",""aaawz"",""aaaaz""]",,,,3,gpt-5.6-sol,few-shot,Accepted,"""""","""""","""""",
+String,Hard,49,"Given a string s and a dictionary of strings wordDict, add spaces in s to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in any order.
+
+Note that the same word in the dictionary may be reused multiple times in the segmentation.
+
+Example 1:
+
+Input: s = ""catsanddog"", wordDict = [""cat"",""cats"",""and"",""sand"",""dog""]
+Output: [""cats and dog"",""cat sand dog""]
+
+Example 2:
+
+Input: s = ""pineapplepenapple"", wordDict = [""apple"",""pen"",""applepen"",""pine"",""pineapple""]
+Output: [""pine apple pen apple"",""pineapple pen apple"",""pine applepen apple""]
+Explanation: Note that you are allowed to reuse a dictionary word.
+
+Example 3:
+
+Input: s = ""catsandog"", wordDict = [""cats"",""dog"",""sand"",""and"",""cat""]
+Output: []
+
+Constraints:
+
+	1 <= s.length <= 20
+	1 <= wordDict.length <= 1000
+	1 <= wordDict[i].length <= 10
+	s and wordDict[i] consist of only lowercase English letters.
+	All the strings of wordDict are unique.
+	Input is generated in a way that the length of the answer doesn't exceed 105.","                        
+
+class Solution {
+ public:
+  vector<string> wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordSet{begin(wordDict), end(wordDict)};
+    unordered_map<string, vector<string>> memo;
+    return wordBreak(s, wordSet, memo);
+  }
+
+ private:
+  vector<string> wordBreak(const string& s,
+                           const unordered_set<string>& wordSet,
+                           unordered_map<string, vector<string>>& memo) {
+    if (memo.count(s))
+      return memo[s];
+
+    vector<string> ans;
+
+    // 1 <= prefix.length() < s.length()
+    for (int i = 1; i < s.length(); ++i) {
+      const string& prefix = s.substr(0, i);
+      const string& suffix = s.substr(i);
+      if (wordSet.count(prefix))
+        for (const string& word : wordBreak(suffix, wordSet, memo))
+          ans.push_back(prefix + "" "" + word);
+    }
+
+    // Contains whole string, so don't add any space
+    if (wordSet.count(s))
+      ans.push_back(s);
+
+    return memo[s] = ans;
+  }
+};",https://leetcode.com/problems/word-break-ii,"class Solution {
+ public:
+  vector<string> wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordSet{begin(wordDict), end(wordDict)};
+    unordered_map<string, vector<string>> memo;
+    return wordBreak(s, wordSet, memo);
+  }
+
+ private:
+  vector<string> wordBreak(const string& s,
+                           const unordered_set<string>& wordSet,
+                           unordered_map<string, vector<string>>& memo) {
+    if (memo.count(s))
+      return memo[s];
+
+    vector<string> ans;
+
+    // 1 <= prefix.length() < s.length()
+    for (int i = 1; i < s.length(); ++i) {
+      const string& prefix = s.substr(0, i);
+      const string& suffix = s.substr(i);
+      if (wordSet.count(prefix))
+        for (const string& word : wordBreak(prefix, wordSet, memo))
+          ans.push_back(prefix + "" "" + word);
+    }
+
+    // Contains whole string, so don't add any space
+    if (wordSet.count(s))
+      ans.push_back(s);
+
+    return memo[s] = ans;
+  }
+};","[Logic – Wrong variable name] Replaced the recursive call argument `suffix` with `prefix`, causing the recursion to break the already-used prefix instead of the remaining suffix.",Wrong Answer,"s =
+""catsanddog""
+wordDict =
+[""cat"",""cats"",""and"",""sand"",""dog""]","[""cat cat"",""cats cat cat"",""cats cats""]","[""cats and dog"",""cat sand dog""]",,2,gpt-5.6-sol,few-shot,Wrong Answer,"""s = \""catsanddog\"", wordDict = [\""cat\"",\""cats\"",\""and\"",\""sand\"",\""dog\""]""","""[\""cat cat\"",\""cats cats\""]""","""[\""cats and dog\"",\""cat sand dog\""]""","The recursion incorrectly calls wordBreak(prefix, ...) instead of wordBreak(suffix, ...), so it repeats valid prefixes rather than segmenting the remaining suffix."
+Bit manipulation,Easy,51,"Given an integer n, return an array ans of length n + 1 such that for each i (0 <= i <= n), ans[i] is the number of 1's in the binary representation of i.
+ 
+ Example 1:
+ 
+ Input: n = 2
+ Output: [0,1,1]
+ Explanation:
+ 0 --> 0
+ 1 --> 1
+ 2 --> 10
+ 
+ Example 2:
+ 
+ Input: n = 5
+ Output: [0,1,1,2,1,2]
+ Explanation:
+ 0 --> 0
+ 1 --> 1
+ 2 --> 10
+ 3 --> 11
+ 4 --> 100
+ 5 --> 101
+ 
+ Constraints:
+ 
+  0 <= n <= 105
+ 
+ Follow up:
+ 
+  It is very easy to come up with a solution with a runtime of O(n log n). Can you do it in linear time O(n) and possibly in a single pass?
+  Can you do it without using any built-in function (i.e., like __builtin_popcount in C++)?","class Solution {
+public:
+    vector<int> countBits(int n) {
+        vector<int>dp(n+1,0);
+        if(n==0) return {0};
+        dp[0]=0;
+        dp[1]=1;
+        for(int i=2;i<=n;i++){
+            dp[i]=dp[i/2]+dp[i%2];
+        }
+        return dp;
+    }
+};
+#pragma GCC target(""abm"")
+#pragma GCC target(""bmi"")
+#pragma GCC target(""avx2"")
+#pragma GCC target(""bmi2"")
+#pragma GCC target(""lzcnt"")
+#pragma GCC target(""popcnt"")
+#pragma GCC target(""native"")
+#pragma GCC optimize(""O3"")
+#pragma GCC optimize(""Ofast"")
+#pragma GCC optimize(""inline"")
+#pragma GCC optimize(""-fgcse"")
+#pragma GCC optimize(""fast-math"")
+#pragma GCC optimize(""-fgcse-lm"")
+#pragma GCC optimize(""-fipa-sra"")
+#pragma GCC optimize(""-ftree-pre"")
+#pragma GCC optimize(""-ftree-vrp"")
+#pragma GCC optimize(""-fpeephole2"")
+#pragma GCC optimize(""-ffast-math"")
+#pragma GCC optimize(""-fsched-spec"")
+#pragma GCC optimize(""unroll-loops"")
+#pragma GCC optimize(""-march=native"")
+#pragma GCC optimize(""-falign-jumps"")
+#pragma GCC optimize(""-falign-loops"")
+#pragma GCC optimize(""-falign-labels"")
+#pragma GCC optimize(""-fdevirtualize"")
+#pragma GCC optimize(""-fcaller-saves"")
+#pragma GCC optimize(""-fcrossjumping"")
+#pragma GCC optimize(""-fthread-jumps"")
+#pragma GCC optimize(""-funroll-loops"")
+#pragma GCC optimize(""-freorder-blocks"")
+#pragma GCC optimize(""-fschedule-insns"")
+#pragma GCC optimize(""inline-functions"")
+#pragma GCC optimize(""-ftree-tail-merge"")
+#pragma GCC optimize(""-fschedule-insnS2"")
+#pragma GCC optimize(""-fstrict-aliasing"")
+#pragma GCC optimize(""-falign-functions"")
+#pragma GCC optimize(""-fcse-follow-jumps"")
+#pragma GCC optimize(""-fsched-interblock"")
+#pragma GCC optimize(""-fpartial-inlining"")
+#pragma GCC optimize(""no-stack-protector"")
+#pragma GCC optimize(""-freorder-functions"")
+#pragma GCC optimize(""-findirect-inlining"")
+#pragma GCC optimize(""-fhoist-adjacent-loads"")
+#pragma GCC optimize(""-frerun-cse-after-loop"")
+#pragma GCC optimize(""inline-small-functions"")
+#pragma GCC optimize(""-finline-small-functions"")
+#pragma GCC optimize(""-ftree-switch-conversion"")
+#pragma GCC optimize(""-foptimize-sibling-calls"")
+#pragma GCC optimize(""-fexpensive-optimizations"")
+#pragma GCC optimize(""inline-functions-called-once"")
+#pragma GCC optimize(""-fdelete-null-Pointer-checks"")
+static const bool __boost = []() {
+   cin.tie(nullptr);
+   cout.tie(nullptr);
+   return std::ios_base::sync_with_stdio(false);
+}();
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+   constexpr std::size_t alignment = alignof(std::max_align_t);
+   size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+   size_t total_size = size + padding;
+   char* aligned_ptr = &buffer[buffer_pos + padding];
+   buffer_pos += total_size;
+   return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}
+const auto __ = []() {
+   struct Leetcode {
+       static void _() { std::ofstream(""display_runtime.txt"") << 0 << '\n'; }
+   };
+   std::atexit(&Leetcode::_);
+   return 0;
+}();",https://leetcode.com/problems/counting-bits,"class Solution {
+public:
+    vector<int> countBits(int n) {
+        vector<int>dp(n+1,0);
+        dp[0]=0;
+        dp[1]=1;
+        for(int i=2;i<=n;i++){
+            dp[i]=dp[i/2]+dp[i%2];
+        }
+        return dp;
+    }
+};
+#pragma GCC target(""abm"")
+#pragma GCC target(""bmi"")
+#pragma GCC target(""avx2"")
+#pragma GCC target(""bmi2"")
+#pragma GCC target(""lzcnt"")
+#pragma GCC target(""popcnt"")
+#pragma GCC target(""native"")
+#pragma GCC optimize(""O3"")
+#pragma GCC optimize(""Ofast"")
+#pragma GCC optimize(""inline"")
+#pragma GCC optimize(""-fgcse"")
+#pragma GCC optimize(""fast-math"")
+#pragma GCC optimize(""-fgcse-lm"")
+#pragma GCC optimize(""-fipa-sra"")
+#pragma GCC optimize(""-ftree-pre"")
+#pragma GCC optimize(""-ftree-vrp"")
+#pragma GCC optimize(""-fpeephole2"")
+#pragma GCC optimize(""-ffast-math"")
+#pragma GCC optimize(""-fsched-spec"")
+#pragma GCC optimize(""unroll-loops"")
+#pragma GCC optimize(""-march=native"")
+#pragma GCC optimize(""-falign-jumps"")
+#pragma GCC optimize(""-falign-loops"")
+#pragma GCC optimize(""-falign-labels"")
+#pragma GCC optimize(""-fdevirtualize"")
+#pragma GCC optimize(""-fcaller-saves"")
+#pragma GCC optimize(""-fcrossjumping"")
+#pragma GCC optimize(""-fthread-jumps"")
+#pragma GCC optimize(""-funroll-loops"")
+#pragma GCC optimize(""-freorder-blocks"")
+#pragma GCC optimize(""-fschedule-insns"")
+#pragma GCC optimize(""inline-functions"")
+#pragma GCC optimize(""-ftree-tail-merge"")
+#pragma GCC optimize(""-fschedule-insnS2"")
+#pragma GCC optimize(""-fstrict-aliasing"")
+#pragma GCC optimize(""-falign-functions"")
+#pragma GCC optimize(""-fcse-follow-jumps"")
+#pragma GCC optimize(""-fsched-interblock"")
+#pragma GCC optimize(""-fpartial-inlining"")
+#pragma GCC optimize(""no-stack-protector"")
+#pragma GCC optimize(""-freorder-functions"")
+#pragma GCC optimize(""-findirect-inlining"")
+#pragma GCC optimize(""-fhoist-adjacent-loads"")
+#pragma GCC optimize(""-frerun-cse-after-loop"")
+#pragma GCC optimize(""inline-small-functions"")
+#pragma GCC optimize(""-finline-small-functions"")
+#pragma GCC optimize(""-ftree-switch-conversion"")
+#pragma GCC optimize(""-foptimize-sibling-calls"")
+#pragma GCC optimize(""-fexpensive-optimizations"")
+#pragma GCC optimize(""inline-functions-called-once"")
+#pragma GCC optimize(""-fdelete-null-Pointer-checks"")
+static const bool __boost = []() {
+   cin.tie(nullptr);
+   cout.tie(nullptr);
+   return std::ios_base::sync_with_stdio(false);
+}();
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+   constexpr std::size_t alignment = alignof(std::max_align_t);
+   size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+   size_t total_size = size + padding;
+   char* aligned_ptr = &buffer[buffer_pos + padding];
+   buffer_pos += total_size;
+   return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}
+const auto __ = []() {
+   struct Leetcode {
+       static void _() { std::ofstream(""display_runtime.txt"") << 0 << '\n'; }
+   };
+   std::atexit(&Leetcode::_);
+   return 0;
+}();","[Logic – Missing edge case handling] Removed the early return for n == 0, causing dp[1] to be written even when the vector has size 1.",Accepted,,,,,3,gpt-5.6-sol,few-shot,Runtime Error,"""n = 0""","""undefined behavior due to an out-of-bounds write""","""[0]""","When n is 0, the vector has length 1, but dp[1] is written outside its bounds."
+Bit manipulation,Easy,53,"Reverse bits of a given 32 bits unsigned integer.
+  
+  Note:
+  
+  Note that in some languages, such as Java, there is no unsigned integer type. In this case, both input and output will be given as a signed integer type. They should not affect your implementation, as the integer's internal binary representation is the same, whether it is signed or unsigned.
+  In Java, the compiler represents the signed integers using 2's complement notation. Therefore, in Example 2 above, the input represents the signed integer -3 and the output represents the signed integer -1073741825.
+  
+  Example 1:
+  
+  Input: n = 00000010100101000001111010011100
+  Output: 964176192 (00111001011110000010100101000000)
+  Explanation: The input binary string 00000010100101000001111010011100 represents the unsigned integer 43261596, so return 964176192 which its binary representation is 00111001011110000010100101000000.
+  
+  Example 2:
+  
+  Input: n = 11111111111111111111111111111101
+  Output: 3221225471 (10111111111111111111111111111111)
+  Explanation: The input binary string 11111111111111111111111111111101 represents the unsigned integer 4294967293, so return 3221225471 which its binary representation is 10111111111111111111111111111111.
+  
+  Constraints:
+  
+  The input must be a binary string of length 32
+  
+  Follow up: If this function is called many times, how would you optimize it?","class Solution {
+public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t res = 0;
+        for (int i = 0; i < 32; i++) {
+            res <<= 1;
+            res |= (n & 1);
+            n >>= 1;
+        }
+        return res;
+    }
+};",https://leetcode.com/problems/reverse-bits,"class Solution {
+public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t res = 0;
+        for (int i = 0; i < 31; i++) {
+            res <<= 1;
+            res |= (n & 1);
+            n >>= 1;
+        }
+        return res;
+    }
+};","[Logic – Missing edge case handling] Changed the loop to process only 31 bits, missing the highest bit position during reversal.",Wrong Answer,"n =
+00000010100101000001111010011100",00011100101111000001010010100000,00111001011110000010100101000000,,2,gpt-5.6-sol,few-shot,Wrong Answer,"""n = 00000000000000000000000000000001""","""1073741824""","""2147483648""",
+Bit manipulation,Medium,76,"Given an integer array nums of unique elements, return all possible subsets (the power set).
+
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+
+Input: nums = [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+Example 2:
+
+Input: nums = [0]
+Output: [[],[0]]
+
+Constraints:
+
+	1 <= nums.length <= 10
+	-10 <= nums[i] <= 10
+	All the numbers of nums are unique.","			
+
+class Solution {
+ public:
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/subsets,"class Solution {
+ public:
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      path.push_back(nums[i]);
+      dfs(nums, i, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Logic – Insufficient recursion base case] Changed the recursive call to pass the same index instead of advancing to the next index, preventing recursion from making progress.",Memory Limit Exceeded,"nums =
+[1,2,3]",,,,3,gpt-5.6-sol,few-shot,Runtime Error,"""nums = [0]""",null,"""[[],[0]]""","The recursive call uses i instead of i + 1, so it repeatedly selects the same element and recurses indefinitely until stack overflow."
+Bit manipulation,Medium,78,"Given an integer array nums that may contain duplicates, return all possible subsets (the power set).
+
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+Input: nums = [1,2,2]
+Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]
+Example 2:
+Input: nums = [0]
+Output: [[],[0]]
+
+Constraints:
+
+	1 <= nums.length <= 10
+	-10 <= nums[i] <= 10","			
+
+class Solution {
+ public:
+  vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(begin(nums), end(nums));
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (i > s && nums[i] == nums[i - 1])
+        continue;
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/subsets-ii,"class Solution {
+ public:
+  vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(begin(nums), end(nums));
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (i > 0 && nums[i] == nums[i - 1])
+        continue;
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Logic – Missing edge case handling] Changed the duplicate-skip condition to compare against the start of the whole array instead of the current recursion level, causing valid duplicate-containing subsets to be omitted.",Wrong Answer,"nums =
+[1,2,2]","[[],[1],[1,2],[1,2,2],[1,2],[2]]","[[],[1],[1,2],[1,2,2],[2],[2,2]]",,2,gpt-5.6-sol,few-shot,Wrong Answer,"""nums = [1,2,2]""","""[[],[1],[1,2],[2]]""","""[[],[1],[1,2],[1,2,2],[2],[2,2]]""","The duplicate check uses i > 0 instead of i > s, so it incorrectly skips repeated values at deeper recursion levels and omits subsets containing multiple copies."
+Bit manipulation,Medium,82,"Given a positive integer n, you can apply one of the following operations:
+
+	If n is even, replace n with n / 2.
+	If n is odd, replace n with either n + 1 or n - 1.
+
+Return the minimum number of operations needed for n to become 1.
+
+Example 1:
+
+Input: n = 8
+Output: 3
+Explanation: 8 -> 4 -> 2 -> 1
+
+Example 2:
+
+Input: n = 7
+Output: 4
+Explanation: 7 -> 8 -> 4 -> 2 -> 1
+or 7 -> 6 -> 3 -> 2 -> 1
+
+Example 3:
+
+Input: n = 4
+Output: 2
+
+Constraints:
+
+	1 <= n <= 231 - 1","                        
+
+class Solution {
+ public:
+  int integerReplacement(long n) {
+    int ans = 0;
+
+    for (; n > 1; ++ans)
+      if ((n & 1) == 0)  // Ends w/ 0
+        n >>= 1;
+      else if (n == 3 || ((n >> 1) & 1) == 0)  // N = 3 or ends w/ 01
+        --n;
+      else  // Ends w/ 11
+        ++n;
+
+    return ans;
+  }
+};",https://leetcode.com/problems/integer-replacement,"class Solution {
+ public:
+  int integerReplacement(long n) {
+    int ans = 0;
+
+    for (; n > 1; ++ans)
+      if ((n && 1) == 0)  // Ends w/ 0
+        n >>= 1;
+      else if (n == 3 || ((n >> 1) & 1) == 0)  // N = 3 or ends w/ 01
+        --n;
+      else  // Ends w/ 11
+        ++n;
+
+    return ans;
+  }
+};","[Logic – Logical/bitwise operator confusion] Replaced the bitwise odd/even check `n & 1` with logical `n && 1`, causing even numbers greater than 1 to be handled as odd.",Runtime Error,"n =
+8",,,"Line 6: Char 19: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:15:19",3,gpt-5.6-sol,few-shot,Time Limit Exceeded,"""n = 2""",null,null,"The expression `(n && 1)` uses logical AND instead of bitwise AND, so the even branch is never taken for positive n and the program cycles between 2 and 3."
+Bit manipulation,Medium,83,"Given an integer array nums, return the maximum result of nums[i] XOR nums[j], where 0 <= i <= j < n.
+
+Example 1:
+
+Input: nums = [3,10,5,25,2,8]
+Output: 28
+Explanation: The maximum result is 5 XOR 25 = 28.
+
+Example 2:
+
+Input: nums = [14,70,53,83,49,91,36,80,92,51,66,70]
+Output: 127
+
+Constraints:
+
+	1 <= nums.length <= 2 * 105
+	0 <= nums[i] <= 231 - 1","			
+
+class Solution {
+ public:
+  int findMaximumXOR(vector<int>& nums) {
+    int ans = 0;
+    int mask = 0;
+
+    // If ans is 11100 at i = 2, it means before we reach the last two bits,
+    // 11100 is the maximum XOR we have, and we're going to explore if we can
+    // Get another two '1's and put them into ans
+    for (int i = 31; i >= 0; --i) {
+      // Mask grows like: 100...000, 110...000, 111...000, ..., 111...111
+      mask |= 1 << i;
+      unordered_set<int> prefixes;
+      // We only care about the left parts,
+      // If i = 2, nums = {1110, 1011, 0111}
+      // -> prefixes = {1100, 1000, 0100}
+      for (const int num : nums)
+        prefixes.insert(num & mask);
+      // If i = 1 and before this iteration, the ans is 1100,
+      // We hope to grow ans to 1110, so find a candidate
+      // Which can give a greedy try
+      const int candidate = ans | 1 << i;
+      for (const int prefix : prefixes)
+        if (prefixes.count(prefix ^ candidate)) {
+          ans = candidate;
+          break;
+        }
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array,"class Solution {
+ public:
+  int findMaximumXOR(vector<int>& nums) {
+    int ans = 0;
+    int mask = 0;
+
+    // If ans is 11100 at i = 2, it means before we reach the last two bits,
+    // 11100 is the maximum XOR we have, and we're going to explore if we can
+    // Get another two '1's and put them into ans
+    for (int i = 31; i >= 0; --i) {
+      // Mask grows like: 100...000, 110...000, 111...000, ..., 111...111
+      mask |= 1 << i;
+      unordered_set<int> prefixes;
+      // We only care about the left parts,
+      // If i = 2, nums = {1110, 1011, 0111}
+      // -> prefixes = {1100, 1000, 0100}
+      for (const int num : nums)
+        prefixes.insert(num & mask);
+      // If i = 1 and before this iteration, the ans is 1100,
+      // We hope to grow ans to 1110, so find a candidate
+      // Which can give a greedy try
+      const int candidate = ans | 1 << i - 1;
+      for (const int prefix : prefixes)
+        if (prefixes.count(prefix ^ candidate)) {
+          ans = candidate;
+          break;
+        }
+    }
+
+    return ans;
+  }
+};","[Logic – Operator precedence error] Changed the candidate bit update to use `ans | 1 << i - 1`, so the shift applies to `i - 1` instead of the intended current bit `i`.",Runtime Error,"nums =
+[3,10,5,25,2,8]",,,"Line 22: Char 37: runtime error: shift exponent -1 is negative (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:31:37",3,gpt-5.6-sol,few-shot,Wrong Answer,"""nums = [1, 2]""","""0""","""3""","The candidate uses `1 << (i - 1)` instead of `1 << i`, testing the wrong bit and eventually performing an undefined negative shift when `i` is 0."
+Bit manipulation,Medium,85,"You are given an integer array matchsticks where matchsticks[i] is the length of the ith matchstick. You want to use all the matchsticks to make one square. You should not break any stick, but you can link them up, and each matchstick must be used exactly one time.
+
+Return true if you can make this square and false otherwise.
+
+Example 1:
+
+Input: matchsticks = [1,1,2,2,2]
+Output: true
+Explanation: You can form a square with length 2, one side of the square came two sticks with length 1.
+
+Example 2:
+
+Input: matchsticks = [3,3,3,3,4]
+Output: false
+Explanation: You cannot find a way to form a square with all the matchsticks.
+
+Constraints:
+
+	1 <= matchsticks.length <= 15
+	1 <= matchsticks[i] <= 108","			
+
+class Solution {
+ public:
+  bool makesquare(vector<int>& matchsticks) {
+    if (matchsticks.size() < 4)
+      return false;
+
+    const int perimeter = accumulate(begin(matchsticks), end(matchsticks), 0);
+    if (perimeter % 4 != 0)
+      return false;
+
+    sort(begin(matchsticks), end(matchsticks), greater<int>());
+    return dfs(matchsticks, 0, vector<int>(4, perimeter / 4));
+  }
+
+ private:
+  bool dfs(const vector<int>& matchsticks, int selected, vector<int>&& edges) {
+    if (selected == matchsticks.size())
+      return all_of(begin(edges), end(edges),
+                    [](int edge) { return edge == 0; });
+
+    for (int i = 0; i < 4; ++i) {
+      if (matchsticks[selected] > edges[i])
+        continue;
+      edges[i] -= matchsticks[selected];
+      if (dfs(matchsticks, selected + 1, move(edges)))
+        return true;
+      edges[i] += matchsticks[selected];
+    }
+
+    return false;
+  }
+};",https://leetcode.com/problems/matchsticks-to-square,"class Solution {
+ public:
+  bool makesquare(vector<int>& matchsticks) {
+    if (matchsticks.size() < 4)
+      return false;
+
+    const int perimeter = accumulate(begin(matchsticks), end(matchsticks), 0);
+    if (perimeter % 4 != 0)
+      return false;
+
+    sort(begin(matchsticks), end(matchsticks), greater<int>());
+    return dfs(matchsticks, 0, vector<int>(4, perimeter / 4));
+  }
+
+ private:
+  bool dfs(const vector<int>& matchsticks, int selected, vector<int>&& edges) {
+    if (selected > matchsticks.size())
+      return all_of(begin(edges), end(edges),
+                    [](int edge) { return edge == 0; });
+
+    for (int i = 0; i < 4; ++i) {
+      if (matchsticks[selected] > edges[i])
+        continue;
+      edges[i] -= matchsticks[selected];
+      if (dfs(matchsticks, selected + 1, move(edges)))
+        return true;
+      edges[i] += matchsticks[selected];
+    }
+
+    return false;
+  }
+};","[Logic – Insufficient recursion base case] Changed the DFS termination condition from `selected == matchsticks.size()` to `selected > matchsticks.size()`, so recursion does not stop when all matchsticks are used.",Wrong Answer,"matchsticks =
+[1,1,2,2,2]",FALSE,TRUE,,3,gpt-5.6-sol,few-shot,Runtime Error,"""matchsticks = [1,1,1,1]""",null,"""true""","The base case uses selected > matchsticks.size() instead of equality, so selected == matchsticks.size() accesses matchsticks[selected] out of bounds, causing undefined behavior."
+Tree,Easy,103,"Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+ 
+ Example 1:
+ 
+ Input: root = [1,2,2,3,4,4,3]
+ Output: true
+ 
+ Example 2:
+ 
+ Input: root = [1,2,2,null,3,null,3]
+ Output: false
+ 
+ Constraints:
+ 
+ The number of nodes in the tree is in the range [1, 1000].
+ -100 <= Node.val <= 100
+ 
+ Follow up: Could you solve it both recursively and iteratively?","class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        return root==NULL || isSymmetrichelp(root->left,root->right);
+    }
+    bool isSymmetrichelp(TreeNode*left, TreeNode*right){
+if(left==NULL ||right==NULL){
+    return left==right;
+}
+if(left->val!=right->val)return false;
+return isSymmetrichelp(left->left,right->right)&&isSymmetrichelp(left->right,right->left);
+    }
+};
+
+static const bool __boost = []() {
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}",https://leetcode.com/problems/symmetric-tree,"class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        return root==NULL || isSymmetrichelp(root->left,root->right);
+    }
+    bool isSymmetrichelp(TreeNode*left, TreeNode*right){
+if(left==NULL ||right==NULL){
+    return left==right;
+}
+if(left->val!=right->val)return false;
+return isSymmetrichelp(left->left,right->right)||isSymmetrichelp(left->right,right->left);
+    }
+};
+
+static const bool __boost = []() {
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}","[Logic – Logical/bitwise operator confusion] Replaced the final recursive mirror check operator from && to ||, allowing a tree to be considered symmetric if only one mirrored subtree pair matches.",Wrong Answer,"root =
+[5,2,2,4,null,null,1,null,1,null,4,2,null,2,null]",TRUE,FALSE,,3,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1,2,2,3,null,null,4]""","""true""","""false""","The recursive mirror checks are combined with logical OR instead of AND, so the function returns true when only one pair of subtrees is symmetric."
+Tree,Easy,111,"Given the root of a binary tree, invert the tree, and return its root.
+
+Example 1:
+
+Input: root = [4,2,7,1,3,6,9]
+Output: [4,7,2,9,6,3,1]
+
+Example 2:
+
+Input: root = [2,1,3]
+Output: [2,3,1]
+
+Example 3:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100","                        
+
+class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(left);
+    return root;
+  }
+};",https://leetcode.com/problems/invert-binary-tree,"class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(right);
+    return root;
+  }
+};","[Logic – Wrong variable name] Changed the recursive assignment for root->right to use right instead of left, causing both children to be built from the original right subtree.",Runtime Error,"root =
+[4,2,7,1,3,6,9]",,,"Line 52: Char 9:
+=================================================================
+==22==ERROR: AddressSanitizer: heap-use-after-free on address 0x503000000198 at pc 0x55f08732ed93 bp 0x7ffcfa4214f0 sp 0x7ffcfa4214e8
+READ of size 8 at 0x503000000198 thread T0
+    #0 0x55f08732ed92 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd92)
+    #1 0x55f08732ed64 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd64)
+    #2 0x55f08732ed47 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd47)
+    #3 0x55f08732ecda in __TreeNodeUtils__::freeTree(TreeNode*&) (solution+0x1abcda)
+    #4 0x55f08730c241 in main solution.cpp:52:9
+    #5 0x7f5eaf18a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #6 0x7f5eaf18a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #7 0x55f087235d54 in _start (solution+0xb2d54)
+0x503000000198 is located 8 bytes inside of 24-byte region [0x503000000190,0x5030000001a8)
+freed by thread T0 here:
+    #0 0x55f08730a5e2 in operator delete(void*, unsigned long) /root/llvm-project/compiler-rt/lib/asan/asan_new_delete.cpp:155:3
+    #1 0x55f08732ed47 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd47)
+    #2 0x55f08732ed47 in __TreeNodeUtils__::freeTreeHelper(TreeNode*) (solution+0x1abd47)
+    #3 0x55f08732ecda in __TreeNodeUtils__::freeTree(TreeNode*&) (solution+0x1abcda)
+    #4 0x55f08730c241 in main solution.cpp:52:9
+    #5 0x7f5eaf18a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #6 0x7f5eaf18a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #7 0x55f087235d54 in _start (solution+0xb2d54)
+previously allocated by thread T0 here:
+    #0 0x55f08730997d in operator new(unsigned long) /root/llvm-project/compiler-rt/lib/asan/asan_new_delete.cpp:86:3
+    #1 0x55f087324487 in TreeNode* _Deserializer_::deserialize<TreeNode*>(rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>>&, TreeNode**) (solution+0x1a1487)
+    #2 0x55f087326322 in TreeNode* _Deserializer_::deserialize<TreeNode*>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const&) (solution+0x1a3322)
+    #3 0x55f08730c191 in main solution.cpp:52:35
+    #4 0x7f5eaf18a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #5 0x7f5eaf18a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #6 0x55f087235d54 in _start (solution+0xb2d54)
+SUMMARY: AddressSanitizer: heap-use-after-free (solution+0x1abd92) in __TreeNodeUtils__::freeTreeHelper(TreeNode*)
+Shadow bytes around the buggy address:
+  0x502fffffff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x502fffffff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x503000000000: fa fa 00 00 00 fa fa fa fd fd fd fa fa fa 00 00
+  0x503000000080: 00 fa fa fa 00 00 00 fa fa fa 00 00 00 fa fa fa
+  0x503000000100: 00 00 00 fa fa fa 00 00 00 fa fa fa 00 00 00 fa
+=>0x503000000180: fa fa fd[fd]fd fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000380: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x503000000400: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==22==ABORTING",3,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [2,1,3]""","""[2,3,3]""","""[2,3,1]""","Both child pointers are assigned from invertTree(right), so the original left subtree is discarded and the inverted right subtree is used twice."
+Tree,Medium,123,"Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).
+ 
+ Example 1:
+ 
+ Input: root = [3,9,20,null,null,15,7]
+ Output: [[3],[9,20],[15,7]]
+ 
+ Example 2:
+ 
+ Input: root = [1]
+ Output: [[1]]
+ 
+ Example 3:
+ 
+ Input: root = []
+ Output: []
+ 
+ Constraints:
+ 
+ The number of nodes in the tree is in the range [0, 2000].
+ -1000 <= Node.val <= 1000","class Solution {
+    vector<vector<int>> result;   
+    queue<TreeNode *>que;
+    void levelorder(TreeNode *p){
+        if(p){
+            que.push(p);
+        }
+        while(!que.empty()){
+            vector<int>temp;
+            int size=que.size();
+            for(int i=0;i<size;i++){
+                TreeNode *t=que.front();
+                que.pop();
+                temp.push_back(t->val);
+                if(t->left){
+                    que.push(t->left);
+                }
+                if(t->right){
+                    que.push(t->right);
+                }
+            }
+            result.push_back(temp);
+        }
+    }
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if(root==NULL){
+            return {};
+        }
+        levelorder(root);
+        return result;
+        
+    }
+};
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas (std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void *
+operator new (size_t size)
+{
+    constexpr std::size_t alignment = alignof (std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char *aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void
+operator delete (void * /*unused*/, unsigned long /*unused*/) noexcept
+{
+}
+void
+operator delete (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/, size_t /*unused*/) noexcept
+{
+}",https://leetcode.com/problems/binary-tree-level-order-traversal,"class Solution {
+    vector<vector<int>> result;   
+    queue<TreeNode *>que;
+    void levelorder(TreeNode *p){
+        if(p){
+            que.push(p);
+        }
+        while(!que.empty()){
+            vector<int>temp;
+            int size=result.size();
+            for(int i=0;i<size;i++){
+                TreeNode *t=que.front();
+                que.pop();
+                temp.push_back(t->val);
+                if(t->left){
+                    que.push(t->left);
+                }
+                if(t->right){
+                    que.push(t->right);
+                }
+            }
+            result.push_back(temp);
+        }
+    }
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if(root==NULL){
+            return {};
+        }
+        levelorder(root);
+        return result;
+        
+    }
+};
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas (std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void *
+operator new (size_t size)
+{
+    constexpr std::size_t alignment = alignof (std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char *aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void
+operator delete (void * /*unused*/, unsigned long /*unused*/) noexcept
+{
+}
+void
+operator delete (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/, size_t /*unused*/) noexcept
+{
+}","[Logic – Wrong variable name] Changed the level size calculation to use result.size() instead of que.size(), preventing the queue from being processed correctly.",Runtime Error,"root =
+[3,9,20,null,null,15,7]",,,"Line 14: Char 35: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:23:35",3,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""[[],[1]]""","""[[1]]""",
+Tree,Medium,133,"You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition:
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6,7]
+Output: [1,#,2,3,#,4,5,6,7,#]
+Explanation: Given the above perfect binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 212 - 1].
+	-1000 <= Node.val <= 1000
+
+Follow-up:
+
+	You may only use constant extra space.
+	The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.","			
+
+class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p == nullptr)
+      return;
+    p->next = q;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};",https://leetcode.com/problems/populating-next-right-pointers-in-each-node,"class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p == nullptr)
+      return;
+    p->next = p;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};",[Logic – Wrong variable name] Changed the next pointer assignment to point to p instead of q.,Time Limit Exceeded,"root =
+[1,2,3,4,5,6,7]",,,,3,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1,2,3]""","""Node 2's next pointer points to itself, causing the next-pointer traversal of level 2 to loop indefinitely.""","""[1,#,2,3,#]""",The assignment `p->next = p` incorrectly creates a self-loop instead of connecting `p` to `q`.
+Graph,Medium,153,"There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+ 
+ For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+ 
+ Return true if you can finish all courses. Otherwise, return false.
+ 
+ Example 1:
+ 
+ Input: numCourses = 2, prerequisites = [[1,0]]
+ Output: true
+ Explanation: There are a total of 2 courses to take. 
+ To take course 1 you should have finished course 0. So it is possible.
+ 
+ Example 2:
+ 
+ Input: numCourses = 2, prerequisites = [[1,0],[0,1]]
+ Output: false
+ Explanation: There are a total of 2 courses to take. 
+ To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+ 
+ Constraints:
+ 
+ 1 <= numCourses <= 2000
+ 0 <= prerequisites.length <= 5000
+ prerequisites[i].length == 2
+ 0 <= ai, bi < numCourses
+ All the pairs prerequisites[i] are unique.","#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int head[2005];
+    int to[5005];
+    int nxt[5005];
+    int degree[2005];
+    int q[2005];
+    int edge_cnt;
+
+    int add_edge(int u, int v) {
+        to[edge_cnt] = v;
+        nxt[edge_cnt] = head[u];
+        head[u] = edge_cnt++;
+        return 0;
+    }
+
+    bool canFinish(int n, vector<vector<int>>& pre) {
+        edge_cnt = 0;
+        for (int i = 0; i < n; i++) {
+            head[i] = -1;
+            degree[i] = 0;
+        }
+
+        for (auto& p : pre) {
+            add_edge(p[1], p[0]);
+            degree[p[0]]++;
+        }
+
+        int h = 0, t = 0;
+        for (int i = 0; i < n; i++) {
+            if (degree[i] == 0) {
+                q[t++] = i;
+            }
+        }
+
+        int visited_count = 0;
+        while (h < t) {
+            int curr = q[h++];
+            visited_count++;
+
+            for (int i = head[curr]; i != -1; i = nxt[i]) {
+                int neighbor = to[i];
+
+                if (--degree[neighbor] == 0) {
+                    q[t++] = neighbor;
+                }
+            }
+        }
+
+        return visited_count == n;
+    }
+};",https://leetcode.com/problems/course-schedule,"#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int head[2005];
+    int to[5005];
+    int nxt[5005];
+    int degree[2005];
+    int q[2005];
+    int edge_cnt;
+
+    int add_edge(int u, int v) {
+        to[edge_cnt] = v;
+        nxt[edge_cnt] = head[u];
+        head[u] = edge_cnt++;
+        return 0;
+    }
+
+    bool canFinish(int n, vector<vector<int>>& pre) {
+        for (int i = 0; i < n; i++) {
+            head[i] = -1;
+            degree[i] = 0;
+        }
+
+        for (auto& p : pre) {
+            add_edge(p[1], p[0]);
+            degree[p[0]]++;
+        }
+
+        int h = 0, t = 0;
+        for (int i = 0; i < n; i++) {
+            if (degree[i] == 0) {
+                q[t++] = i;
+            }
+        }
+
+        int visited_count = 0;
+        while (h < t) {
+            int curr = q[h++];
+            visited_count++;
+
+            for (int i = head[curr]; i != -1; i = nxt[i]) {
+                int neighbor = to[i];
+
+                if (--degree[neighbor] == 0) {
+                    q[t++] = neighbor;
+                }
+            }
+        }
+
+        return visited_count == n;
+    }
+};","[Logic – Forgetting to reset global/static state] Removed the reset of edge_cnt at the start of canFinish, causing adjacency data to accumulate across calls.",Accepted,,,,,2,gpt-5.6-sol,few-shot,Runtime Error,"""""","""""","""""","The member variable edge_cnt is never initialized or reset, so add_edge uses an indeterminate array index, causing undefined behavior and potentially out-of-bounds access."
+Graph,Medium,158,"There are n cities connected by some number of flights. You are given an array flights where flights[i] = [fromi, toi, pricei] indicates that there is a flight from city fromi to city toi with cost pricei.
+ 
+ You are also given three integers src, dst, and k, return the cheapest price from src to dst with at most k stops. If there is no such route, return -1.
+ 
+ Example 1:
+ 
+ Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
+ Output: 700
+ Explanation:
+ The graph is shown above.
+ The optimal path with at most 1 stop from city 0 to 3 is marked in red and has cost 100 + 600 = 700.
+ Note that the path through cities [0,1,2,3] is cheaper but is invalid because it uses 2 stops.
+ 
+ Example 2:
+ 
+ Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
+ Output: 200
+ Explanation:
+ The graph is shown above.
+ The optimal path with at most 1 stop from city 0 to 2 is marked in red and has cost 100 + 100 = 200.
+ 
+ Example 3:
+ 
+ Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
+ Output: 500
+ Explanation:
+ The graph is shown above.
+ The optimal path with no stops from city 0 to 2 is marked in red and has cost 500.
+ 
+ Constraints:
+ 
+ 1 <= n <= 100
+ 0 <= flights.length <= (n * (n - 1) / 2)
+ flights[i].length == 3
+ 0 <= fromi, toi < n
+ fromi != toi
+ 1 <= pricei <= 104
+ There will not be any multiple flights between two cities.
+ 0 <= src, dst, k < n
+ src != dst","int dist[4950] = {INT_MAX};
+int saved[4950];
+
+class Solution {
+public:
+    int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+        for (int i = 0; i < n; i++) dist[i] = INT_MAX;
+        dist[src] = 0;
+        for (int i = 0; i <= k; i++) {
+            memcpy(saved, dist, sizeof(int) * n);
+            for (auto& v : flights) {
+                auto from = v[0];
+                auto to = v[1];
+                auto price = v[2];
+                if (dist[from] != INT_MAX && dist[from] + price < saved[to]) {
+                    saved[to] = dist[from] + price;
+                }
+            }
+            memcpy(dist, saved, sizeof(int) * n);
+        }
+        return dist[dst] == INT_MAX ? -1 : dist[dst];
+    }
+};",https://leetcode.com/problems/cheapest-flights-within-k-stops,"int dist[4950] = {INT_MAX};
+int saved[4950];
+
+class Solution {
+public:
+    int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+        for (int i = 0; i < n; i++) dist[i] = INT_MAX;
+        dist[src] = 0;
+        for (int i = 0; i <= k; i++) {
+            memcpy(saved, dist, sizeof(int) * n);
+            for (auto& v : flights) {
+                auto from = v[0];
+                auto to = v[1];
+                auto price = v[2];
+                if (dist[to] != INT_MAX && dist[from] + price < saved[to]) {
+                    saved[to] = dist[from] + price;
+                }
+            }
+            memcpy(dist, saved, sizeof(int) * n);
+        }
+        return dist[dst] == INT_MAX ? -1 : dist[dst];
+    }
+};",[Logic – Wrong variable name] Replaced `dist[from]` with `dist[to]` in the edge relaxation reachability check.,Runtime Error,"n =
+4
+flights =
+[[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]]
+src =
+0
+dst =
+3
+k =
+1",,,"Line 15: Char 55: runtime error: signed integer overflow: 2147483647 + 100 cannot be represented in type 'int' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:24:55",3,gpt-5.6-sol,few-shot,Wrong Answer,"""n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1""","""-1""","""200""",
+Graph,Hard,172,"There is a safe protected by a password. The password is a sequence of n digits where each digit can be in the range [0, k - 1].
+ 
+ The safe has a peculiar way of checking the password. When you enter in a sequence, it checks the most recent n digits that were entered each time you type a digit.
+ 
+ For example, the correct password is ""345"" and you enter in ""012345"":
+ 
+ After typing 0, the most recent 3 digits is ""0"", which is incorrect.
+ After typing 1, the most recent 3 digits is ""01"", which is incorrect.
+ After typing 2, the most recent 3 digits is ""012"", which is incorrect.
+ After typing 3, the most recent 3 digits is ""123"", which is incorrect.
+ After typing 4, the most recent 3 digits is ""234"", which is incorrect.
+ After typing 5, the most recent 3 digits is ""345"", which is correct and the safe unlocks.
+ 
+ Return any string of minimum length that will unlock the safe at some point of entering it.
+ 
+ Example 1:
+ 
+ Input: n = 1, k = 2
+ Output: ""10""
+ Explanation: The password is a single digit, so enter each digit. ""01"" would also unlock the safe.
+ 
+ Example 2:
+ 
+ Input: n = 2, k = 2
+ Output: ""01100""
+ Explanation: For each possible password:
+ - ""00"" is typed in starting from the 4th digit.
+ - ""01"" is typed in starting from the 1st digit.
+ - ""10"" is typed in starting from the 3rd digit.
+ - ""11"" is typed in starting from the 2nd digit.
+ Thus ""01100"" will unlock the safe. ""10011"", and ""11001"" would also unlock the safe.
+ 
+ Constraints:
+ 
+ 1 <= n <= 4
+ 1 <= k <= 10
+ 1 <= kn <= 4096","namespace {
+constexpr int ipow(int k, int n) noexcept {
+    int result = 1;
+    while (n--)
+        result *= k;
+    return result;
+}
+
+struct Solution {
+    static constexpr std::string crackSafe(int n, int k) noexcept {
+        int size = k == 1 ? n : ipow(k, n) + n - 1;
+        std::string result(size, '\0');
+        auto write = result.begin();
+        if (k == 1) {
+            std::fill(result.begin(), result.end(), '0');
+        } else {
+            std::string a(k*n, '0');
+            [&](this const auto& de_bruijn, int t, int p) noexcept -> void {
+                if (t > n) {
+                    if (n % p == 0)
+                        write = std::copy(a.begin() + 1, a.begin() + p + 1, write);
+                    return;
+                }
+                a[t] = a[t-p];
+                de_bruijn(t+1, p);
+                for (char j = a[t-p] + 1; j < k+'0'; ++j) {
+                    a[t] = j;
+                    de_bruijn(t+1, t);
+                }
+            }(1, 1);
+            std::copy(result.begin(), result.begin() + (n-1), write);
+        }
+        return result;
+    }
+};
+}",https://leetcode.com/problems/cracking-the-safe,"namespace {
+constexpr int ipow(int k, int n) noexcept {
+    int result = 1;
+    while (n--)
+        result *= k;
+    return result;
+}
+
+struct Solution {
+    static constexpr std::string crackSafe(int n, int k) noexcept {
+        int size = k == 1 ? n : ipow(k, n) + n - 1;
+        std::string result(size, '\0');
+        auto write = result.begin();
+        if (k == 1) {
+            std::fill(result.begin(), result.end(), '0');
+        } else {
+            std::string a(k*n, '0');
+            [&](this const auto& de_bruijn, int t, int p) noexcept -> void {
+                if (t > n) {
+                    if (n & p == 0)
+                        write = std::copy(a.begin() + 1, a.begin() + p + 1, write);
+                    return;
+                }
+                a[t] = a[t-p];
+                de_bruijn(t+1, p);
+                for (char j = a[t-p] + 1; j < k+'0'; ++j) {
+                    a[t] = j;
+                    de_bruijn(t+1, t);
+                }
+            }(1, 1);
+            std::copy(result.begin(), result.begin() + (n-1), write);
+        }
+        return result;
+    }
+};
+}","[Logic – Operator precedence error] Changed the de Bruijn emission condition from `n % p == 0` to `n & p == 0`, which is parsed incorrectly and prevents valid sequence segments from being written.",Wrong Answer,"n =
+1
+k =
+2","""\u0000""","""10""",,2,gpt-5.6-sol,few-shot,Wrong Answer,"""n = 1, k = 2""","""\""\\u0000\\u0000\""""","""\""01\""""","The condition `n & p == 0` is parsed as `n & (p == 0)`, so it is always false for positive `p` and no De Bruijn digits are written."

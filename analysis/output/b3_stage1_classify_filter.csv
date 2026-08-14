@@ -1,0 +1,4 @@
+﻿variant,n,label1,label2,label3,flab1,flab2,flab3,acc_strict,acc_adjudicated,D1_size,D1_khop_flabel23,ro_ri
+logic1,179,160,13,6,141,32,6,0.8939,0.7877,38,True,0
+logic2,179,153,12,14,138,27,14,0.8547,0.7709,41,True,0
+reference1,179,147,11,21,128,30,21,0.8212,0.7151,51,True,0

@@ -1,0 +1,3615 @@
+topic,level,id,problem,solution,url,buggy_submission,bug_description,gt_status,gt_input,gt_actual_output,gt_expected_output,gt_reason,filtered_label,llm_model,prompt_strategy,pred_status,pred_input,pred_actual_output,pred_expected_output,pred_reason
+String,Medium,18,"The string ""PAYPALISHIRING"" is written in a zigzag pattern on a given number of rows like this: (you may want to display this pattern in a fixed font for better legibility)
+ 
+ P A H N
+ A P L S I I G
+ Y I R
+ 
+ And then read line by line: ""PAHNAPLSIIGYIR""
+ 
+ Write the code that will take a string and make this conversion given a number of rows:
+ 
+ string convert(string s, int numRows);
+ 
+ Example 1:
+ 
+ Input: s = ""PAYPALISHIRING"", numRows = 3
+ Output: ""PAHNAPLSIIGYIR""
+ 
+ Example 2:
+ 
+ Input: s = ""PAYPALISHIRING"", numRows = 4
+ Output: ""PINALSIGYAHRPI""
+ Explanation:
+ P I N
+ A L S I G
+ Y A H R
+ P I
+ 
+ Example 3:
+ 
+ Input: s = ""A"", numRows = 1
+ Output: ""A""
+ 
+ Constraints:
+ 
+  1 <= s.length <= 1000
+  s consists of English letters (lower-case and upper-case), ',' and '.'.
+  1 <= numRows <= 1000","#pragma GCC optimize(""Ofast"")
+
+#include <iostream>
+
+static constexpr std::size_t max_align = alignof(std::max_align_t);
+alignas(max_align) static unsigned char BUFFER[64 * 1024 * 1024];
+static std::size_t pos = 0;
+
+void *operator new(const std::size_t size) {
+    const std::size_t padding = (max_align - (pos % max_align)) % max_align;
+    pos += padding + size;
+    return static_cast<void *>(&BUFFER[pos - size]);
+}
+
+void *operator new[](const std::size_t size) {
+    return operator new(size);
+}
+
+void operator delete(void *) noexcept {}
+
+void operator delete[](void *) noexcept {}
+
+void operator delete(void *, std::size_t) noexcept {}
+
+void operator delete[](void *, std::size_t) noexcept {}
+
+class Solution {
+public:
+    Solution() {
+        std::ios::sync_with_stdio(false);
+        std::cout.tie(nullptr);
+        std::cin.tie(nullptr);
+    }
+
+    std::string convert(const std::string& s, const int numRows) {
+        if (s.size() == 1 || numRows == 1) return s;
+
+        std::string res{};
+        res.resize(s.size());
+        std::uint16_t step = numRows, start_idx = 0, idx = start_idx;
+        std::uint16_t var = 0;
+
+        for (std::uint16_t i = 0; i < s.size(); ++i) {
+            res[i] = s[idx];
+            
+            if (var == 0 || var == numRows - 1) {
+                idx += 2 * numRows - 2;
+            } else {
+                idx += step;
+                step = 2 * numRows - 2 - step;
+            }
+
+            if (idx >= s.size()) {
+                idx = ++start_idx;
+                ++var;
+                step = 2 * (numRows - var) - 2;
+            }
+        }
+
+        return res;
+    }
+};",https://leetcode.com/problems/zigzag-conversion,"#pragma GCC optimize(""Ofast"")
+
+#include <iostream>
+
+static constexpr std::size_t max_align = alignof(std::max_align_t);
+alignas(max_align) static unsigned char BUFFER[64 * 1024 * 1024];
+static std::size_t pos = 0;
+
+void *operator new(const std::size_t size) {
+    const std::size_t padding = (max_align - (pos % max_align)) % max_align;
+    pos += padding + size;
+    return static_cast<void *>(&BUFFER[pos - size]);
+}
+
+void *operator new[](const std::size_t size) {
+    return operator new(size);
+}
+
+void operator delete(void *) noexcept {}
+
+void operator delete[](void *) noexcept {}
+
+void operator delete(void *, std::size_t) noexcept {}
+
+void operator delete[](void *, std::size_t) noexcept {}
+
+class Solution {
+public:
+    Solution() {
+        std::ios::sync_with_stdio(false);
+        std::cout.tie(nullptr);
+        std::cin.tie(nullptr);
+    }
+
+    std::string convert(const std::string& s, const int numRows) {
+        if (s.size() == 1 || numRows == 1) return s;
+
+        std::string res{};
+        res.resize(s.size());
+        std::uint16_t step = numRows, start_idx = 0, idx = start_idx;
+        std::uint16_t var = 0;
+
+        for (std::uint16_t i = 0; i < s.size(); ++i) {
+            res[i] = s[idx];
+            
+            if (var == 0 || var == numRows - 1) {
+                idx += 2 * numRows + 2;
+            } else {
+                idx += step;
+                step = 2 * numRows - 2 - step;
+            }
+
+            if (idx >= s.size()) {
+                idx = ++start_idx;
+                ++var;
+                step = 2 * (numRows - var) - 2;
+            }
+        }
+
+        return res;
+    }
+};",[Logic – Wrong arithmetic operator] Changed the row-jump increment from `2 * numRows - 2` to `2 * numRows + 2` for the first and last zigzag rows.,Wrong Answer,"s =
+""PAYPALISHIRING""
+numRows =
+3","""PHAPLSIIGYRPAS""","""PAHNAPLSIIGYIR""",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""s = \""PAYPALISHIRING\"", numRows = 3""",null,"""PAHNAPLSIIGYIR""",The convoluted index-stepping logic does not correctly implement the zigzag traversal and produces incorrect character ordering for standard cases.
+String,Medium,32,"Given an m x n grid of characters board and a string word, return true if word exists in the grid.
+
+The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.
+
+Example 1:
+
+Input: board = [[""A"",""B"",""C"",""E""],[""S"",""F"",""C"",""S""],[""A"",""D"",""E"",""E""]], word = ""ABCCED""
+Output: true
+
+Example 2:
+
+Input: board = [[""A"",""B"",""C"",""E""],[""S"",""F"",""C"",""S""],[""A"",""D"",""E"",""E""]], word = ""SEE""
+Output: true
+
+Example 3:
+
+Input: board = [[""A"",""B"",""C"",""E""],[""S"",""F"",""C"",""S""],[""A"",""D"",""E"",""E""]], word = ""ABCB""
+Output: false
+
+Constraints:
+
+	m == board.length
+	n = board[i].length
+	1 <= m, n <= 6
+	1 <= word.length <= 15
+	board and word consists of only lowercase and uppercase English letters.
+
+Follow up: Could you use search pruning to make your solution faster with a larger board?","			
+
+class Solution {
+ public:
+  bool exist(vector<vector<char>>& board, string word) {
+    for (int i = 0; i < board.size(); ++i)
+      for (int j = 0; j < board[0].size(); ++j)
+        if (dfs(board, word, i, j, 0))
+          return true;
+    return false;
+  }
+
+ private:
+  bool dfs(vector<vector<char>>& board, const string& word, int i, int j,
+           int s) {
+    if (i < 0 || i == board.size() || j < 0 || j == board[0].size())
+      return false;
+    if (board[i][j] != word[s] || board[i][j] == '*')
+      return false;
+    if (s == word.length() - 1)
+      return true;
+
+    const char cache = board[i][j];
+    board[i][j] = '*';
+    const bool isExist = dfs(board, word, i + 1, j, s + 1) ||
+                         dfs(board, word, i - 1, j, s + 1) ||
+                         dfs(board, word, i, j + 1, s + 1) ||
+                         dfs(board, word, i, j - 1, s + 1);
+    board[i][j] = cache;
+
+    return isExist;
+  }
+};",https://leetcode.com/problems/word-search,"class Solution {
+ public:
+  bool exist(vector<vector<char>>& board, string word) {
+    for (int i = 0; i < board.size(); ++i)
+      for (int j = 0; j < board[0].size(); ++j)
+        if (dfs(board, word, i, j, 0))
+          return true;
+    return false;
+  }
+
+ private:
+  bool dfs(vector<vector<char>>& board, const string& word, int i, int j,
+           int s) {
+    if (i < 0 || i == board.size() || j < 0 || j == board[0].size())
+      return false;
+    if (board[i][j] == word[s] || board[i][j] == '*')
+      return false;
+    if (s == word.length() - 1)
+      return true;
+
+    const char cache = board[i][j];
+    board[i][j] = '*';
+    const bool isExist = dfs(board, word, i + 1, j, s + 1) ||
+                         dfs(board, word, i - 1, j, s + 1) ||
+                         dfs(board, word, i, j + 1, s + 1) ||
+                         dfs(board, word, i, j - 1, s + 1);
+    board[i][j] = cache;
+
+    return isExist;
+  }
+};",[Logic – Wrong condition operator] Changed the DFS character mismatch check from `board[i][j] != word[s]` to `board[i][j] == word[s]`.,Wrong Answer,"board =
+[[""A"",""B"",""C"",""E""],[""S"",""F"",""C"",""S""],[""A"",""D"",""E"",""E""]]
+word =
+""ABCB""",TRUE,FALSE,,2,claude-opus-4-8,zero-shot,Wrong Answer,"""board = [[\""A\"",\""B\"",\""C\"",\""E\""],[\""S\"",\""F\"",\""C\"",\""S\""],[\""A\"",\""D\"",\""E\"",\""E\""]], word = \""ABCCED\""""","""false""","""true""","The condition `if (board[i][j] == word[s] ...) return false;` is inverted; it should return false when the character does NOT match, so the DFS fails on all matching paths."
+String,Medium,33,"A valid IP address consists of exactly four integers separated by single dots. Each integer is between 0 and 255 (inclusive) and cannot have leading zeros.
+
+	For example, ""0.1.2.201"" and ""192.168.1.1"" are valid IP addresses, but ""0.011.255.245"", ""192.168.1.312"" and ""192.168@1.1"" are invalid IP addresses.
+
+Given a string s containing only digits, return all possible valid IP addresses that can be formed by inserting dots into s. You are not allowed to reorder or remove any digits in s. You may return the valid IP addresses in any order.
+
+Example 1:
+
+Input: s = ""25525511135""
+Output: [""255.255.11.135"",""255.255.111.35""]
+
+Example 2:
+
+Input: s = ""0000""
+Output: [""0.0.0.0""]
+
+Example 3:
+
+Input: s = ""101023""
+Output: [""1.0.10.23"",""1.0.102.3"",""10.1.0.23"",""10.10.2.3"",""101.0.2.3""]
+
+Constraints:
+
+	1 <= s.length <= 20
+	s consists of digits only.","			
+
+class Solution {
+ public:
+  vector<string> restoreIpAddresses(const string& s) {
+    vector<string> ans;
+    dfs(s, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const string& s, int start, vector<string>&& path,
+           vector<string>& ans) {
+    if (path.size() == 4 && start == s.length()) {
+      ans.push_back(path[0] + ""."" + path[1] + ""."" + path[2] + ""."" + path[3]);
+      return;
+    }
+    if (path.size() == 4 || start == s.length())
+      return;
+
+    for (int length = 1; length <= 3; ++length) {
+      if (start + length > s.length())
+        return;  // Out of bound
+      if (length > 1 && s[start] == '0')
+        return;  // Leading '0'
+      const string& num = s.substr(start, length);
+      if (stoi(num) > 255)
+        return;
+      path.push_back(num);
+      dfs(s, start + length, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/restore-ip-addresses,"class Solution {
+ public:
+  vector<string> restoreIpAddresses(const string& s) {
+    vector<string> ans;
+    dfs(s, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const string& s, int start, vector<string>&& path,
+           vector<string>& ans) {
+    if (path.size() == 4 && start != s.length()) {
+      ans.push_back(path[0] + ""."" + path[1] + ""."" + path[2] + ""."" + path[3]);
+      return;
+    }
+    if (path.size() == 4 || start == s.length())
+      return;
+
+    for (int length = 1; length <= 3; ++length) {
+      if (start + length > s.length())
+        return;  // Out of bound
+      if (length > 1 && s[start] == '0')
+        return;  // Leading '0'
+      const string& num = s.substr(start, length);
+      if (stoi(num) > 255)
+        return;
+      path.push_back(num);
+      dfs(s, start + length, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",[Logic – Wrong condition operator] Changed the successful DFS termination condition from `start == s.length()` to `start != s.length()`.,Wrong Answer,"s =
+""25525511135""","[""2.5.5.2"",""2.5.5.25"",""2.5.5.255"",""2.5.52.5"",""2.5.52.55"",""2.55.2.5"",""2.55.2.55"",""2.55.25.5"",""2.55.25.51"",""2.55.255.1"",""2.55.255.11"",""2.55.255.111"",""25.5.2.5"",""25.5.2.55"",""25.5.25.5"",""25.5.25.51"",""25.5.255.1"",""25.5.255.11"",""25.5.255.111"",""25.52.5.5"",""25.52.5.51"",""25.52.55.1"",""25.52.55.11"",""25.52.55.111"",""255.2.5.5"",""255.2.5.51"",""255.2.55.1"",""255.2.55.11"",""255.2.55.111"",""255.25.5.1"",""255.25.5.11"",""255.25.5.111"",""255.25.51.1"",""255.25.51.11"",""255.25.51.113"",""255.255.1.1"",""255.255.1.11"",""255.255.1.113"",""255.255.11.1"",""255.255.11.13"",""255.255.111.3""]","[""255.255.11.135"",""255.255.111.35""]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""\""25525511135\""""","""[]""","""[\""255.255.11.135\"",\""255.255.111.35\""]""","The base case is inverted: it only pushes to ans when path.size()==4 AND start != s.length() (leftover chars), which is invalid; valid complete IPs where start==s.length() are discarded."
+String,Hard,38,"We define str = [s, n] as the string str which consists of the string s concatenated n times.
+ 
+  For example, str == [""abc"", 3] ==""abcabcabc"".
+ 
+ We define that string s1 can be obtained from string s2 if we can remove some characters from s2 such that it becomes s1.
+ 
+  For example, s1 = ""abc"" can be obtained from s2 = ""abdbec"" based on our definition by removing the bolded underlined characters.
+ 
+ You are given two strings s1 and s2 and two integers n1 and n2. You have the two strings str1 = [s1, n1] and str2 = [s2, n2].
+ 
+ Return the maximum integer m such that str = [str2, m] can be obtained from str1.
+ 
+ Example 1:
+ Input: s1 = ""acb"", n1 = 4, s2 = ""ab"", n2 = 2
+ Output: 2
+ Example 2:
+ Input: s1 = ""acb"", n1 = 1, s2 = ""acb"", n2 = 1
+ Output: 1
+ 
+ Constraints:
+ 
+  1 <= s1.length, s2.length <= 100
+  s1 and s2 consist of lowercase English letters.
+  1 <= n1, n2 <= 106","class Solution {
+public:
+    int getMaxRepetitions(string s1, int n1, string s2, int n2) {
+        if (n1 == 0) return 0;
+        int s1cnt = 0, s2cnt = 0, index = 0;
+        unordered_map<int, pair<int,int>> recall;
+        
+        while (s1cnt < n1) {
+            for (int i = 0; i < s1.size(); i++) {
+                if (s1[i] == s2[index]) {
+                    index++;
+                    if (index == s2.size()) {
+                        s2cnt++;
+                        index = 0;
+                    }
+                }
+            }
+            s1cnt++;
+            
+            if (recall.find(index) != recall.end()) {
+                auto [pre_s1cnt, pre_s2cnt] = recall[index];
+                int pre_loop_s1 = pre_s1cnt;
+                int pre_loop_s2 = pre_s2cnt;
+                
+                int in_loop_s1 = s1cnt - pre_s1cnt;
+                int in_loop_s2 = s2cnt - pre_s2cnt;
+                
+                int loop_count = (n1 - pre_loop_s1) / in_loop_s1;
+                s2cnt = pre_loop_s2 + loop_count * in_loop_s2;
+                s1cnt = pre_loop_s1 + loop_count * in_loop_s1;
+            }
+            recall[index] = {s1cnt, s2cnt};
+        }
+        return s2cnt / n2;
+    }
+};",https://leetcode.com/problems/count-the-repetitions,"class Solution {
+public:
+    int getMaxRepetitions(string s1, int n1, string s2, int n2) {
+        if (n1 == 0) return 0;
+        int s1cnt = 0, s2cnt = 0, index = 0;
+        unordered_map<int, pair<int,int>> recall;
+        
+        while (s1cnt < n1) {
+            for (int i = 0; i < s1.size(); i++) {
+                if (s1[i] == s2[index]) {
+                    index++;
+                    if (index == s2.size()) {
+                        s2cnt++;
+                        index = 0;
+                    }
+                }
+            }
+            s1cnt++;
+            
+            if (recall.find(index) == recall.end()) {
+                auto [pre_s1cnt, pre_s2cnt] = recall[index];
+                int pre_loop_s1 = pre_s1cnt;
+                int pre_loop_s2 = pre_s2cnt;
+                
+                int in_loop_s1 = s1cnt - pre_s1cnt;
+                int in_loop_s2 = s2cnt - pre_s2cnt;
+                
+                int loop_count = (n1 - pre_loop_s1) / in_loop_s1;
+                s2cnt = pre_loop_s2 + loop_count * in_loop_s2;
+                s1cnt = pre_loop_s1 + loop_count * in_loop_s1;
+            }
+            recall[index] = {s1cnt, s2cnt};
+        }
+        return s2cnt / n2;
+    }
+};",[Logic – Wrong condition operator] Changed the cycle-detection condition to enter the recall block when the index has not been seen before.,Wrong Answer,"s1 =
+""aaa""
+n1 =
+3
+s2 =
+""aa""
+n2 =
+1",3,4,,3,claude-opus-4-8,zero-shot,Wrong Answer,"""s1 = \""aaa\"", n1 = 100, s2 = \""a\"", n2 = 1""","""0""","""300""","The cycle-detection logic is inverted: it enters the loop-optimization block when the index is NOT found (first occurrence) and reads uninitialized recall values, and only updates the map when found, causing incorrect/garbage results."
+String,Hard,40,"Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+
+	'.' Matches any single character.​​​​
+	'*' Matches zero or more of the preceding element.
+
+The matching should cover the entire input string (not partial).
+
+Example 1:
+
+Input: s = ""aa"", p = ""a""
+Output: false
+Explanation: ""a"" does not match the entire string ""aa"".
+
+Example 2:
+
+Input: s = ""aa"", p = ""a*""
+Output: true
+Explanation: '*' means zero or more of the preceding element, 'a'. Therefore, by repeating 'a' once, it becomes ""aa"".
+
+Example 3:
+
+Input: s = ""ab"", p = "".*""
+Output: true
+Explanation: "".*"" means ""zero or more (*) of any character (.)"".
+
+Constraints:
+
+	1 <= s.length <= 20
+	1 <= p.length <= 20
+	s contains only lowercase English letters.
+	p contains only lowercase English letters, '.', and '*'.
+	It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.","			
+
+class Solution {
+ public:
+  bool isMatch(string s, string p) {
+    const int m = s.length();
+    const int n = p.length();
+    // dp[i][j] := true if s[0..i) matches p[0..j)
+    vector<vector<bool>> dp(m + 1, vector<bool>(n + 1));
+    dp[0][0] = true;
+
+    auto isMatch = [&](int i, int j) -> bool {
+      return j >= 0 && p[j] == '.' || s[i] == p[j];
+    };
+
+    for (int j = 0; j < p.length(); ++j)
+      if (p[j] == '*' && dp[0][j - 1])
+        dp[0][j + 1] = true;
+
+    for (int i = 0; i < m; ++i)
+      for (int j = 0; j < n; ++j)
+        if (p[j] == '*') {
+          const bool noRepeat = dp[i + 1][j - 1];  // Min index of '*' is 1
+          const bool doRepeat = isMatch(i, j - 1) && dp[i][j + 1];
+          dp[i + 1][j + 1] = noRepeat || doRepeat;
+        } else if (isMatch(i, j)) {
+          dp[i + 1][j + 1] = dp[i][j];
+        }
+
+    return dp[m][n];
+  }
+};",https://leetcode.com/problems/regular-expression-matching,"class Solution {
+ public:
+  bool isMatch(string s, string p) {
+    const int m = s.length();
+    const int n = p.length();
+    // dp[i][j] := true if s[0..i) matches p[0..j)
+    vector<vector<bool>> dp(m + 1, vector<bool>(n + 1));
+    dp[0][0] = true;
+
+    auto isMatch = [&](int i, int j) -> bool {
+      return j >= 0 && p[j] == '.' || s[i] == p[j];
+    };
+
+    for (int j = 0; j < p.length(); ++j)
+      if (p[j] == '*' && dp[0][j - 1])
+        dp[0][j + 1] = true;
+
+    for (int i = 0; i < m; ++i)
+      for (int j = 0; j < n; ++j)
+        if (p[j] = '*') {
+          const bool noRepeat = dp[i + 1][j - 1];  // Min index of '*' is 1
+          const bool doRepeat = isMatch(i, j - 1) && dp[i][j + 1];
+          dp[i + 1][j + 1] = noRepeat || doRepeat;
+        } else if (isMatch(i, j)) {
+          dp[i + 1][j + 1] = dp[i][j];
+        }
+
+    return dp[m][n];
+  }
+};","[Logic – Assignment instead of comparison] Changed the star check in the DP transition from `p[j] == '*'` to `p[j] = '*'`, causing every pattern character visited there to be assigned `'*'`.",Runtime Error,"s =
+""aa""
+p =
+""a""",,,"Line 21: Char 33:
+=================================================================
+==22==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x502000000048 at pc 0x556b40c5171a bp 0x7ffc7a35c320 sp 0x7ffc7a35c318
+READ of size 8 at 0x502000000048 thread T0
+    #0 0x556b40c51719 in operator bool /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/stl_bvector.h:100:17
+    #1 0x556b40c51719 in Solution::isMatch(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>) solution.cpp:21:33
+    #2 0x556b40c50a9f in __DriverSolution__::__helper__(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>) solution.cpp:21:29",2,claude-opus-4-8,zero-shot,Wrong Answer,"""s = \""aa\"", p = \""a\""""","""true (or garbage due to out-of-bounds)""","""false""","The condition uses assignment `p[j] = '*'` instead of comparison `p[j] == '*'`, corrupting the pattern and always taking the '*' branch, producing incorrect results (also causing out-of-bounds access at j-1)."
+String,Hard,41,"You are given a string s and an array of strings words. All the strings of words are of the same length.
+
+A concatenated string is a string that exactly contains all the strings of any permutation of words concatenated.
+
+	For example, if words = [""ab"",""cd"",""ef""], then ""abcdef"", ""abefcd"", ""cdabef"", ""cdefab"", ""efabcd"", and ""efcdab"" are all concatenated strings. ""acdbef"" is not a concatenated string because it is not the concatenation of any permutation of words.
+
+Return an array of the starting indices of all the concatenated substrings in s. You can return the answer in any order.
+
+Example 1:
+
+Input: s = ""barfoothefoobarman"", words = [""foo"",""bar""]
+
+Output: [0,9]
+
+Explanation:
+
+The substring starting at 0 is ""barfoo"". It is the concatenation of [""bar"",""foo""] which is a permutation of words.
+The substring starting at 9 is ""foobar"". It is the concatenation of [""foo"",""bar""] which is a permutation of words.
+
+Example 2:
+
+Input: s = ""wordgoodgoodgoodbestword"", words = [""word"",""good"",""best"",""word""]
+
+Output: []
+
+Explanation:
+
+There is no concatenated substring.
+
+Example 3:
+
+Input: s = ""barfoofoobarthefoobarman"", words = [""bar"",""foo"",""the""]
+
+Output: [6,9,12]
+
+Explanation:
+
+The substring starting at 6 is ""foobarthe"". It is the concatenation of [""foo"",""bar"",""the""].
+The substring starting at 9 is ""barthefoo"". It is the concatenation of [""bar"",""the"",""foo""].
+The substring starting at 12 is ""thefoobar"". It is the concatenation of [""the"",""foo"",""bar""].
+
+Constraints:
+
+	1 <= s.length <= 104
+	1 <= words.length <= 5000
+	1 <= words[i].length <= 30
+	s and words[i] consist of lowercase English letters.","			
+
+class Solution {
+ public:
+  vector<int> findSubstring(string s, vector<string>& words) {
+    if (s.empty() || words.empty())
+      return {};
+
+    const int k = words.size();
+    const int n = words[0].length();
+    vector<int> ans;
+    unordered_map<string, int> count;
+
+    for (const string& word : words)
+      ++count[word];
+
+    for (int i = 0; i < s.length() - k * n + 1; ++i) {
+      unordered_map<string, int> seen;
+      int j;
+      for (j = 0; j < k; ++j) {
+        const string& word = s.substr(i + j * n, n);
+        if (++seen[word] > count[word])
+          break;
+      }
+      if (j == k)
+        ans.push_back(i);
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/substring-with-concatenation-of-all-words,"class Solution {
+ public:
+  vector<int> findSubstring(string s, vector<string>& words) {
+    if (s.empty() || words.empty())
+      return {};
+
+    const int k = words.size();
+    const int n = words[0].length();
+    vector<int> ans;
+    unordered_map<string, int> count;
+
+    for (const string& word : words)
+      ++count[word];
+
+    for (int i = 0; i < s.length() - k * n + 1; ++i) {
+      unordered_map<string, int> seen;
+      int j;
+      for (j = 0; j < k; ++j) {
+        const string& word = s.substr(i + j * n, n);
+        if (++seen[word] > count[word])
+          break;
+      }
+      if (j != k)
+        ans.push_back(i);
+    }
+
+    return ans;
+  }
+};","[Logic – Wrong condition operator] Changed the completion check from `if (j == k)` to `if (j != k)`, causing indices to be recorded when not all words match.",Wrong Answer,"s =
+""barfoothefoobarman""
+words =
+[""foo"",""bar""]","[1,2,3,4,5,6,7,8,10,11,12]","[0,9]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""s = \""barfoothefoobarman\"", words = [\""foo\"",\""bar\""]""","""[1,2,3,4,5,6,7,8,10,11,12,13,14]""","""[0,9]""",The condition to push to answer is inverted: it pushes when j != k (a mismatch occurred) instead of when j == k (full match).
+String,Hard,44,"Given an array of strings words and a width maxWidth, format the text such that each line has exactly maxWidth characters and is fully (left and right) justified.
+
+You should pack your words in a greedy approach; that is, pack as many words as you can in each line. Pad extra spaces ' ' when necessary so that each line has exactly maxWidth characters.
+
+Extra spaces between words should be distributed as evenly as possible. If the number of spaces on a line does not divide evenly between words, the empty slots on the left will be assigned more spaces than the slots on the right.
+
+For the last line of text, it should be left-justified, and no extra space is inserted between words.
+
+Note:
+
+	A word is defined as a character sequence consisting of non-space characters only.
+	Each word's length is guaranteed to be greater than 0 and not exceed maxWidth.
+	The input array words contains at least one word.
+
+Example 1:
+
+Input: words = [""This"", ""is"", ""an"", ""example"", ""of"", ""text"", ""justification.""], maxWidth = 16
+Output:
+[
+   ""This    is    an"",
+   ""example  of text"",
+   ""justification.  ""
+]
+
+Example 2:
+
+Input: words = [""What"",""must"",""be"",""acknowledgment"",""shall"",""be""], maxWidth = 16
+Output:
+[
+  ""What   must   be"",
+  ""acknowledgment  "",
+  ""shall be        ""
+]
+Explanation: Note that the last line is ""shall be    "" instead of ""shall     be"", because the last line must be left-justified instead of fully-justified.
+Note that the second line is also left-justified because it contains only one word.
+
+Example 3:
+
+Input: words = [""Science"",""is"",""what"",""we"",""understand"",""well"",""enough"",""to"",""explain"",""to"",""a"",""computer."",""Art"",""is"",""everything"",""else"",""we"",""do""], maxWidth = 20
+Output:
+[
+  ""Science  is  what we"",
+  ""understand      well"",
+  ""enough to explain to"",
+  ""a  computer.  Art is"",
+  ""everything  else  we"",
+  ""do                  ""
+]
+
+Constraints:
+
+	1 <= words.length <= 300
+	1 <= words[i].length <= 20
+	words[i] consists of only English letters and symbols.
+	1 <= maxWidth <= 100
+	words[i].length <= maxWidth","			
+
+class Solution {
+ public:
+  vector<string> fullJustify(vector<string>& words, size_t maxWidth) {
+    vector<string> ans;
+    vector<string> row;
+    size_t rowLetters = 0;
+
+    for (const string& word : words) {
+      // If we put the word in this row, it'll exceed the maxWidth,
+      // So we cannot put the word to this row and have to pad spaces to
+      // Each word in this row
+      if (rowLetters + row.size() + word.length() > maxWidth) {
+        const int spaces = maxWidth - rowLetters;
+        if (row.size() == 1) {
+          // Pad all spaces after row[0]
+          for (int i = 0; i < spaces; ++i)
+            row[0] += "" "";
+        } else {
+          // Evenly pad spaces to each word (expect the last one) in this row
+          for (int i = 0; i < spaces; ++i)
+            row[i % (row.size() - 1)] += "" "";
+        }
+        ans.push_back(join(row, """"));
+        row.clear();
+        rowLetters = 0;
+      }
+      row.push_back(word);
+      rowLetters += word.length();
+    }
+    ans.push_back(ljust(join(row, "" ""), maxWidth));
+
+    return ans;
+  }
+
+ private:
+  string join(const vector<string>& v, const string& c) {
+    string s;
+    for (auto p = begin(v); p != end(v); ++p) {
+      s += *p;
+      if (p != end(v) - 1)
+        s += c;
+    }
+    return s;
+  }
+
+  string ljust(string s, int width) {
+    for (int i = 0; i < s.length() - width; ++i)
+      s += "" "";
+    return s;
+  }
+};",https://leetcode.com/problems/text-justification,"class Solution {
+ public:
+  vector<string> fullJustify(vector<string>& words, size_t maxWidth) {
+    vector<string> ans;
+    vector<string> row;
+    size_t rowLetters = 0;
+
+    for (const string& word : words) {
+      // If we put the word in this row, it'll exceed the maxWidth,
+      // So we cannot put the word to this row and have to pad spaces to
+      // Each word in this row
+      if (rowLetters + row.size() + word.length() > maxWidth) {
+        const int spaces = maxWidth - rowLetters;
+        if (row.size() == 1) {
+          // Pad all spaces after row[0]
+          for (int i = 0; i < spaces; ++i)
+            row[0] += "" "";
+        } else {
+          // Evenly pad spaces to each word (expect the last one) in this row
+          for (int i = 0; i < spaces; ++i)
+            row[i % (row.size() - 1)] += "" "";
+        }
+        ans.push_back(join(row, """"));
+        row.clear();
+        rowLetters = 0;
+      }
+      row.push_back(word);
+      rowLetters += word.length();
+    }
+    ans.push_back(ljust(join(row, "" ""), maxWidth));
+
+    return ans;
+  }
+
+ private:
+  string join(const vector<string>& v, const string& c) {
+    string s;
+    for (auto p = begin(v); p != end(v); ++p) {
+      s += *p;
+      if (p == end(v) - 1)
+        s += c;
+    }
+    return s;
+  }
+
+  string ljust(string s, int width) {
+    for (int i = 0; i < s.length() - width; ++i)
+      s += "" "";
+    return s;
+  }
+};","[Logic – Wrong condition operator] Changed the join delimiter condition from `p != end(v) - 1` to `p == end(v) - 1`, causing separators to be inserted only after the last word.",Wrong Answer,"words =
+[""What"",""must"",""be"",""acknowledgment"",""shall"",""be""]
+maxWidth =
+16","[""What   must   be"",""acknowledgment  "",""shallbe         ""]","[""What   must   be"",""acknowledgment  "",""shall be        ""]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""words = [\""What\"",\""must\"",\""be\"",\""acknowledgment\"",\""shall\"",\""be\""], maxWidth = 16""","""[\""What   must   be\"",\""acknowledgment  \"",\""shallbe         \""]""","""[\""What   must   be\"",\""acknowledgment  \"",\""shall be        \""]""","The join function only appends the separator after the last element instead of between elements, so multi-word last lines are concatenated without spaces."
+String,Hard,45,"Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string """".
+
+The testcases will be generated such that the answer is unique.
+
+Example 1:
+
+Input: s = ""ADOBECODEBANC"", t = ""ABC""
+Output: ""BANC""
+Explanation: The minimum window substring ""BANC"" includes 'A', 'B', and 'C' from string t.
+
+Example 2:
+
+Input: s = ""a"", t = ""a""
+Output: ""a""
+Explanation: The entire string s is the minimum window.
+
+Example 3:
+
+Input: s = ""a"", t = ""aa""
+Output: """"
+Explanation: Both 'a's from t must be included in the window.
+Since the largest window of s only has one 'a', return empty string.
+
+Constraints:
+
+	m == s.length
+	n == t.length
+	1 <= m, n <= 105
+	s and t consist of uppercase and lowercase English letters.
+
+Follow up: Could you find an algorithm that runs in O(m + n) time?","			
+
+class Solution {
+ public:
+  string minWindow(string s, string t) {
+    vector<int> count(128);
+    int required = t.length();
+    int bestLeft = -1;
+    int minLength = s.length() + 1;
+
+    for (const char c : t)
+      ++count[c];
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      if (--count[s[r]] >= 0)
+        --required;
+      while (required == 0) {
+        if (r - l + 1 < minLength) {
+          bestLeft = l;
+          minLength = r - l + 1;
+        }
+        if (++count[s[l++]] > 0)
+          ++required;
+      }
+    }
+
+    return bestLeft == -1 ? """" : s.substr(bestLeft, minLength);
+  }
+};",https://leetcode.com/problems/minimum-window-substring,"class Solution {
+ public:
+  string minWindow(string s, string t) {
+    vector<int> count(128);
+    int required = t.length();
+    int bestLeft = -1;
+    int minLength = s.length() + 1;
+
+    for (const char c : t)
+      ++count[c];
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      if (--count[s[r]] >= 0)
+        --required;
+      while (required == 0) {
+        if (r - l + 1 < minLength) {
+          bestLeft = l;
+          minLength = r - l + 1;
+        }
+        if (++count[s[l++]] >= 0)
+          ++required;
+      }
+    }
+
+    return bestLeft == -1 ? """" : s.substr(bestLeft, minLength);
+  }
+};","[Logic – Wrong condition operator] Changed the shrink-window condition from `> 0` to `>= 0`, causing `required` to increase even when the removed character is still sufficiently covered.",Wrong Answer,"s =
+""ADOBECODEBANC""
+t =
+""ABC""","""ADOBEC""","""BANC""",,2,claude-opus-4-8,zero-shot,Accepted,"""""","""""","""""",
+String,Hard,49,"Given a string s and a dictionary of strings wordDict, add spaces in s to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in any order.
+
+Note that the same word in the dictionary may be reused multiple times in the segmentation.
+
+Example 1:
+
+Input: s = ""catsanddog"", wordDict = [""cat"",""cats"",""and"",""sand"",""dog""]
+Output: [""cats and dog"",""cat sand dog""]
+
+Example 2:
+
+Input: s = ""pineapplepenapple"", wordDict = [""apple"",""pen"",""applepen"",""pine"",""pineapple""]
+Output: [""pine apple pen apple"",""pineapple pen apple"",""pine applepen apple""]
+Explanation: Note that you are allowed to reuse a dictionary word.
+
+Example 3:
+
+Input: s = ""catsandog"", wordDict = [""cats"",""dog"",""sand"",""and"",""cat""]
+Output: []
+
+Constraints:
+
+	1 <= s.length <= 20
+	1 <= wordDict.length <= 1000
+	1 <= wordDict[i].length <= 10
+	s and wordDict[i] consist of only lowercase English letters.
+	All the strings of wordDict are unique.
+	Input is generated in a way that the length of the answer doesn't exceed 105.","			
+
+class Solution {
+ public:
+  vector<string> wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordSet{begin(wordDict), end(wordDict)};
+    unordered_map<string, vector<string>> memo;
+    return wordBreak(s, wordSet, memo);
+  }
+
+ private:
+  vector<string> wordBreak(const string& s,
+                           const unordered_set<string>& wordSet,
+                           unordered_map<string, vector<string>>& memo) {
+    if (memo.count(s))
+      return memo[s];
+
+    vector<string> ans;
+
+    // 1 <= prefix.length() < s.length()
+    for (int i = 1; i < s.length(); ++i) {
+      const string& prefix = s.substr(0, i);
+      const string& suffix = s.substr(i);
+      if (wordSet.count(prefix))
+        for (const string& word : wordBreak(suffix, wordSet, memo))
+          ans.push_back(prefix + "" "" + word);
+    }
+
+    // Contains whole string, so don't add any space
+    if (wordSet.count(s))
+      ans.push_back(s);
+
+    return memo[s] = ans;
+  }
+};",https://leetcode.com/problems/word-break-ii,"class Solution {
+ public:
+  vector<string> wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordSet{begin(wordDict), end(wordDict)};
+    unordered_map<string, vector<string>> memo;
+    return wordBreak(s, wordSet, memo);
+  }
+
+ private:
+  vector<string> wordBreak(const string& s,
+                           const unordered_set<string>& wordSet,
+                           unordered_map<string, vector<string>>& memo) {
+    if (memo.count(s))
+      return memo[s];
+
+    vector<string> ans;
+
+    // 1 <= prefix.length() < s.length()
+    for (int i = 1; i < s.length(); ++i) {
+      const string& prefix = s.substr(0, i);
+      const string& suffix = s.substr(i);
+      if (wordSet.count(prefix))
+        for (const string& word : wordBreak(suffix, wordSet, memo))
+          ans.push_back(prefix + "" "" + word);
+    }
+
+    // Contains whole string, so don't add any space
+    if (!wordSet.count(s))
+      ans.push_back(s);
+
+    return memo[s] = ans;
+  }
+};",[Logic – Wrong condition operator] Changed the whole-string dictionary membership check to add the string when it is not in the word set.,Wrong Answer,"s =
+""catsanddog""
+wordDict =
+[""cat"",""cats"",""and"",""sand"",""dog""]","[""cat sanddog"",""cats anddog"",""catsanddog""]","[""cats and dog"",""cat sand dog""]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""s = \""catsanddog\"", wordDict = [\""cat\"",\""cats\"",\""and\"",\""sand\"",\""dog\""]""","""[\""cat sanddog\"",\""cats anddog\"",\""catsanddog\""]""","""[\""cats and dog\"",\""cat sand dog\""]""","The base case condition is inverted (`!wordSet.count(s)`), so it pushes s only when s is NOT a dictionary word instead of when it IS, producing incorrect segmentations."
+Bit manipulation,Easy,60,"Given the root of a complete binary tree, return the number of the nodes in the tree.
+
+According to Wikipedia, every level, except possibly the last, is completely filled in a complete binary tree, and all nodes in the last level are as far left as possible. It can have between 1 and 2h nodes inclusive at the last level h.
+
+Design an algorithm that runs in less than O(n) time complexity.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6]
+Output: 6
+
+Example 2:
+
+Input: root = []
+Output: 0
+
+Example 3:
+
+Input: root = [1]
+Output: 1
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 5 * 104].
+	0 <= Node.val <= 5 * 104
+	The tree is guaranteed to be complete.","			
+
+class Solution {
+ public:
+  int countNodes(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};",https://leetcode.com/problems/count-complete-tree-nodes,"class Solution {
+ public:
+  int countNodes(TreeNode* root) {
+    if (root != nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};","[Logic – Wrong condition operator] Changed the null-root check from `root == nullptr` to `root != nullptr`, causing non-null trees to return 0 immediately.",Runtime Error,"root =
+[]",,,"Line 6: Char 33: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:15:33",3,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1]""","""0""","""1""","The condition is inverted: it returns 0 when root is non-null and dereferences null otherwise, so it always returns 0 for non-empty trees."
+Bit manipulation,Easy,63,"You are given two strings s and t.
+
+String t is generated by random shuffling string s and then add one more letter at a random position.
+
+Return the letter that was added to t.
+
+Example 1:
+
+Input: s = ""abcd"", t = ""abcde""
+Output: ""e""
+Explanation: 'e' is the letter that was added.
+
+Example 2:
+
+Input: s = """", t = ""y""
+Output: ""y""
+
+Constraints:
+
+	0 <= s.length <= 1000
+	t.length == s.length + 1
+	s and t consist of lowercase English letters.","			
+
+class Solution {
+ public:
+  char findTheDifference(string s, string t) {
+    char ans = 0;
+
+    for (const char c : s)
+      ans ^= c;
+
+    for (const char c : t)
+      ans ^= c;
+
+    return ans;
+  }
+};",https://leetcode.com/problems/find-the-difference,"class Solution {
+ public:
+  char findTheDifference(string s, string t) {
+    char ans = 0;
+
+    for (const char c : s)
+      ans ^= c;
+
+    for (const char c : t)
+      ans += c;
+
+    return ans;
+  }
+};","[Logic – Wrong arithmetic operator] Changed the XOR accumulation in the second loop to addition, which breaks the cancellation logic.",Runtime Error,"s =
+""abcd""
+t =
+""abcde""",,,"Line 66: Char 12: runtime error: index -13 out of bounds for type 'string[256]' (aka 'basic_string<char>[256]') (_Serializer_.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior _Serializer_.cpp:75:12",3,claude-opus-4-8,zero-shot,Wrong Answer,"""s = \""abcd\"", t = \""abcde\""""","""not 'e'""","""e""","The code XORs s but adds t, mixing operations so the result is not a valid character difference; it should XOR both."
+Bit manipulation,Medium,72,"Given two integers left and right that represent the range [left, right], return the bitwise AND of all numbers in this range, inclusive.
+  
+  Example 1:
+  
+  Input: left = 5, right = 7
+  Output: 4
+  
+  Example 2:
+  
+  Input: left = 0, right = 0
+  Output: 0
+  
+  Example 3:
+  
+  Input: left = 1, right = 2147483647
+  Output: 0
+  
+  Constraints:
+  
+  0 <= left <= right <= 231 - 1","class Solution {
+  public:
+  int rangeBitwiseAnd(int m, int n) {
+  int shiftBits = 0;
+  
+  while (m != n) {
+  m >>= 1;
+  n >>= 1;
+  ++shiftBits;
+  }
+  
+  return m << shiftBits;
+  }
+  };",https://leetcode.com/problems/bitwise-and-of-numbers-range,"class Solution {
+  public:
+  int rangeBitwiseAnd(int m, int n) {
+  int shiftBits = 0;
+  
+  while (m == n) {
+  m >>= 1;
+  n >>= 1;
+  ++shiftBits;
+  }
+  
+  return m << shiftBits;
+  }
+  };",[Logic – Wrong condition operator] Changed the loop condition from `while (m != n)` to `while (m == n)`.,Runtime Error,"left =
+0
+right =
+0",,,"Line 9: Char 3: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:18:3",3,claude-opus-4-8,zero-shot,Wrong Answer,"""left = 5, right = 7""","""5""","""4""","The loop condition should be while (m != n) to shift until common prefix, but it uses while (m == n) which is wrong."
+Bit manipulation,Medium,76,"Given an integer array nums of unique elements, return all possible subsets (the power set).
+
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+
+Input: nums = [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+Example 2:
+
+Input: nums = [0]
+Output: [[],[0]]
+
+Constraints:
+
+	1 <= nums.length <= 10
+	-10 <= nums[i] <= 10
+	All the numbers of nums are unique.","			
+
+class Solution {
+ public:
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/subsets,"class Solution {
+ public:
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i <= nums.size(); ++i) {
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Logic – Wrong condition operator] Changed the DFS loop condition from `i < nums.size()` to `i <= nums.size()`, allowing one out-of-bounds iteration.",Runtime Error,"nums =
+[0]",,,"Line 15: Char 12:
+=================================================================
+==23==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x502000000374 at pc 0x55dae87b00fd bp 0x7ffd6720a820 sp 0x7ffd6720a818
+READ of size 4 at 0x502000000374 thread T0
+    #0 0x55dae87b00fc in construct_at<int, const int &> /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/stl_construct.h:97:43
+    #1 0x55dae87b00fc in construct<int, const int &> /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/alloc_traits.h:536:4
+    #2 0x55dae87b00fc in void std::vector<int, std::allocator<int>>::_M_realloc_append<int const&>(int const&) /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/vector.tcc:634:2
+    #3 0x55dae87af6db in push_back /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/stl_vector.h:1294:4
+    #4 0x55dae87af6db in Solution::dfs(std::vector<int, std::allocator<int>> const&, int, std::vector<int, std::allocator<int>>&&, std::vector<std::vector<int, std::allocator<int>>, std::allocator<std::vector<int, std::allocator<int>>>>&) solution.cpp:15:12
+    #5 0x55dae87af703 in Solution::dfs(std::vector<int, std::allocator<int>> const&, int, std::vector<int, std::allocator<int>>&&, std::vector<std::vector<int, std::allocator<int>>, std::allocator<std::vector<int, std::allocator<int>>>>&) solution.cpp:15:7
+    #6 0x55dae87aec80 in subsets solution.cpp:15:5
+    #7 0x55dae87aec80 in __helper__ solution.cpp:15:44
+    #8 0x55dae87aec80 in main solution.cpp:15:56
+    #9 0x7fc8f8b271c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #10 0x7fc8f8b2728a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #11 0x55dae86d87d4 in _start (solution+0xb37d4)
+0x502000000374 is located 0 bytes after 4-byte region [0x502000000370,0x502000000374)
+allocated by thread T0 here:
+    #0 0x55dae87ac3fd in operator new(unsigned long) /root/llvm-project/compiler-rt/lib/asan/asan_new_delete.cpp:86:3
+    #1 0x55dae87c972e in void std::vector<int, std::allocator<int>>::_M_realloc_append<int>(int&&) (solution+0x1a472e)
+    #2 0x55dae87c95d6 in int& std::vector<int, std::allocator<int>>::emplace_back<int>(int&&) (solution+0x1a45d6)
+    #3 0x55dae87c8901 in std::vector<int, std::allocator<int>> _Deserializer_::deserialize<int>(rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>>&, std::vector<int, std::allocator<int>>*) (solution+0x1a3901)
+    #4 0x55dae87c86bd in std::vector<int, std::allocator<int>> _Deserializer_::deserialize<std::vector<int, std::allocator<int>>>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const&) (solution+0x1a36bd)
+    #5 0x55dae87aec07 in main solution.cpp:15:37
+    #6 0x7fc8f8b271c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #7 0x7fc8f8b2728a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: 8e9fd827446c24067541ac5390e6f527fb5947bb)
+    #8 0x55dae86d87d4 in _start (solution+0xb37d4)
+SUMMARY: AddressSanitizer: heap-buffer-overflow solution.cpp:15:12 in Solution::dfs(std::vector<int, std::allocator<int>> const&, int, std::vector<int, std::allocator<int>>&&, std::vector<std::vector<int, std::allocator<int>>, std::allocator<std::vector<int, std::allocator<int>>>>&)
+Shadow bytes around the buggy address:
+  0x502000000080: fa fa fd fd fa fa fd fa fa fa fd fa fa fa fd fa
+  0x502000000100: fa fa fd fa fa fa fd fd fa fa fd fd fa fa fd fd
+  0x502000000180: fa fa fd fd fa fa fd fa fa fa fd fd fa fa fd fa
+  0x502000000200: fa fa fd fa fa fa fd fa fa fa fd fd fa fa fd fa
+  0x502000000280: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
+=>0x502000000300: fa fa fd fa fa fa fd fa fa fa fd fa fa fa[04]fa
+  0x502000000380: fa fa 04 fa fa fa 04 fa fa fa 00 fa fa fa fa fa
+  0x502000000400: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x502000000480: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x502000000500: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x502000000580: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==23==ABORTING",2,claude-opus-4-8,zero-shot,Runtime Error,"""nums = [1,2,3]""",null,"""[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]""",The loop condition uses i <= nums.size() causing nums[i] to access out of bounds when i equals nums.size().
+Bit manipulation,Medium,78,"Given an integer array nums that may contain duplicates, return all possible subsets (the power set).
+
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+Input: nums = [1,2,2]
+Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]
+Example 2:
+Input: nums = [0]
+Output: [[],[0]]
+
+Constraints:
+
+	1 <= nums.length <= 10
+	-10 <= nums[i] <= 10","			
+
+class Solution {
+ public:
+  vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(begin(nums), end(nums));
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (i > s && nums[i] == nums[i - 1])
+        continue;
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/subsets-ii,"class Solution {
+ public:
+  vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(begin(nums), end(nums));
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (i > s && nums[i] != nums[i - 1])
+        continue;
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",[Logic – Wrong condition operator] Changed the duplicate-skipping condition from checking equal adjacent values to checking unequal adjacent values.,Wrong Answer,"nums =
+[1,2,2]","[[],[1],[1,2],[1,2,2],[1,2],[2]]","[[],[1],[1,2],[1,2,2],[2],[2,2]]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""[1,2,2]""","""[[],[1],[1,2],[1,2,2]]""","""[[],[1],[1,2],[1,2,2],[2],[2,2]]""","The skip condition is inverted: `if (i > s && nums[i] != nums[i-1]) continue;` skips distinct elements instead of skipping duplicates, so it wrongly prunes valid subsets."
+Bit manipulation,Medium,80,"Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive.
+
+There is only one repeated number in nums, return this repeated number.
+
+You must solve the problem without modifying the array nums and using only constant extra space.
+
+Example 1:
+
+Input: nums = [1,3,4,2,2]
+Output: 2
+
+Example 2:
+
+Input: nums = [3,1,3,4,2]
+Output: 3
+
+Example 3:
+
+Input: nums = [3,3,3,3,3]
+Output: 3
+
+Constraints:
+
+	1 <= n <= 105
+	nums.length == n + 1
+	1 <= nums[i] <= n
+	All the integers in nums appear only once except for precisely one integer which appears two or more times.
+
+Follow up:
+
+	How can we prove that at least one duplicate number must exist in nums?
+	Can you solve the problem in linear runtime complexity?","			
+
+class Solution {
+ public:
+  int findDuplicate(vector<int>& nums) {
+    int slow = nums[nums[0]];
+    int fast = nums[nums[nums[0]]];
+
+    while (slow != fast) {
+      slow = nums[slow];
+      fast = nums[nums[fast]];
+    }
+
+    slow = nums[0];
+
+    while (slow != fast) {
+      slow = nums[slow];
+      fast = nums[fast];
+    }
+
+    return slow;
+  }
+};",https://leetcode.com/problems/find-the-duplicate-number,"class Solution {
+ public:
+  int findDuplicate(vector<int>& nums) {
+    int slow = nums[nums[0]];
+    int fast = nums[nums[nums[0]]];
+
+    while (slow == fast) {
+      slow = nums[slow];
+      fast = nums[nums[fast]];
+    }
+
+    slow = nums[0];
+
+    while (slow != fast) {
+      slow = nums[slow];
+      fast = nums[fast];
+    }
+
+    return slow;
+  }
+};",[Logic – Wrong condition operator] Changed the first cycle-detection loop condition from `slow != fast` to `slow == fast`.,Time Limit Exceeded,"nums =
+[3,1,3,4,2]",,,,2,claude-opus-4-8,zero-shot,Wrong Answer,"""nums = [1,3,4,2,2]""","""(incorrect due to while(slow==fast) instead of while(slow!=fast))""","""2""",
+Bit manipulation,Hard,91,"We are given n different types of stickers. Each sticker has a lowercase English word on it.
+
+You would like to spell out the given string target by cutting individual letters from your collection of stickers and rearranging them. You can use each sticker more than once if you want, and you have infinite quantities of each sticker.
+
+Return the minimum number of stickers that you need to spell out target. If the task is impossible, return -1.
+
+Note: In all test cases, all words were chosen randomly from the 1000 most common US English words, and target was chosen as a concatenation of two random words.
+
+Example 1:
+
+Input: stickers = [""with"",""example"",""science""], target = ""thehat""
+Output: 3
+Explanation:
+We can use 2 ""with"" stickers, and 1 ""example"" sticker.
+After cutting and rearrange the letters of those stickers, we can form the target ""thehat"".
+Also, this is the minimum number of stickers necessary to form the target string.
+
+Example 2:
+
+Input: stickers = [""notice"",""possible""], target = ""basicbasic""
+Output: -1
+Explanation:
+We cannot form the target ""basicbasic"" from cutting letters from the given stickers.
+
+Constraints:
+
+	n == stickers.length
+	1 <= n <= 50
+	1 <= stickers[i].length <= 10
+	1 <= target.length <= 15
+	stickers[i] and target consist of lowercase English letters.","			
+
+class Solution {
+ public:
+  int minStickers(vector<string>& stickers, string target) {
+    const int n = target.size();
+    const int maxMask = 1 << n;
+    // dp[i] := min # of stickers to spell out i,
+    // Where i is the bit representation of target
+    vector<int> dp(maxMask, INT_MAX);
+    dp[0] = 0;
+
+    for (int mask = 0; mask < maxMask; ++mask) {
+      if (dp[mask] == INT_MAX)
+        continue;
+      // Try to expand from `mask` by using each sticker
+      for (const string& sticker : stickers) {
+        int superMask = mask;
+        for (const char c : sticker)
+          for (int i = 0; i < n; ++i)
+            // Try to apply it on a missing char
+            if (c == target[i] && !(superMask >> i & 1)) {
+              superMask |= 1 << i;
+              break;
+            }
+        dp[superMask] = min(dp[superMask], dp[mask] + 1);
+      }
+    }
+
+    return dp.back() == INT_MAX ? -1 : dp.back();
+  }
+};",https://leetcode.com/problems/stickers-to-spell-word,"class Solution {
+ public:
+  int minStickers(vector<string>& stickers, string target) {
+    const int n = target.size();
+    const int maxMask = 1 << n;
+    // dp[i] := min # of stickers to spell out i,
+    // Where i is the bit representation of target
+    vector<int> dp(maxMask, INT_MAX);
+    dp[0] = 0;
+
+    for (int mask = 0; mask < maxMask; ++mask) {
+      if (dp[mask] != INT_MAX)
+        continue;
+      // Try to expand from `mask` by using each sticker
+      for (const string& sticker : stickers) {
+        int superMask = mask;
+        for (const char c : sticker)
+          for (int i = 0; i < n; ++i)
+            // Try to apply it on a missing char
+            if (c == target[i] && !(superMask >> i & 1)) {
+              superMask |= 1 << i;
+              break;
+            }
+        dp[superMask] = min(dp[superMask], dp[mask] + 1);
+      }
+    }
+
+    return dp.back() == INT_MAX ? -1 : dp.back();
+  }
+};","[Logic – Wrong condition operator] Changed the DP skip condition from `dp[mask] == INT_MAX` to `dp[mask] != INT_MAX`, causing reachable states to be skipped.",Runtime Error,"stickers =
+[""with"",""example"",""science""]
+target =
+""thehat""",,,"Line 24: Char 53: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:33:53",3,claude-opus-4-8,zero-shot,Wrong Answer,"""stickers = [\""with\"",\""example\"",\""science\""], target = \""thehat\""""","""-1""","""3""","The condition `if (dp[mask] != INT_MAX) continue;` is inverted; it should skip when dp[mask] IS INT_MAX (unreachable), but instead it skips all reachable states and only processes unreachable ones, so only dp[0] gets processed."
+Bit manipulation,Hard,93,"You are given an integer array nums.
+
+You should move each element of nums into one of the two arrays A and B such that A and B are non-empty, and average(A) == average(B).
+
+Return true if it is possible to achieve that and false otherwise.
+
+Note that for an array arr, average(arr) is the sum of all the elements of arr over the length of arr.
+
+Example 1:
+
+Input: nums = [1,2,3,4,5,6,7,8]
+Output: true
+Explanation: We can split the array into [1,4,5,8] and [2,3,6,7], and both of them have an average of 4.5.
+
+Example 2:
+
+Input: nums = [3,1]
+Output: false
+
+Constraints:
+
+	1 <= nums.length <= 30
+	0 <= nums[i] <= 104","			
+
+class Solution {
+ public:
+  bool splitArraySameAverage(vector<int>& A) {
+    const int n = A.size();
+    const int sum = accumulate(begin(A), end(A), 0);
+    if (!isPossible(sum, n))
+      return false;
+
+    vector<unordered_set<int>> sums(n / 2 + 1);
+    sums[0].insert(0);
+
+    for (const int a : A)
+      for (int i = n / 2; i > 0; --i)
+        for (const int num : sums[i - 1])
+          sums[i].insert(a + num);
+
+    for (int i = 1; i < n / 2 + 1; ++i)
+      if (i * sum % n == 0 && sums[i].count(i * sum / n))
+        return true;
+
+    return false;
+  }
+
+ private:
+  bool isPossible(int sum, int n) {
+    for (int i = 1; i < n / 2 + 1; ++i)
+      if (i * sum % n == 0)
+        return true;
+    return false;
+  }
+};",https://leetcode.com/problems/split-array-with-same-average,"class Solution {
+ public:
+  bool splitArraySameAverage(vector<int>& A) {
+    const int n = A.size();
+    const int sum = accumulate(begin(A), end(A), 0);
+    if (!isPossible(sum, n))
+      return false;
+
+    vector<unordered_set<int>> sums(n / 2 + 1);
+    sums[0].insert(0);
+
+    for (const int a : A)
+      for (int i = n / 2; i > 0; --i)
+        for (const int num : sums[i - 1])
+          sums[i].insert(a + num);
+
+    for (int i = 1; i < n / 2 + 1; ++i)
+      if (i * sum % n != 0 && sums[i].count(i * sum / n))
+        return true;
+
+    return false;
+  }
+
+ private:
+  bool isPossible(int sum, int n) {
+    for (int i = 1; i < n / 2 + 1; ++i)
+      if (i * sum % n == 0)
+        return true;
+    return false;
+  }
+};",[Logic – Wrong condition operator] Changed the final subset-average divisibility check from `i * sum % n == 0` to `i * sum % n != 0`.,Wrong Answer,"nums =
+[6,4,2]",FALSE,TRUE,,2,claude-opus-4-8,zero-shot,Wrong Answer,"""nums = [0,0]""","""false""","""true""","The condition `i * sum % n != 0` is inverted (a valid equal-average subset requires i*sum divisible by n), so cases like [0,0] where a valid split exists return false."
+Bit manipulation,Hard,96,"Given an array of strings words, return the smallest string that contains each string in words as a substring. If there are multiple valid strings of the smallest length, return any of them.
+
+You may assume that no string in words is a substring of another string in words.
+
+Example 1:
+
+Input: words = [""alex"",""loves"",""leetcode""]
+Output: ""alexlovesleetcode""
+Explanation: All permutations of ""alex"",""loves"",""leetcode"" would also be accepted.
+
+Example 2:
+
+Input: words = [""catg"",""ctaagt"",""gcta"",""ttca"",""atgcatc""]
+Output: ""gctaagttcatgcatc""
+
+Constraints:
+
+	1 <= words.length <= 12
+	1 <= words[i].length <= 20
+	words[i] consists of lowercase English letters.
+	All the strings of words are unique.","			
+
+class Solution {
+ public:
+  string shortestSuperstring(vector<string>& A) {
+    const int n = A.size();
+    // cost[i][j] := cost to append A[j] after A[i]
+    vector<vector<int>> cost(n, vector<int>(n));
+
+    // GetCost(a, b) := cost to append b after a
+    auto getCost = [](const string& a, const string& b) {
+      int cost = b.length();
+      const int minLength = min(a.length(), b.length());
+      for (int k = 1; k <= minLength; ++k)
+        if (a.substr(a.length() - k) == b.substr(0, k))
+          cost = b.length() - k;
+      return cost;
+    };
+
+    // Pre-calculate cost array to save time
+    for (int i = 0; i < n; ++i)
+      for (int j = i + 1; j < n; ++j) {
+        cost[i][j] = getCost(A[i], A[j]);
+        cost[j][i] = getCost(A[j], A[i]);
+      }
+
+    vector<int> bestPath;
+    int minLength = n * 20;  // Given by problem
+
+    dfs(A, cost, {}, bestPath, 0, 0, 0, minLength);
+
+    string ans = A[bestPath[0]];
+
+    for (int k = 1; k < n; ++k) {
+      const int i = bestPath[k - 1];
+      const int j = bestPath[k];
+      ans += A[j].substr(A[j].length() - cost[i][j]);
+    }
+
+    return ans;
+  }
+
+ private:
+  // Used: i-th bit means A[i] is used or not
+  void dfs(const vector<string>& A, const vector<vector<int>>& cost,
+           vector<int>&& path, vector<int>& bestPath, int used, int depth,
+           int currLength, int& minLength) {
+    if (currLength >= minLength)
+      return;
+    if (depth == A.size()) {
+      minLength = currLength;
+      bestPath = path;
+      return;
+    }
+
+    for (int i = 0; i < A.size(); ++i) {
+      if (1 << i & used)
+        continue;
+      path.push_back(i);
+      const int newLength =
+          depth == 0 ? A[i].length() : currLength + cost[path[depth - 1]][i];
+      dfs(A, cost, move(path), bestPath, used | 1 << i, depth + 1, newLength,
+          minLength);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/find-the-shortest-superstring,"class Solution {
+ public:
+  string shortestSuperstring(vector<string>& A) {
+    const int n = A.size();
+    // cost[i][j] := cost to append A[j] after A[i]
+    vector<vector<int>> cost(n, vector<int>(n));
+
+    // GetCost(a, b) := cost to append b after a
+    auto getCost = [](const string& a, const string& b) {
+      int cost = b.length();
+      const int minLength = min(a.length(), b.length());
+      for (int k = 1; k < minLength; ++k)
+        if (a.substr(a.length() - k) == b.substr(0, k))
+          cost = b.length() - k;
+      return cost;
+    };
+
+    // Pre-calculate cost array to save time
+    for (int i = 0; i < n; ++i)
+      for (int j = i + 1; j < n; ++j) {
+        cost[i][j] = getCost(A[i], A[j]);
+        cost[j][i] = getCost(A[j], A[i]);
+      }
+
+    vector<int> bestPath;
+    int minLength = n * 20;  // Given by problem
+
+    dfs(A, cost, {}, bestPath, 0, 0, 0, minLength);
+
+    string ans = A[bestPath[0]];
+
+    for (int k = 1; k < n; ++k) {
+      const int i = bestPath[k - 1];
+      const int j = bestPath[k];
+      ans += A[j].substr(A[j].length() - cost[i][j]);
+    }
+
+    return ans;
+  }
+
+ private:
+  // Used: i-th bit means A[i] is used or not
+  void dfs(const vector<string>& A, const vector<vector<int>>& cost,
+           vector<int>&& path, vector<int>& bestPath, int used, int depth,
+           int currLength, int& minLength) {
+    if (currLength >= minLength)
+      return;
+    if (depth == A.size()) {
+      minLength = currLength;
+      bestPath = path;
+      return;
+    }
+
+    for (int i = 0; i < A.size(); ++i) {
+      if (1 << i & used)
+        continue;
+      path.push_back(i);
+      const int newLength =
+          depth == 0 ? A[i].length() : currLength + cost[path[depth - 1]][i];
+      dfs(A, cost, move(path), bestPath, used | 1 << i, depth + 1, newLength,
+          minLength);
+      path.pop_back();
+    }
+  }
+};","[Logic – Wrong condition operator] Changed the overlap loop condition from `k <= minLength` to `k < minLength`, causing full-length overlaps to be ignored.",Time Limit Exceeded,"words =
+[""aaaaaaaaaaaaaaaaaaaa"",""bbbbbbbbbbbbbbbbbbbb"",""cccccccccccccccccccc"",""dddddddddddddddddddd"",""eeeeeeeeeeeeeeeeeeee"",""ffffffffffffffffffff"",""gggggggggggggggggggg"",""hhhhhhhhhhhhhhhhhhhh"",""iiiiiiiiiiiiiiiiiiii"",""jjjjjjjjjjjjjjjjjjjj"",""kkkkkkkkkkkkkkkkkkkk"",""llllllllllllllllllll""]",,,,2,claude-opus-4-8,zero-shot,Runtime Error,"""words = [\""aaaaaaaaaaaaaaaaaaaa\"",\""bbbbbbbbbbbbbbbbbbbb\"",\""cccccccccccccccccccc\"",\""dddddddddddddddddddd\"",\""eeeeeeeeeeeeeeeeeeee\"",\""ffffffffffffffffffff\"",\""gggggggggggggggggggg\"",\""hhhhhhhhhhhhhhhhhhhh\"",\""iiiiiiiiiiiiiiiiiiii\"",\""jjjjjjjjjjjjjjjjjjjj\"",\""kkkkkkkkkkkkkkkkkkkk\"",\""llllllllllllllllllll\""]""",null,"""any superstring of length 240""","minLength is initialized to n*20, and when the optimal length equals exactly n*20 (12 non-overlapping length-20 strings) the strict pruning 'currLength >= minLength' returns before recording, leaving bestPath empty and causing out-of-bounds access at A[bestPath[0]]."
+Bit manipulation,Hard,97,"You are given an m x n integer array grid where grid[i][j] could be:
+
+	1 representing the starting square. There is exactly one starting square.
+	2 representing the ending square. There is exactly one ending square.
+	0 representing empty squares we can walk over.
+	-1 representing obstacles that we cannot walk over.
+
+Return the number of 4-directional walks from the starting square to the ending square, that walk over every non-obstacle square exactly once.
+
+Example 1:
+
+Input: grid = [[1,0,0,0],[0,0,0,0],[0,0,2,-1]]
+Output: 2
+Explanation: We have the following two paths: 
+1. (0,0),(0,1),(0,2),(0,3),(1,3),(1,2),(1,1),(1,0),(2,0),(2,1),(2,2)
+2. (0,0),(1,0),(2,0),(2,1),(1,1),(0,1),(0,2),(0,3),(1,3),(1,2),(2,2)
+
+Example 2:
+
+Input: grid = [[1,0,0,0],[0,0,0,0],[0,0,0,2]]
+Output: 4
+Explanation: We have the following four paths: 
+1. (0,0),(0,1),(0,2),(0,3),(1,3),(1,2),(1,1),(1,0),(2,0),(2,1),(2,2),(2,3)
+2. (0,0),(0,1),(1,1),(1,0),(2,0),(2,1),(2,2),(1,2),(0,2),(0,3),(1,3),(2,3)
+3. (0,0),(1,0),(2,0),(2,1),(2,2),(1,2),(1,1),(0,1),(0,2),(0,3),(1,3),(2,3)
+4. (0,0),(1,0),(2,0),(2,1),(1,1),(0,1),(0,2),(0,3),(1,3),(1,2),(2,2),(2,3)
+
+Example 3:
+
+Input: grid = [[0,1],[2,0]]
+Output: 0
+Explanation: There is no path that walks over every empty square exactly once.
+Note that the starting and ending square can be anywhere in the grid.
+
+Constraints:
+
+	m == grid.length
+	n == grid[i].length
+	1 <= m, n <= 20
+	1 <= m * n <= 20
+	-1 <= grid[i][j] <= 2
+	There is exactly one starting cell and one ending cell.","			
+
+class Solution {
+ public:
+  int uniquePathsIII(vector<vector<int>>& grid) {
+    int ans = 0;
+    int empty = 1;
+    int sx;
+    int sy;
+    int ex;
+    int ey;
+
+    for (int i = 0; i < grid.size(); ++i)
+      for (int j = 0; j < grid[0].size(); ++j)
+        if (grid[i][j] == 0) {
+          ++empty;
+        } else if (grid[i][j] == 1) {
+          sx = i;
+          sy = j;
+        } else if (grid[i][j] == 2) {
+          ex = i;
+          ey = j;
+        }
+
+    dfs(grid, empty, sx, sy, ex, ey, ans);
+
+    return ans;
+  }
+
+ private:
+  void dfs(vector<vector<int>>& grid, int empty, int i, int j, int ex, int ey,
+           int& ans) {
+    if (i < 0 || i == grid.size() || j < 0 || j == grid[0].size())
+      return;
+    if (grid[i][j] < 0)
+      return;
+    if (i == ex && j == ey) {
+      if (empty == 0)
+        ++ans;
+      return;
+    }
+
+    grid[i][j] = -2;
+    dfs(grid, empty - 1, i + 1, j, ex, ey, ans);
+    dfs(grid, empty - 1, i - 1, j, ex, ey, ans);
+    dfs(grid, empty - 1, i, j + 1, ex, ey, ans);
+    dfs(grid, empty - 1, i, j - 1, ex, ey, ans);
+    grid[i][j] = 0;
+  }
+};",https://leetcode.com/problems/unique-paths-iii,"class Solution {
+ public:
+  int uniquePathsIII(vector<vector<int>>& grid) {
+    int ans = 0;
+    int empty = 1;
+    int sx;
+    int sy;
+    int ex;
+    int ey;
+
+    for (int i = 0; i < grid.size(); ++i)
+      for (int j = 0; j < grid[0].size(); ++j)
+        if (grid[i][j] == 0) {
+          ++empty;
+        } else if (grid[i][j] == 1) {
+          sx = i;
+          sy = j;
+        } else if (grid[i][j] == 2) {
+          ex = i;
+          ey = j;
+        }
+
+    dfs(grid, empty, sx, sy, ex, ey, ans);
+
+    return ans;
+  }
+
+ private:
+  void dfs(vector<vector<int>>& grid, int empty, int i, int j, int ex, int ey,
+           int& ans) {
+    if (i < 0 || i == grid.size() || j < 0 || j == grid[0].size())
+      return;
+    if (grid[i][j] < 0)
+      return;
+    if (i == ex && j == ey) {
+      if (empty != 0)
+        ++ans;
+      return;
+    }
+
+    grid[i][j] = -2;
+    dfs(grid, empty - 1, i + 1, j, ex, ey, ans);
+    dfs(grid, empty - 1, i - 1, j, ex, ey, ans);
+    dfs(grid, empty - 1, i, j + 1, ex, ey, ans);
+    dfs(grid, empty - 1, i, j - 1, ex, ey, ans);
+    grid[i][j] = 0;
+  }
+};","[Logic – Wrong condition operator] Changed the endpoint completion check from `empty == 0` to `empty != 0`, causing paths that have not visited all empty squares to be counted.",Wrong Answer,"grid =
+[[1,0,0,0],[0,0,0,0],[0,0,2,-1]]",15,2,,2,claude-opus-4-8,zero-shot,Wrong Answer,"""[[0,1],[2,0]]""","""2""","""0""","The end-condition check `if (empty != 0) ++ans;` is inverted; it should count paths only when empty == 0 (all cells visited), so it counts incomplete paths instead of complete ones."
+Tree,Easy,108,"Given the root of a binary tree and an integer targetSum, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals targetSum.
+
+A leaf is a node with no children.
+
+Example 1:
+
+Input: root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22
+Output: true
+Explanation: The root-to-leaf path with the target sum is shown.
+
+Example 2:
+
+Input: root = [1,2,3], targetSum = 5
+Output: false
+Explanation: There are two root-to-leaf paths in the tree:
+(1 --> 2): The sum is 3.
+(1 --> 3): The sum is 4.
+There is no root-to-leaf path with sum = 5.
+
+Example 3:
+
+Input: root = [], targetSum = 0
+Output: false
+Explanation: Since the tree is empty, there are no root-to-leaf paths.
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 5000].
+	-1000 <= Node.val <= 1000
+	-1000 <= targetSum <= 1000","			
+
+class Solution {
+ public:
+  bool hasPathSum(TreeNode* root, int sum) {
+    if (root == nullptr)
+      return false;
+    if (root->val == sum && root->left == nullptr && root->right == nullptr)
+      return true;
+    return hasPathSum(root->left, sum - root->val) ||
+           hasPathSum(root->right, sum - root->val);
+  }
+};",https://leetcode.com/problems/path-sum,"class Solution {
+ public:
+  bool hasPathSum(TreeNode* root, int sum) {
+    if (root != nullptr)
+      return false;
+    if (root->val == sum && root->left == nullptr && root->right == nullptr)
+      return true;
+    return hasPathSum(root->left, sum - root->val) ||
+           hasPathSum(root->right, sum - root->val);
+  }
+};",[Logic – Wrong condition operator] Changed the null-root check to return false when the root is not null instead of when it is null.,Runtime Error,"root =
+[]
+targetSum =
+0",,,"Line 6: Char 15: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:15:15",3,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1,2,3], targetSum = 3""","""false""","""true""","The base case condition is inverted (`if (root != nullptr) return false;`), causing it to return false whenever root is non-null and dereference null otherwise."
+Tree,Easy,109,"Given the root of a binary tree, return the preorder traversal of its nodes' values.
+
+Example 1:
+
+Input: root = [1,null,2,3]
+
+Output: [1,2,3]
+
+Explanation:
+
+Example 2:
+
+Input: root = [1,2,3,4,5,null,8,null,null,6,7,9]
+
+Output: [1,2,4,5,6,7,3,8,9]
+
+Explanation:
+
+Example 3:
+
+Input: root = []
+
+Output: []
+
+Example 4:
+
+Input: root = [1]
+
+Output: [1]
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100
+
+Follow up: Recursive solution is trivial, could you do it iteratively?","			
+
+class Solution {
+ public:
+  vector<int> preorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    preorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void preorder(TreeNode* root, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    ans.push_back(root->val);
+    preorder(root->left, ans);
+    preorder(root->right, ans);
+  }
+};",https://leetcode.com/problems/binary-tree-preorder-traversal,"class Solution {
+ public:
+  vector<int> preorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    preorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void preorder(TreeNode* root, vector<int>& ans) {
+    if (root != nullptr)
+      return;
+
+    ans.push_back(root->val);
+    preorder(root->left, ans);
+    preorder(root->right, ans);
+  }
+};","[Logic – Wrong condition operator] Changed the null-check in the recursive preorder helper from `root == nullptr` to `root != nullptr`, causing the function to return for valid nodes.",Runtime Error,"root =
+[]",,,"Line 14: Char 25: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:23:25",2,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1,null,2,3]""","""[]""","""[1,2,3]""","The condition is inverted: it returns when root is not null, so it never traverses any node, always producing an empty result."
+Tree,Easy,110,"Given the root of a binary tree, return the postorder traversal of its nodes' values.
+
+Example 1:
+
+Input: root = [1,null,2,3]
+
+Output: [3,2,1]
+
+Explanation:
+
+Example 2:
+
+Input: root = [1,2,3,4,5,null,8,null,null,6,7,9]
+
+Output: [4,6,7,5,2,9,8,3,1]
+
+Explanation:
+
+Example 3:
+
+Input: root = []
+
+Output: []
+
+Example 4:
+
+Input: root = [1]
+
+Output: [1]
+
+Constraints:
+
+	The number of the nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100
+
+Follow up: Recursive solution is trivial, could you do it iteratively?","			
+
+class Solution {
+ public:
+  vector<int> postorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    postorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void postorder(TreeNode* root, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    postorder(root->left, ans);
+    postorder(root->right, ans);
+    ans.push_back(root->val);
+  }
+};",https://leetcode.com/problems/binary-tree-postorder-traversal,"class Solution {
+ public:
+  vector<int> postorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    postorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void postorder(TreeNode* root, vector<int>& ans) {
+    if (root != nullptr)
+      return;
+
+    postorder(root->left, ans);
+    postorder(root->right, ans);
+    ans.push_back(root->val);
+  }
+};","[Logic – Wrong condition operator] Changed the null-check in the recursive helper from `root == nullptr` to `root != nullptr`, causing valid nodes to return immediately.",Runtime Error,"root =
+[]",,,"Line 14: Char 21: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:23:21",2,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1]""","""[]""","""[1]""","The condition is inverted: it returns when root != nullptr, so no nodes are ever processed and the result is always empty."
+Tree,Easy,111,"Given the root of a binary tree, invert the tree, and return its root.
+
+Example 1:
+
+Input: root = [4,2,7,1,3,6,9]
+Output: [4,7,2,9,6,3,1]
+
+Example 2:
+
+Input: root = [2,1,3]
+Output: [2,3,1]
+
+Example 3:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100","			
+
+class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(left);
+    return root;
+  }
+};",https://leetcode.com/problems/invert-binary-tree,"class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root != nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(left);
+    return root;
+  }
+};","[Logic – Wrong condition operator] Changed the null-check condition from `root == nullptr` to `root != nullptr`, causing non-null trees to return immediately.",Runtime Error,"root =
+[]",,,"Line 7: Char 34: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:16:34",2,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [2,1,3]""","""[]""","""[2,3,1]""","The condition is inverted: it returns nullptr when root is not null, so any non-empty tree returns an empty result."
+Tree,Easy,113,"Given the root of a binary search tree (BST) with duplicates, return all the mode(s) (i.e., the most frequently occurred element) in it.
+
+If the tree has more than one mode, return them in any order.
+
+Assume a BST is defined as follows:
+
+	The left subtree of a node contains only nodes with keys less than or equal to the node's key.
+	The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
+	Both the left and right subtrees must also be binary search trees.
+
+Example 1:
+
+Input: root = [1,null,2,2]
+Output: [2]
+
+Example 2:
+
+Input: root = [0]
+Output: [0]
+
+Constraints:
+
+	The number of nodes in the tree is in the range [1, 104].
+	-105 <= Node.val <= 105
+
+Follow up: Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).","			
+
+class Solution {
+ public:
+  vector<int> findMode(TreeNode* root) {
+    vector<int> ans;
+    int count = 0;
+    int maxCount = 0;
+
+    inorder(root, count, maxCount, ans);
+    return ans;
+  }
+
+ private:
+  TreeNode* pred = nullptr;
+
+  void inorder(TreeNode* root, int& count, int& maxCount, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    inorder(root->left, count, maxCount, ans);
+    updateCount(root, count, maxCount, ans);
+    inorder(root->right, count, maxCount, ans);
+  }
+
+  void updateCount(TreeNode* root, int& count, int& maxCount,
+                   vector<int>& ans) {
+    if (pred && pred->val == root->val)
+      ++count;
+    else
+      count = 1;
+
+    if (count > maxCount) {
+      maxCount = count;
+      ans = {root->val};
+    } else if (count == maxCount) {
+      ans.push_back(root->val);
+    }
+
+    pred = root;
+  }
+};",https://leetcode.com/problems/find-mode-in-binary-search-tree,"class Solution {
+ public:
+  vector<int> findMode(TreeNode* root) {
+    vector<int> ans;
+    int count = 0;
+    int maxCount = 0;
+
+    inorder(root, count, maxCount, ans);
+    return ans;
+  }
+
+ private:
+  TreeNode* pred = nullptr;
+
+  void inorder(TreeNode* root, int& count, int& maxCount, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    inorder(root->left, count, maxCount, ans);
+    updateCount(root, count, maxCount, ans);
+    inorder(root->right, count, maxCount, ans);
+  }
+
+  void updateCount(TreeNode* root, int& count, int& maxCount,
+                   vector<int>& ans) {
+    if (pred && pred->val != root->val)
+      ++count;
+    else
+      count = 1;
+
+    if (count > maxCount) {
+      maxCount = count;
+      ans = {root->val};
+    } else if (count == maxCount) {
+      ans.push_back(root->val);
+    }
+
+    pred = root;
+  }
+};",[Logic – Wrong condition operator] Changed the duplicate-value check in `updateCount` from `pred->val == root->val` to `pred->val != root->val`.,Wrong Answer,"root =
+[1,null,2]",[2],"[2,1]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1,1,2]""","""[2]""","""[1]""","The count update logic is inverted: it increments count when values differ and resets to 1 when they are equal, producing incorrect modes."
+Tree,Medium,124,"Given the root of a binary tree, return the zigzag level order traversal of its nodes' values. (i.e., from left to right, then right to left for the next level and alternate between).
+ 
+ Example 1:
+ 
+ Input: root = [3,9,20,null,null,15,7]
+ Output: [[3],[20,9],[15,7]]
+ 
+ Example 2:
+ 
+ Input: root = [1]
+ Output: [[1]]
+ 
+ Example 3:
+ 
+ Input: root = []
+ Output: []
+ 
+ Constraints:
+ 
+ The number of nodes in the tree is in the range [0, 2000].
+ -100 <= Node.val <= 100","class Solution {
+public:
+    void tereversal(TreeNode* node, int curr_depth, vector<vector<int>> &res) {
+        if (res.size() <= curr_depth) {
+            res.resize(curr_depth + 1);
+        }
+        if (!node) {
+            return;
+        }
+        res[curr_depth].push_back(node->val);
+        tereversal(node->left, curr_depth + 1, res);
+        tereversal(node->right, curr_depth + 1, res);
+    }
+
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        tereversal(root, 0, res);
+        if (res.back().empty()) {
+            res.pop_back();
+        }
+        for (int i = 1; i < res.size(); i += 2) {
+            std::reverse(res[i].begin(), res[i].end());
+        }
+        return res;
+    }
+};",https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal,"class Solution {
+public:
+    void tereversal(TreeNode* node, int curr_depth, vector<vector<int>> &res) {
+        if (res.size() <= curr_depth) {
+            res.resize(curr_depth + 1);
+        }
+        if (node) {
+            return;
+        }
+        res[curr_depth].push_back(node->val);
+        tereversal(node->left, curr_depth + 1, res);
+        tereversal(node->right, curr_depth + 1, res);
+    }
+
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        tereversal(root, 0, res);
+        if (res.back().empty()) {
+            res.pop_back();
+        }
+        for (int i = 1; i < res.size(); i += 2) {
+            std::reverse(res[i].begin(), res[i].end());
+        }
+        return res;
+    }
+};",[Logic – Wrong condition operator] Changed the null-node guard from returning when `node` is null to returning when `node` is non-null.,Runtime Error,"root =
+[]",,,"Line 10: Char 41: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:19:41",2,claude-opus-4-8,zero-shot,Runtime Error,"""root = [3,9,20,null,null,15,7]""",null,"""[[3],[20,9],[15,7]]""","The condition `if (node) return;` returns when node is non-null, so it never processes real nodes and dereferences null, plus res.back() on empty vector causes undefined behavior for empty input."
+Tree,Medium,125,"Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.
+ 
+ Example 1:
+ 
+ Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+ Output: [3,9,20,null,null,15,7]
+ 
+ Example 2:
+ 
+ Input: preorder = [-1], inorder = [-1]
+ Output: [-1]
+ 
+ Constraints:
+ 
+ 1 <= preorder.length <= 3000
+ inorder.length == preorder.length
+ -3000 <= preorder[i], inorder[i] <= 3000
+ preorder and inorder consist of unique values.
+ Each value of inorder also appears in preorder.
+ preorder is guaranteed to be the preorder traversal of the tree.
+ inorder is guaranteed to be the inorder traversal of the tree.","class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if (inorder.size() == 1) return new TreeNode(inorder[0]);
+        return build(preorder, inorder, 0, inorder.size() - 1, 0, preorder.size() - 1);
+    }
+
+    TreeNode* build(vector<int>& preorder, vector<int>& inorder, int inorderStart, int inorderEnd, int preorderStart, int preorderEnd) {
+        if (inorderStart > inorderEnd || preorderStart > preorderEnd) return nullptr;
+
+        int rootValue = preorder[preorderStart];
+        TreeNode* root = new TreeNode(rootValue);
+        auto it = find(inorder.begin(), inorder.end(), rootValue);
+        int rootIndex = std::distance(inorder.begin(), it);
+        int left = rootIndex - inorderStart;
+        root->left = build(preorder, inorder, inorderStart, rootIndex - 1, preorderStart + 1, preorderStart + left);
+        root->right = build(preorder, inorder, rootIndex + 1, inorderEnd, preorderStart + left + 1, preorderEnd);
+        return root;
+     }
+};
+static const bool __boost = []() {
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void operator delete(void* /*unused*/, unsigned long /*unused*/) noexcept {}
+void operator delete(void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/, size_t /*unused*/) noexcept {}",https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal,"class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if (inorder.size() == 1) return new TreeNode(inorder[0]);
+        return build(preorder, inorder, 0, inorder.size() - 1, 0, preorder.size() - 1);
+    }
+
+    TreeNode* build(vector<int>& preorder, vector<int>& inorder, int inorderStart, int inorderEnd, int preorderStart, int preorderEnd) {
+        if (inorderStart > inorderEnd || preorderStart > preorderEnd) return nullptr;
+
+        int rootValue = preorder[preorderStart];
+        TreeNode* root = new TreeNode(rootValue);
+        auto it = find(inorder.begin(), inorder.end(), rootValue);
+        int rootIndex = std::distance(inorder.begin(), it);
+        int left = rootIndex + inorderStart;
+        root->left = build(preorder, inorder, inorderStart, rootIndex - 1, preorderStart + 1, preorderStart + left);
+        root->right = build(preorder, inorder, rootIndex + 1, inorderEnd, preorderStart + left + 1, preorderEnd);
+        return root;
+     }
+};
+static const bool __boost = []() {
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void operator delete(void* /*unused*/, unsigned long /*unused*/) noexcept {}
+void operator delete(void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/, size_t /*unused*/) noexcept {}",[Logic – Wrong arithmetic operator] Changed the computation of the left subtree size from `rootIndex - inorderStart` to `rootIndex + inorderStart`.,Wrong Answer,"preorder =
+[3,9,20,15,7]
+inorder =
+[9,3,15,20,7]","[3,9,20,null,null,15]","[3,9,20,null,null,15,7]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]""","""[3,9,20,null,null,15]""","""[3,9,20,null,null,15,7]""","The left-subtree size is computed as rootIndex + inorderStart instead of rootIndex - inorderStart, corrupting preorder index ranges for non-zero inorderStart and dropping nodes like the 7 in example 1."
+Tree,Medium,127,"You are given the root of a binary search tree (BST), where the values of exactly two nodes of the tree were swapped by mistake. Recover the tree without changing its structure.
+
+Example 1:
+
+Input: root = [1,3,null,null,2]
+Output: [3,1,null,null,2]
+Explanation: 3 cannot be a left child of 1 because 3 > 1. Swapping 1 and 3 makes the BST valid.
+
+Example 2:
+
+Input: root = [3,1,4,null,null,2]
+Output: [2,1,4,null,null,3]
+Explanation: 2 cannot be in the right subtree of 3 because 2 < 3. Swapping 2 and 3 makes the BST valid.
+
+Constraints:
+
+	The number of nodes in the tree is in the range [2, 1000].
+	-231 <= Node.val <= 231 - 1
+
+Follow up: A solution using O(n) space is pretty straight-forward. Could you devise a constant O(1) space solution?","			
+
+class Solution {
+ public:
+  void recoverTree(TreeNode* root) {
+    inorder(root);
+    swap(x, y);
+  }
+
+ private:
+  TreeNode* pred = nullptr;
+  TreeNode* x = nullptr;  // 1st wrong node
+  TreeNode* y = nullptr;  // 2nd wrond node
+
+  void inorder(TreeNode* root) {
+    if (root == nullptr)
+      return;
+
+    inorder(root->left);
+
+    if (pred && root->val < pred->val) {
+      y = root;
+      if (x == nullptr)
+        x = pred;
+      else
+        return;
+    }
+    pred = root;
+
+    inorder(root->right);
+  }
+
+  void swap(TreeNode* x, TreeNode* y) {
+    const int temp = x->val;
+    x->val = y->val;
+    y->val = temp;
+  }
+};",https://leetcode.com/problems/recover-binary-search-tree,"class Solution {
+ public:
+  void recoverTree(TreeNode* root) {
+    inorder(root);
+    swap(x, y);
+  }
+
+ private:
+  TreeNode* pred = nullptr;
+  TreeNode* x = nullptr;  // 1st wrong node
+  TreeNode* y = nullptr;  // 2nd wrond node
+
+  void inorder(TreeNode* root) {
+    if (root == nullptr)
+      return;
+
+    inorder(root->left);
+
+    if (pred && root->val > pred->val) {
+      y = root;
+      if (x == nullptr)
+        x = pred;
+      else
+        return;
+    }
+    pred = root;
+
+    inorder(root->right);
+  }
+
+  void swap(TreeNode* x, TreeNode* y) {
+    const int temp = x->val;
+    x->val = y->val;
+    y->val = temp;
+  }
+};","[Logic – Wrong condition operator] Changed the inorder violation check from `root->val < pred->val` to `root->val > pred->val`, causing valid increasing pairs to be treated as swapped nodes.",Runtime Error,"root =
+[1,3,null,null,2]",,,"Line 32: Char 25: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:41:25",2,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1,3,null,null,2]""","""[1,3,null,null,2]""","""[3,1,null,null,2]""","The condition should detect where root->val < pred->val (a decrease in inorder traversal), but the code uses root->val > pred->val which is the opposite; it fails on standard swapped-node cases."
+Tree,Medium,130,"Given the head of a singly linked list where elements are sorted in ascending order, convert it to a height-balanced binary search tree.
+
+Example 1:
+
+Input: head = [-10,-3,0,5,9]
+Output: [0,-3,9,-10,null,5]
+Explanation: One possible answer is [0,-3,9,-10,null,5], which represents the shown height balanced BST.
+
+Example 2:
+
+Input: head = []
+Output: []
+
+Constraints:
+
+	The number of nodes in head is in the range [0, 2 * 104].
+	-105 <= Node.val <= 105","			
+
+class Solution {
+ public:
+  TreeNode* sortedListToBST(ListNode* head) {
+    if (head == nullptr)
+      return nullptr;
+    if (!head->next)
+      return new TreeNode(head->val);
+
+    ListNode* mid = findMid(head);
+    TreeNode* root = new TreeNode(mid->val);
+    root->left = sortedListToBST(head);
+    root->right = sortedListToBST(mid->next);
+
+    return root;
+  }
+
+ private:
+  ListNode* findMid(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* slow = head;
+    ListNode* fast = head;
+
+    while (fast && fast->next) {
+      prev = slow;
+      slow = slow->next;
+      fast = fast->next->next;
+    }
+    prev->next = nullptr;
+
+    return slow;
+  }
+};",https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree,"class Solution {
+ public:
+  TreeNode* sortedListToBST(ListNode* head) {
+    if (head != nullptr)
+      return nullptr;
+    if (!head->next)
+      return new TreeNode(head->val);
+
+    ListNode* mid = findMid(head);
+    TreeNode* root = new TreeNode(mid->val);
+    root->left = sortedListToBST(head);
+    root->right = sortedListToBST(mid->next);
+
+    return root;
+  }
+
+ private:
+  ListNode* findMid(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* slow = head;
+    ListNode* fast = head;
+
+    while (fast && fast->next) {
+      prev = slow;
+      slow = slow->next;
+      fast = fast->next->next;
+    }
+    prev->next = nullptr;
+
+    return slow;
+  }
+};","[Logic – Wrong condition operator] Changed the null-head base case check from `head == nullptr` to `head != nullptr`, causing non-empty lists to return `nullptr` immediately.",Runtime Error,"head =
+[]",,,"Line 6: Char 16: runtime error: member access within null pointer of type 'ListNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:15:16",3,claude-opus-4-8,zero-shot,Wrong Answer,"""head = [-10,-3,0,5,9]""","""[]""","""[0,-3,9,-10,null,5]""","The base case is inverted: `if (head != nullptr) return nullptr;` returns null for any non-null head and dereferences null otherwise, producing wrong results (and it doesn't even reach the recursive logic)."
+Tree,Medium,132,"Given the root of a binary tree, flatten the tree into a ""linked list"":
+
+	The ""linked list"" should use the same TreeNode class where the right child pointer points to the next node in the list and the left child pointer is always null.
+	The ""linked list"" should be in the same order as a pre-order traversal of the binary tree.
+
+Example 1:
+
+Input: root = [1,2,5,3,4,null,6]
+Output: [1,null,2,null,3,null,4,null,5,null,6]
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Example 3:
+
+Input: root = [0]
+Output: [0]
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 2000].
+	-100 <= Node.val <= 100
+
+Follow up: Can you flatten the tree in-place (with O(1) extra space)?","			
+
+class Solution {
+ public:
+  void flatten(TreeNode* root) {
+    if (root == nullptr)
+      return;
+
+    flatten(root->left);
+    flatten(root->right);
+
+    TreeNode* const left = root->left;    // Flattened left
+    TreeNode* const right = root->right;  // Flattened right
+
+    root->left = nullptr;
+    root->right = left;
+
+    // Connect the original right subtree
+    // To the end of new right subtree
+    TreeNode* rightmost = root;
+    while (rightmost->right)
+      rightmost = rightmost->right;
+    rightmost->right = right;
+  }
+};",https://leetcode.com/problems/flatten-binary-tree-to-linked-list,"class Solution {
+ public:
+  void flatten(TreeNode* root) {
+    if (root != nullptr)
+      return;
+
+    flatten(root->left);
+    flatten(root->right);
+
+    TreeNode* const left = root->left;    // Flattened left
+    TreeNode* const right = root->right;  // Flattened right
+
+    root->left = nullptr;
+    root->right = left;
+
+    // Connect the original right subtree
+    // To the end of new right subtree
+    TreeNode* rightmost = root;
+    while (rightmost->right)
+      rightmost = rightmost->right;
+    rightmost->right = right;
+  }
+};","[Logic – Wrong condition operator] Changed the null-root guard from `root == nullptr` to `root != nullptr`, causing the function to return for non-null roots.",Runtime Error,"root =
+[]",,,"Line 7: Char 19: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:16:19",2,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [0]""","""[0]""","""[0]""","The condition `if (root != nullptr) return;` is inverted, so the function returns immediately for any non-null node and never flattens the tree."
+Tree,Medium,133,"You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition:
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6,7]
+Output: [1,#,2,3,#,4,5,6,7,#]
+Explanation: Given the above perfect binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 212 - 1].
+	-1000 <= Node.val <= 1000
+
+Follow-up:
+
+	You may only use constant extra space.
+	The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.","			
+
+class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p == nullptr)
+      return;
+    p->next = q;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};",https://leetcode.com/problems/populating-next-right-pointers-in-each-node,"class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p != nullptr)
+      return;
+    p->next = q;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};","[Logic – Wrong condition operator] Changed the null check in connectTwoNodes from p == nullptr to p != nullptr, causing the recursive connection logic to be skipped for valid nodes.",Wrong Answer,"root =
+[1,2,3,4,5,6,7]","[1,#,2,#,4,#]","[1,#,2,3,#,4,5,6,7,#]",,2,claude-opus-4-8,zero-shot,Compilation Error,"""""","""""","""""","The Node struct/class is not defined in the submission, so referencing Node fails to compile (LeetCode provides it, but standalone it errors); additionally the logic has an inverted condition 'if (p != nullptr) return' which would dereference null."
+Tree,Medium,134,"Given a binary tree
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,null,7]
+Output: [1,#,2,3,#,4,5,7,#]
+Explanation: Given the above binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 6000].
+	-100 <= Node.val <= 100
+
+Follow-up:
+
+	You may only use constant extra space.
+	The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.","			
+
+class Solution {
+ public:
+  Node* connect(Node* root) {
+    Node* node = root;  // The node just above current needling
+
+    while (node) {
+      Node dummy(0);  // Dummy node before needling
+      // Needle children of node
+      for (Node* needle = &dummy; node; node = node->next) {
+        if (node->left) {  // Needle left child
+          needle->next = node->left;
+          needle = needle->next;
+        }
+        if (node->right) {  // Needle right child
+          needle->next = node->right;
+          needle = needle->next;
+        }
+      }
+      node = dummy.next;  // Move node to the next level
+    }
+
+    return root;
+  }
+};",https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii,"class Solution {
+ public:
+  Node* connect(Node* root) {
+    Node* node = root;  // The node just above current needling
+
+    while (node) {
+      Node dummy(0);  // Dummy node before needling
+      // Needle children of node
+      for (Node* needle = &dummy; node; node = node->next) {
+        if (node->left == nullptr) {  // Needle left child
+          needle->next = node->left;
+          needle = needle->next;
+        }
+        if (node->right) {  // Needle right child
+          needle->next = node->right;
+          needle = needle->next;
+        }
+      }
+      node = dummy.next;  // Move node to the next level
+    }
+
+    return root;
+  }
+};",[Logic – Wrong condition operator] Changed the left-child existence check from `if (node->left)` to `if (node->left == nullptr)`.,Runtime Error,"root =
+[1,2,3,4,5,null,7]",,,"Line 15: Char 19: runtime error: member access within null pointer of type 'Node' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:42:19",2,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [1,2,3,4,5,null,7]""","""[1,#,3,#,7,#]""","""[1,#,2,3,#,4,5,7,#]""","The left child needling condition is inverted: it checks `if (node->left == nullptr)` instead of `if (node->left)`, so it connects null left children and skips actual left children."
+Tree,Medium,138,"Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.
+
+Example 1:
+
+Input: root = [3,1,4,null,2], k = 1
+Output: 1
+
+Example 2:
+
+Input: root = [5,3,6,2,4,null,null,1], k = 3
+Output: 3
+
+Constraints:
+
+	The number of nodes in the tree is n.
+	1 <= k <= n <= 104
+	0 <= Node.val <= 104
+
+Follow up: If the BST is modified often (i.e., we can do insert and delete operations) and you need to find the kth smallest frequently, how would you optimize?","			
+
+class Solution {
+ public:
+  int kthSmallest(TreeNode* root, int k) {
+    const int leftCount = countNodes(root->left);
+
+    if (leftCount == k - 1)
+      return root->val;
+    if (leftCount >= k)
+      return kthSmallest(root->left, k);
+    return kthSmallest(root->right, k - 1 - leftCount);  // LeftCount < k
+  }
+
+ private:
+  int countNodes(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};",https://leetcode.com/problems/kth-smallest-element-in-a-bst,"class Solution {
+ public:
+  int kthSmallest(TreeNode* root, int k) {
+    const int leftCount = countNodes(root->left);
+
+    if (leftCount == k - 1)
+      return root->val;
+    if (leftCount >= k)
+      return kthSmallest(root->left, k);
+    return kthSmallest(root->right, k - leftCount);  // LeftCount < k
+  }
+
+ private:
+  int countNodes(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};",[Logic – Wrong arithmetic operator] Changed the recursive call on the right subtree to subtract only leftCount from k instead of subtracting 1 + leftCount.,Runtime Error,"root =
+[2,1,3]
+k =
+3",,,"Line 4: Char 44: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:13:44
+root =
+[2,1,3]
+k =
+3",2,claude-opus-4-8,zero-shot,Runtime Error,"""root = [1,null,2], k = 2""",null,"""2""","When recursing right, it passes k - leftCount instead of k - leftCount - 1, so the root is never skipped, causing null pointer dereference."
+Tree,Medium,139,"Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
+
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+
+Example 1:
+
+Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+Output: 6
+Explanation: The LCA of nodes 2 and 8 is 6.
+
+Example 2:
+
+Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+Output: 2
+Explanation: The LCA of nodes 2 and 4 is 2, since a node can be a descendant of itself according to the LCA definition.
+
+Example 3:
+
+Input: root = [2,1], p = 2, q = 1
+Output: 2
+
+Constraints:
+
+	The number of nodes in the tree is in the range [2, 105].
+	-109 <= Node.val <= 109
+	All Node.val are unique.
+	p != q
+	p and q will exist in the BST.","			
+
+class Solution {
+ public:
+  TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root->val > max(p->val, q->val))
+      return lowestCommonAncestor(root->left, p, q);
+    if (root->val < min(p->val, q->val))
+      return lowestCommonAncestor(root->right, p, q);
+    return root;
+  }
+};",https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree,"class Solution {
+ public:
+  TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root->val < max(p->val, q->val))
+      return lowestCommonAncestor(root->left, p, q);
+    if (root->val < min(p->val, q->val))
+      return lowestCommonAncestor(root->right, p, q);
+    return root;
+  }
+};","[Logic – Wrong condition operator] Changed the left-subtree branch condition from `>` to `<`, causing the search to recurse in the wrong direction for values smaller than both targets.",Runtime Error,"root =
+[6,2,8,0,4,7,9,null,null,3,5]
+p =
+2
+q =
+8",,,"Line 4: Char 15: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:9:15",2,claude-opus-4-8,zero-shot,Wrong Answer,"""root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8""","""runtime error / wrong node""","""6""","The logic is inverted: when root->val is less than both p and q, LCA is in the right subtree, but the code goes left when root->val < max, causing incorrect traversal."
+Graph,Medium,152,"Given a reference of a node in a connected undirected graph.
+ 
+ Return a deep copy (clone) of the graph.
+ 
+ Each node in the graph contains a value (int) and a list (List[Node]) of its neighbors.
+ 
+ class Node {
+  public int val;
+  public List<Node> neighbors;
+ }
+ 
+ Test case format:
+ 
+ For simplicity, each node's value is the same as the node's index (1-indexed). For example, the first node with val == 1, the second node with val == 2, and so on. The graph is represented in the test case using an adjacency list.
+ 
+ An adjacency list is a collection of unordered lists used to represent a finite graph. Each list describes the set of neighbors of a node in the graph.
+ 
+ The given node will always be the first node with val = 1. You must return the copy of the given node as a reference to the cloned graph.
+ 
+ Example 1:
+ 
+ Input: adjList = [[2,4],[1,3],[2,4],[1,3]]
+ Output: [[2,4],[1,3],[2,4],[1,3]]
+ Explanation: There are 4 nodes in the graph.
+ 1st node (val = 1)'s neighbors are 2nd node (val = 2) and 4th node (val = 4).
+ 2nd node (val = 2)'s neighbors are 1st node (val = 1) and 3rd node (val = 3).
+ 3rd node (val = 3)'s neighbors are 2nd node (val = 2) and 4th node (val = 4).
+ 4th node (val = 4)'s neighbors are 1st node (val = 1) and 3rd node (val = 3).
+ 
+ Example 2:
+ 
+ Input: adjList = [[]]
+ Output: [[]]
+ Explanation: Note that the input contains one empty list. The graph consists of only one node with val = 1 and it does not have any neighbors.
+ 
+ Example 3:
+ 
+ Input: adjList = []
+ Output: []
+ Explanation: This an empty graph, it does not have any nodes.
+ 
+ Constraints:
+ 
+ The number of nodes in the graph is in the range [0, 100].
+ 1 <= Node.val <= 100
+ Node.val is unique for each node.
+ There are no repeated edges and no self-loops in the graph.
+ The Graph is connected and all nodes can be visited starting from the given node.","class Solution {
+public:
+    unordered_map<Node*, Node*> cloneMap;
+
+    Node* cloneGraph(Node* node) {
+        if (node == nullptr) {
+            return nullptr; // base case: empty graph
+        }
+
+        // If node is already cloned, return the clone
+        if (cloneMap.find(node) != cloneMap.end()) {
+            return cloneMap[node];
+        }
+
+        // Clone the current node
+        Node* clone = new Node(node->val);
+        cloneMap[node] = clone;
+
+        // Recursively clone all neighbors
+        for (Node* neighbor : node->neighbors) {
+            clone->neighbors.push_back(cloneGraph(neighbor));
+        }
+
+        return clone;
+    }
+};",https://leetcode.com/problems/clone-graph,"class Solution {
+public:
+    unordered_map<Node*, Node*> cloneMap;
+
+    Node* cloneGraph(Node* node) {
+        if (node == nullptr) {
+            return nullptr; // base case: empty graph
+        }
+
+        // If node is already cloned, return the clone
+        if (cloneMap.find(node) == cloneMap.end()) {
+            return cloneMap[node];
+        }
+
+        // Clone the current node
+        Node* clone = new Node(node->val);
+        cloneMap[node] = clone;
+
+        // Recursively clone all neighbors
+        for (Node* neighbor : node->neighbors) {
+            clone->neighbors.push_back(cloneGraph(neighbor));
+        }
+
+        return clone;
+    }
+};",[Logic – Wrong condition operator] Changed the clone-map lookup condition from checking for an existing clone to checking for a missing clone.,Wrong Answer,"edges =
+[[2,4],[1,3],[2,4],[1,3]]",[],"[[2,4],[1,3],[2,4],[1,3]]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""""","""""","""""","The condition is inverted: it returns cloneMap[node] when the node is NOT found (giving nullptr) and clones when it IS found, causing infinite recursion and incorrect results."
+Graph,Medium,154,"A tree is an undirected graph in which any two vertices are connected byÂ exactlyÂ one path. In other words, any connected graph without simple cycles is a tree.
+ 
+ Given a tree of n nodesÂ labelled from 0 to n - 1, and an array ofÂ n - 1Â edges where edges[i] = [ai, bi] indicates that there is an undirected edge between the two nodesÂ ai andÂ bi in the tree,Â you can choose any node of the tree as the root. When you select a node x as the root, the result tree has height h. Among all possible rooted trees, those with minimum height (i.e. min(h))Â are called minimum height trees (MHTs).
+ 
+ Return a list of all MHTs' root labels.Â You can return the answer in any order.
+ 
+ The height of a rooted tree is the number of edges on the longest downward path between the root and a leaf.
+ 
+ Example 1:
+ 
+ Input: n = 4, edges = [[1,0],[1,2],[1,3]]
+ Output: [1]
+ Explanation: As shown, the height of the tree is 1 when the root is the node with label 1 which is the only MHT.
+ 
+ Example 2:
+ 
+ Input: n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]
+ Output: [3,4]
+ 
+ Constraints:
+ 
+ 1 <= n <= 2 * 104
+ edges.length == n - 1
+ 0 <= ai, bi < n
+ ai != bi
+ All the pairs (ai, bi) are distinct.
+ The given input is guaranteed to be a tree and there will be no repeated edges.","static const int fast_io = []() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    return 0;
+}();
+
+class Solution {
+public:
+    vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
+        if (n == 1) return {0};
+        if (n == 2) return {0, 1};
+
+        // Используем статические массивы вместо векторов векторов
+        // Это экономит кучу времени на выделении памяти
+        vector<int> degree(n, 0);
+        vector<int> head(n, -1);
+        vector<int> next(edges.size() * 2);
+        vector<int> to(edges.size() * 2);
+        
+        int edge_idx = 0;
+        for (auto& e : edges) {
+            int u = e[0], v = e[1];
+            degree[u]++; degree[v]++;
+            
+            to[edge_idx] = v; next[edge_idx] = head[u]; head[u] = edge_idx++;
+            to[edge_idx] = u; next[edge_idx] = head[v]; head[v] = edge_idx++;
+        }
+
+        // Очередь на массиве (самый быстрый вариант)
+        int q[n];
+        int front = 0, rear = 0;
+        for (int i = 0; i < n; i++) {
+            if (degree[i] == 1) q[rear++] = i;
+        }
+
+        int remainingNodes = n;
+        while (remainingNodes > 2) {
+            int current_layer_size = rear - front;
+            remainingNodes -= current_layer_size;
+            
+            for (int i = 0; i < current_layer_size; i++) {
+                int u = q[front++];
+                for (int e = head[u]; e != -1; e = next[e]) {
+                    int v = to[e];
+                    if (--degree[v] == 1) {
+                        q[rear++] = v;
+                    }
+                }
+            }
+        }
+
+        vector<int> result;
+        while (front < rear) result.push_back(q[front++]);
+        return result;
+    }
+};",https://leetcode.com/problems/minimum-height-trees,"static const int fast_io = []() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    return 0;
+}();
+
+class Solution {
+public:
+    vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
+        if (n == 1) return {0};
+        if (n == 2) return {0, 1};
+
+        // Используем статические массивы вместо векторов векторов
+        // Это экономит кучу времени на выделении памяти
+        vector<int> degree(n, 0);
+        vector<int> head(n, -1);
+        vector<int> next(edges.size() * 2);
+        vector<int> to(edges.size() * 2);
+        
+        int edge_idx = 0;
+        for (auto& e : edges) {
+            int u = e[0], v = e[1];
+            degree[u]++; degree[v]++;
+            
+            to[edge_idx] = v; next[edge_idx] = head[u]; head[u] = edge_idx++;
+            to[edge_idx] = u; next[edge_idx] = head[v]; head[v] = edge_idx++;
+        }
+
+        // Очередь на массиве (самый быстрый вариант)
+        int q[n];
+        int front = 0, rear = 0;
+        for (int i = 0; i < n; i++) {
+            if (degree[i] == 1) q[rear++] = i;
+        }
+
+        int remainingNodes = n;
+        while (remainingNodes > 2) {
+            int current_layer_size = rear - front;
+            remainingNodes -= current_layer_size;
+            
+            for (int i = 0; i < current_layer_size; i++) {
+                int u = q[front++];
+                for (int e = head[u]; e == -1; e = next[e]) {
+                    int v = to[e];
+                    if (--degree[v] == 1) {
+                        q[rear++] = v;
+                    }
+                }
+            }
+        }
+
+        vector<int> result;
+        while (front < rear) result.push_back(q[front++]);
+        return result;
+    }
+};","[Logic – Wrong condition operator] Changed the adjacency traversal loop condition from `e != -1` to `e == -1`, preventing neighbor processing during leaf trimming.",Wrong Answer,"n =
+4
+edges =
+[[1,0],[1,2],[1,3]]",[],[1],,2,claude-opus-4-8,zero-shot,Wrong Answer,"""n = 4, edges = [[1,0],[1,2],[1,3]]""","""[]""","""[1]""","The inner adjacency traversal loop condition is `e == -1` instead of `e != -1`, so it never processes any edges, meaning degrees are never decremented and the leaf-trimming BFS fails to work correctly."
+Graph,Hard,170,"You are given a list of airline tickets where tickets[i] = [fromi, toi] represent the departure and the arrival airports of one flight. Reconstruct the itinerary in order and return it.
+ 
+ All of the tickets belong to a man who departs from ""JFK"", thus, the itinerary must begin with ""JFK"". If there are multiple valid itineraries, you should return the itinerary that has the smallest lexical order when read as a single string.
+ 
+ For example, the itinerary [""JFK"", ""LGA""] has a smaller lexical order than [""JFK"", ""LGB""].
+ 
+ You may assume all tickets form at least one valid itinerary. You must use all the tickets once and only once.
+ 
+ Example 1:
+ 
+ Input: tickets = [[""MUC"",""LHR""],[""JFK"",""MUC""],[""SFO"",""SJC""],[""LHR"",""SFO""]]
+ Output: [""JFK"",""MUC"",""LHR"",""SFO"",""SJC""]
+ 
+ Example 2:
+ 
+ Input: tickets = [[""JFK"",""SFO""],[""JFK"",""ATL""],[""SFO"",""ATL""],[""ATL"",""JFK""],[""ATL"",""SFO""]]
+ Output: [""JFK"",""ATL"",""JFK"",""SFO"",""ATL"",""SFO""]
+ Explanation: Another possible reconstruction is [""JFK"",""SFO"",""ATL"",""JFK"",""ATL"",""SFO""] but it is larger in lexical order.
+ 
+ Constraints:
+ 
+ 1 <= tickets.length <= 300
+ tickets[i].length == 2
+ fromi.length == 3
+ toi.length == 3
+ fromi and toi consist of uppercase English letters.
+ fromi != toi","const int N = 605;
+const int A = 26;
+const int M = A * A * A;
+
+vector <int> g_from[N];
+string id_to_string[N];
+int itin[N];
+int n, k;
+
+class Solution {
+public:
+    void findLeastPath(int v)
+    {
+        for (int u; !g_from[v].empty(); u = -g_from[v].back(), g_from[v].pop_back(), v = u) itin[k++] = v;
+        itin[k++] = v;
+    }
+
+    void solve(int start)
+    {
+        //cout << id_to_string[start] << ""\n"";
+        int k0 = k;
+        findLeastPath(start);
+        //for (int i = k0; i < k; ++i) cout << id_to_string[itin[i]] << "" "";
+        //cout << ""\n"";
+        for (int i = k - 1; i >= k0; --i)
+        {
+            if (g_from[itin[i]].empty()) continue;
+            int k1 = k;
+            solve(itin[i]);
+            --k;
+            rotate(itin + i, itin + k1, itin + k);
+        }
+    }
+
+    vector<string> findItinerary(vector<vector<string>>& tickets) {
+        int m = tickets.size(); n = 0;
+        for (int i = 0; i < m; ++i)
+        {
+            id_to_string[n++] = tickets[i][0];
+            id_to_string[n++] = tickets[i][1];
+        }
+        sort(id_to_string, id_to_string + (m<<1));
+        n = 0;
+        for (int i = 0; i < (m<<1); ++i)
+        {
+            if (i == 0 || id_to_string[i] != id_to_string[i-1]) id_to_string[n++] = id_to_string[i];
+        }
+        for (int i = 0; i < n; ++i)
+        {
+            g_from[i].clear();
+        }
+        for (const vector <string>& edge: tickets)
+        {
+            //int i0 = lower_bound(id_to_string, id_to_string + n, edge[0]), i1 = lower_bound(id_to_string, id_to_string + n, edge[1]);
+            int i0, i1;
+            for (i0 = 0; i0 < n && id_to_string[i0] != edge[0]; ++i0);
+            for (i1 = 0; i1 < n && id_to_string[i1] != edge[1]; ++i1);
+            g_from[i0].push_back(-i1);
+        }
+
+        for (int i = 0; i < n; ++i)
+        {
+            sort(g_from[i].begin(), g_from[i].end());
+        }
+
+        int start;
+        for (start = 0; id_to_string[start] != ""JFK""; ++start);
+
+        k = 0;
+        solve(start);
+
+        vector <string> ans(k);
+        for (int i = 0; i < k; ++i) ans[i] = id_to_string[itin[i]];
+
+        return ans;
+    }
+};",https://leetcode.com/problems/reconstruct-itinerary,"const int N = 605;
+const int A = 26;
+const int M = A * A * A;
+
+vector <int> g_from[N];
+string id_to_string[N];
+int itin[N];
+int n, k;
+
+class Solution {
+public:
+    void findLeastPath(int v)
+    {
+        for (int u; !g_from[v].empty(); u = -g_from[v].back(), g_from[v].pop_back(), v = u) itin[k++] = v;
+        itin[k++] = v;
+    }
+
+    void solve(int start)
+    {
+        //cout << id_to_string[start] << ""\n"";
+        int k0 = k;
+        findLeastPath(start);
+        //for (int i = k0; i < k; ++i) cout << id_to_string[itin[i]] << "" "";
+        //cout << ""\n"";
+        for (int i = k - 1; i >= k0; --i)
+        {
+            if (g_from[itin[i]].empty()) continue;
+            int k1 = k;
+            solve(itin[i]);
+            --k;
+            rotate(itin + i, itin + k1, itin + k);
+        }
+    }
+
+    vector<string> findItinerary(vector<vector<string>>& tickets) {
+        int m = tickets.size(); n = 0;
+        for (int i = 0; i < m; ++i)
+        {
+            id_to_string[n++] = tickets[i][0];
+            id_to_string[n++] = tickets[i][1];
+        }
+        sort(id_to_string, id_to_string + (m<<1));
+        n = 0;
+        for (int i = 0; i < (m<<1); ++i)
+        {
+            if (i == 0 || id_to_string[i] == id_to_string[i-1]) id_to_string[n++] = id_to_string[i];
+        }
+        for (int i = 0; i < n; ++i)
+        {
+            g_from[i].clear();
+        }
+        for (const vector <string>& edge: tickets)
+        {
+            //int i0 = lower_bound(id_to_string, id_to_string + n, edge[0]), i1 = lower_bound(id_to_string, id_to_string + n, edge[1]);
+            int i0, i1;
+            for (i0 = 0; i0 < n && id_to_string[i0] != edge[0]; ++i0);
+            for (i1 = 0; i1 < n && id_to_string[i1] != edge[1]; ++i1);
+            g_from[i0].push_back(-i1);
+        }
+
+        for (int i = 0; i < n; ++i)
+        {
+            sort(g_from[i].begin(), g_from[i].end());
+        }
+
+        int start;
+        for (start = 0; id_to_string[start] != ""JFK""; ++start);
+
+        k = 0;
+        solve(start);
+
+        vector <string> ans(k);
+        for (int i = 0; i < k; ++i) ans[i] = id_to_string[itin[i]];
+
+        return ans;
+    }
+};","[Logic – Wrong condition operator] Changed the duplicate-removal condition from comparing adjacent airport strings with `!=` to `==`, causing unique airport IDs to be built incorrectly.",Wrong Answer,"tickets =
+[[""MUC"",""LHR""],[""JFK"",""MUC""],[""SFO"",""SJC""],[""LHR"",""SFO""]]","[""JFK"",""MUC"",""LHR"",""SFO"",""MUC""]","[""JFK"",""MUC"",""LHR"",""SFO"",""SJC""]",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""tickets = [[\""MUC\"",\""LHR\""],[\""JFK\"",\""MUC\""],[\""SFO\"",\""SJC\""],[\""LHR\"",\""SFO\""]]""","""[\""JFK\"",\""MUC\"",\""LHR\"",\""SFO\"",\""\""]""","""[\""JFK\"",\""MUC\"",\""LHR\"",\""SFO\"",\""SJC\""]""","The dedup condition uses '==' instead of '!=', dropping distinct airports (e.g. SJC), so those airports map to an out-of-range index with an empty string, corrupting the output."
+Graph,Hard,172,"There is a safe protected by a password. The password is a sequence of n digits where each digit can be in the range [0, k - 1].
+ 
+ The safe has a peculiar way of checking the password. When you enter in a sequence, it checks the most recent n digits that were entered each time you type a digit.
+ 
+ For example, the correct password is ""345"" and you enter in ""012345"":
+ 
+ After typing 0, the most recent 3 digits is ""0"", which is incorrect.
+ After typing 1, the most recent 3 digits is ""01"", which is incorrect.
+ After typing 2, the most recent 3 digits is ""012"", which is incorrect.
+ After typing 3, the most recent 3 digits is ""123"", which is incorrect.
+ After typing 4, the most recent 3 digits is ""234"", which is incorrect.
+ After typing 5, the most recent 3 digits is ""345"", which is correct and the safe unlocks.
+ 
+ Return any string of minimum length that will unlock the safe at some point of entering it.
+ 
+ Example 1:
+ 
+ Input: n = 1, k = 2
+ Output: ""10""
+ Explanation: The password is a single digit, so enter each digit. ""01"" would also unlock the safe.
+ 
+ Example 2:
+ 
+ Input: n = 2, k = 2
+ Output: ""01100""
+ Explanation: For each possible password:
+ - ""00"" is typed in starting from the 4th digit.
+ - ""01"" is typed in starting from the 1st digit.
+ - ""10"" is typed in starting from the 3rd digit.
+ - ""11"" is typed in starting from the 2nd digit.
+ Thus ""01100"" will unlock the safe. ""10011"", and ""11001"" would also unlock the safe.
+ 
+ Constraints:
+ 
+ 1 <= n <= 4
+ 1 <= k <= 10
+ 1 <= kn <= 4096","namespace {
+constexpr int ipow(int k, int n) noexcept {
+    int result = 1;
+    while (n--)
+        result *= k;
+    return result;
+}
+
+struct Solution {
+    static constexpr std::string crackSafe(int n, int k) noexcept {
+        int size = k == 1 ? n : ipow(k, n) + n - 1;
+        std::string result(size, '\0');
+        auto write = result.begin();
+        if (k == 1) {
+            std::fill(result.begin(), result.end(), '0');
+        } else {
+            std::string a(k*n, '0');
+            [&](this const auto& de_bruijn, int t, int p) noexcept -> void {
+                if (t > n) {
+                    if (n % p == 0)
+                        write = std::copy(a.begin() + 1, a.begin() + p + 1, write);
+                    return;
+                }
+                a[t] = a[t-p];
+                de_bruijn(t+1, p);
+                for (char j = a[t-p] + 1; j < k+'0'; ++j) {
+                    a[t] = j;
+                    de_bruijn(t+1, t);
+                }
+            }(1, 1);
+            std::copy(result.begin(), result.begin() + (n-1), write);
+        }
+        return result;
+    }
+};
+}",https://leetcode.com/problems/cracking-the-safe,"namespace {
+constexpr int ipow(int k, int n) noexcept {
+    int result = 1;
+    while (n--)
+        result *= k;
+    return result;
+}
+
+struct Solution {
+    static constexpr std::string crackSafe(int n, int k) noexcept {
+        int size = k == 1 ? n : ipow(k, n) + n - 1;
+        std::string result(size, '\0');
+        auto write = result.begin();
+        if (k == 1) {
+            std::fill(result.begin(), result.end(), '0');
+        } else {
+            std::string a(k*n, '0');
+            [&](this const auto& de_bruijn, int t, int p) noexcept -> void {
+                if (t > n) {
+                    if (n % p != 0)
+                        write = std::copy(a.begin() + 1, a.begin() + p + 1, write);
+                    return;
+                }
+                a[t] = a[t-p];
+                de_bruijn(t+1, p);
+                for (char j = a[t-p] + 1; j < k+'0'; ++j) {
+                    a[t] = j;
+                    de_bruijn(t+1, t);
+                }
+            }(1, 1);
+            std::copy(result.begin(), result.begin() + (n-1), write);
+        }
+        return result;
+    }
+};
+}",[Logic – Wrong condition operator] Changed the De Bruijn sequence emission condition from `n % p == 0` to `n % p != 0`.,Wrong Answer,"n =
+1
+k =
+2","""\u0000""","""10""",,2,claude-opus-4-8,zero-shot,Wrong Answer,"""n = 1, k = 2""","""\u0000\u0000""","""10""","The FKM de Bruijn condition is inverted (uses `n % p != 0` instead of `n % p == 0`), so `write` copies nothing and the result stays as null characters."
+Graph,Hard,178,"You are given a network of n nodes represented as an n x n adjacency matrix graph, where the ith node is directly connected to the jth node if graph[i][j] == 1.
+
+Some nodes initial are initially infected by malware. Whenever two nodes are directly connected, and at least one of those two nodes is infected by malware, both nodes will be infected by malware. This spread of malware will continue until no more nodes can be infected in this manner.
+
+Suppose M(initial) is the final number of nodes infected with malware in the entire network after the spread of malware stops. We will remove exactly one node from initial.
+
+Return the node that, if removed, would minimize M(initial). If multiple nodes could be removed to minimize M(initial), return such a node with the smallest index.
+
+Note that if a node was removed from the initial list of infected nodes, it might still be infected later due to the malware spread.
+
+Example 1:
+Input: graph = [[1,1,0],[1,1,0],[0,0,1]], initial = [0,1]
+Output: 0
+Example 2:
+Input: graph = [[1,0,0],[0,1,0],[0,0,1]], initial = [0,2]
+Output: 0
+Example 3:
+Input: graph = [[1,1,1],[1,1,1],[1,1,1]], initial = [1,2]
+Output: 1
+
+Constraints:
+
+	n == graph.length
+	n == graph[i].length
+	2 <= n <= 300
+	graph[i][j] is 0 or 1.
+	graph[i][j] == graph[j][i]
+	graph[i][i] == 1
+	1 <= initial.length <= n
+	0 <= initial[i] <= n - 1
+	All the integers in initial are unique.","                        
+
+class UnionFind {
+ public:
+  UnionFind(int n) : id(n) {
+    iota(begin(id), end(id), 0);
+  }
+
+  void union_(int u, int v) {
+    id[find(u)] = find(v);
+  }
+
+  int find(int u) {
+    return id[u] == u ? u : id[u] = find(id[u]);
+  }
+
+ private:
+  vector<int> id;
+};
+
+class Solution {
+ public:
+  int minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial) {
+    const int n = graph.size();
+    UnionFind uf(n);
+    vector<int> ufSize(n);
+    vector<int> malwareCount(n);
+
+    for (int i = 0; i < n; ++i)
+      for (int j = i + 1; j < n; ++j)
+        if (graph[i][j] == 1)
+          uf.union_(i, j);
+
+    for (int i = 0; i < n; ++i)
+      ++ufSize[uf.find(i)];
+
+    for (const int i : initial)
+      ++malwareCount[uf.find(i)];
+
+    sort(begin(initial), end(initial));
+
+    int ans = initial[0];
+    int maxUfSize = 0;
+
+    // Find the max union's malware if it only contains 1 malware
+    for (const int i : initial) {
+      const int id = uf.find(i);
+      if (ufSize[id] > maxUfSize && malwareCount[id] == 1) {
+        maxUfSize = ufSize[id];
+        ans = i;
+      }
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/minimize-malware-spread,"class UnionFind {
+ public:
+  UnionFind(int n) : id(n) {
+    iota(begin(id), end(id), 0);
+  }
+
+  void union_(int u, int v) {
+    id[find(u)] = find(v);
+  }
+
+  int find(int u) {
+    return id[u] == u ? u : id[u] = find(id[u]);
+  }
+
+ private:
+  vector<int> id;
+};
+
+class Solution {
+ public:
+  int minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial) {
+    const int n = graph.size();
+    UnionFind uf(n);
+    vector<int> ufSize(n);
+    vector<int> malwareCount(n);
+
+    for (int i = 0; i < n; ++i)
+      for (int j = i + 1; j < n; ++j)
+        if (graph[i][j] == 1)
+          uf.union_(i, j);
+
+    for (int i = 0; i < n; ++i)
+      ++ufSize[uf.find(i)];
+
+    for (const int i : initial)
+      ++malwareCount[uf.find(i)];
+
+    sort(rbegin(initial), rend(initial));
+
+    int ans = initial[0];
+    int maxUfSize = 0;
+
+    // Find the max union's malware if it only contains 1 malware
+    for (const int i : initial) {
+      const int id = uf.find(i);
+      if (ufSize[id] > maxUfSize && malwareCount[id] == 1) {
+        maxUfSize = ufSize[id];
+        ans = i;
+      }
+    }
+
+    return ans;
+  }
+};","[Logic – Wrong tie-break handling] Changed the sorting of initial infected nodes to descending order, causing ties to prefer the largest index instead of the smallest.",Wrong Answer,"graph =
+[[1,1,0],[1,1,0],[0,0,1]]
+initial =
+[0,1]",1,0,,2,claude-opus-4-8,zero-shot,Wrong Answer,"""graph = [[1,1,1],[1,1,1],[1,1,1]], initial = [1,2]""","""2""","""1""","When no component has exactly one malware node, the answer should be the smallest index in initial, but the code sorts in descending order and returns initial[0] which is the largest index."

@@ -1,0 +1,4 @@
+﻿variant,D1,claude_zs_acc,gpt_zs_acc,claude_wrong,gpt_wrong,D2,D2_eq_claude_AND_gpt,D2_eq_claude_AND_qwenFS,qwen_fs_wrong_all3,D2_subset_qwenFSwrong
+logic1,38,0.3421,0.4737,25,20,16,True,False,8,False
+logic2,41,0.1951,0.439,33,23,22,True,False,13,False
+reference1,51,0.1373,0.3137,44,35,35,True,False,21,False

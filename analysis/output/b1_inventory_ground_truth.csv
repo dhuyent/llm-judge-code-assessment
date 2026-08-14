@@ -1,0 +1,5 @@
+﻿variant,n,n_id_unique,gt_Wrong Answer,gt_Runtime Error,gt_Accepted,gt_Time Limit Exceeded,gt_Memory Limit Exceeded,gt_Compile Error
+logic1,179,179,151,23.0,3.0,2.0,0.0,0.0
+logic2,179,179,93,33.0,50.0,2.0,1.0,0.0
+reference1,179,179,86,56.0,34.0,3.0,0.0,0.0
+reference2,179,179,1,0.0,0.0,0.0,0.0,178.0

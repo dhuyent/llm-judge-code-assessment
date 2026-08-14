@@ -1,0 +1,1281 @@
+topic,level,id,problem,solution,url,buggy_submission,bug_description,gt_status,gt_input,gt_actual_output,gt_expected_output,gt_reason,filtered_label,llm_model,prompt_strategy,pred_status,pred_input,pred_actual_output,pred_expected_output,pred_reason,match,label,final_filtered_label
+String,Hard,38,"We define str = [s, n] as the string str which consists of the string s concatenated n times.
+ 
+  For example, str == [""abc"", 3] ==""abcabcabc"".
+ 
+ We define that string s1 can be obtained from string s2 if we can remove some characters from s2 such that it becomes s1.
+ 
+  For example, s1 = ""abc"" can be obtained from s2 = ""abdbec"" based on our definition by removing the bolded underlined characters.
+ 
+ You are given two strings s1 and s2 and two integers n1 and n2. You have the two strings str1 = [s1, n1] and str2 = [s2, n2].
+ 
+ Return the maximum integer m such that str = [str2, m] can be obtained from str1.
+ 
+ Example 1:
+ Input: s1 = ""acb"", n1 = 4, s2 = ""ab"", n2 = 2
+ Output: 2
+ Example 2:
+ Input: s1 = ""acb"", n1 = 1, s2 = ""acb"", n2 = 1
+ Output: 1
+ 
+ Constraints:
+ 
+  1 <= s1.length, s2.length <= 100
+  s1 and s2 consist of lowercase English letters.
+  1 <= n1, n2 <= 106","class Solution {
+public:
+    int getMaxRepetitions(string s1, int n1, string s2, int n2) {
+        if (n1 == 0) return 0;
+        int s1cnt = 0, s2cnt = 0, index = 0;
+        unordered_map<int, pair<int,int>> recall;
+        
+        while (s1cnt < n1) {
+            for (int i = 0; i < s1.size(); i++) {
+                if (s1[i] == s2[index]) {
+                    index++;
+                    if (index == s2.size()) {
+                        s2cnt++;
+                        index = 0;
+                    }
+                }
+            }
+            s1cnt++;
+            
+            if (recall.find(index) != recall.end()) {
+                auto [pre_s1cnt, pre_s2cnt] = recall[index];
+                int pre_loop_s1 = pre_s1cnt;
+                int pre_loop_s2 = pre_s2cnt;
+                
+                int in_loop_s1 = s1cnt - pre_s1cnt;
+                int in_loop_s2 = s2cnt - pre_s2cnt;
+                
+                int loop_count = (n1 - pre_loop_s1) / in_loop_s1;
+                s2cnt = pre_loop_s2 + loop_count * in_loop_s2;
+                s1cnt = pre_loop_s1 + loop_count * in_loop_s1;
+            }
+            recall[index] = {s1cnt, s2cnt};
+        }
+        return s2cnt / n2;
+    }
+};",https://leetcode.com/problems/count-the-repetitions,"class Solution {
+public:
+    int getMaxRepetitions(string s1, int n1, string s2, int n2) {
+        if (n1 == 0) return 0;
+        int s1cnt = 0, s2cnt = 0, index = 0;
+        unordered_map<int, pair<int,int>> recall;
+        
+        while (s1cnt < n1) {
+            for (int i = 0; i < s1.size(); i++) {
+                if (s1[i] == s2[index]) {
+                    index++;
+                    if (index == s2.size()) {
+                        s2cnt++;
+                        index = 0;
+                    }
+                }
+            }
+            s1cnt++;
+            
+            if (recall.find(index) == recall.end()) {
+                auto [pre_s1cnt, pre_s2cnt] = recall[index];
+                int pre_loop_s1 = pre_s1cnt;
+                int pre_loop_s2 = pre_s2cnt;
+                
+                int in_loop_s1 = s1cnt - pre_s1cnt;
+                int in_loop_s2 = s2cnt - pre_s2cnt;
+                
+                int loop_count = (n1 - pre_loop_s1) / in_loop_s1;
+                s2cnt = pre_loop_s2 + loop_count * in_loop_s2;
+                s1cnt = pre_loop_s1 + loop_count * in_loop_s1;
+            }
+            recall[index] = {s1cnt, s2cnt};
+        }
+        return s2cnt / n2;
+    }
+};",[Logic – Wrong condition operator] Changed the cycle-detection condition to enter the recall block when the index has not been seen before.,Wrong Answer,"s1 =
+""aaa""
+n1 =
+3
+s2 =
+""aa""
+n2 =
+1",,,,3,claude-opus-4-8,few-shot,Wrong Answer,"""s1 = \""acb\"", n1 = 4, s2 = \""ab\"", n2 = 2""","""incorrect due to inverted recall check triggering premature loop skipping""","""2""","The cycle-detection condition is inverted: it enters the loop-acceleration branch when index is NOT found (accessing recall[index] which default-constructs to {0,0}), instead of when index IS already in the map, causing incorrect fast-forwarding.",sim,1,2
+String,Hard,41,"You are given a string s and an array of strings words. All the strings of words are of the same length.
+
+A concatenated string is a string that exactly contains all the strings of any permutation of words concatenated.
+
+	For example, if words = [""ab"",""cd"",""ef""], then ""abcdef"", ""abefcd"", ""cdabef"", ""cdefab"", ""efabcd"", and ""efcdab"" are all concatenated strings. ""acdbef"" is not a concatenated string because it is not the concatenation of any permutation of words.
+
+Return an array of the starting indices of all the concatenated substrings in s. You can return the answer in any order.
+
+Example 1:
+
+Input: s = ""barfoothefoobarman"", words = [""foo"",""bar""]
+
+Output: [0,9]
+
+Explanation:
+
+The substring starting at 0 is ""barfoo"". It is the concatenation of [""bar"",""foo""] which is a permutation of words.
+The substring starting at 9 is ""foobar"". It is the concatenation of [""foo"",""bar""] which is a permutation of words.
+
+Example 2:
+
+Input: s = ""wordgoodgoodgoodbestword"", words = [""word"",""good"",""best"",""word""]
+
+Output: []
+
+Explanation:
+
+There is no concatenated substring.
+
+Example 3:
+
+Input: s = ""barfoofoobarthefoobarman"", words = [""bar"",""foo"",""the""]
+
+Output: [6,9,12]
+
+Explanation:
+
+The substring starting at 6 is ""foobarthe"". It is the concatenation of [""foo"",""bar"",""the""].
+The substring starting at 9 is ""barthefoo"". It is the concatenation of [""bar"",""the"",""foo""].
+The substring starting at 12 is ""thefoobar"". It is the concatenation of [""the"",""foo"",""bar""].
+
+Constraints:
+
+	1 <= s.length <= 104
+	1 <= words.length <= 5000
+	1 <= words[i].length <= 30
+	s and words[i] consist of lowercase English letters.","			
+
+class Solution {
+ public:
+  vector<int> findSubstring(string s, vector<string>& words) {
+    if (s.empty() || words.empty())
+      return {};
+
+    const int k = words.size();
+    const int n = words[0].length();
+    vector<int> ans;
+    unordered_map<string, int> count;
+
+    for (const string& word : words)
+      ++count[word];
+
+    for (int i = 0; i < s.length() - k * n + 1; ++i) {
+      unordered_map<string, int> seen;
+      int j;
+      for (j = 0; j < k; ++j) {
+        const string& word = s.substr(i + j * n, n);
+        if (++seen[word] > count[word])
+          break;
+      }
+      if (j == k)
+        ans.push_back(i);
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/substring-with-concatenation-of-all-words,"class Solution {
+ public:
+  vector<int> findSubstring(string s, vector<string>& words) {
+    if (s.empty() || words.empty())
+      return {};
+
+    const int k = words.size();
+    const int n = words[0].length();
+    vector<int> ans;
+    unordered_map<string, int> count;
+
+    for (const string& word : words)
+      ++count[word];
+
+    for (int i = 0; i < s.length() - k * n + 1; ++i) {
+      unordered_map<string, int> seen;
+      int j;
+      for (j = 0; j < k; ++j) {
+        const string& word = s.substr(i + j * n, n);
+        if (++seen[word] > count[word])
+          break;
+      }
+      if (j != k)
+        ans.push_back(i);
+    }
+
+    return ans;
+  }
+};","[Logic – Wrong condition operator] Changed the completion check from `if (j == k)` to `if (j != k)`, causing indices to be recorded when not all words match.",Wrong Answer,"s =
+""barfoothefoobarman""
+words =
+[""foo"",""bar""]","[1,2,3,4,5,6,7,8,10,11,12]","[0,9]",,2,claude-opus-4-8,few-shot,Wrong Answer,"""s = \""barfoothefoobarman\"", words = [\""foo\"",\""bar\""]""","""[1,2,3,4,5,6,7,8,10,11,12,13]""","""[0,9]""","The condition `if (j != k)` pushes indices where the match failed instead of `if (j == k)`, inverting the logic.",sim,1,2
+String,Hard,45,"Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string """".
+
+The testcases will be generated such that the answer is unique.
+
+Example 1:
+
+Input: s = ""ADOBECODEBANC"", t = ""ABC""
+Output: ""BANC""
+Explanation: The minimum window substring ""BANC"" includes 'A', 'B', and 'C' from string t.
+
+Example 2:
+
+Input: s = ""a"", t = ""a""
+Output: ""a""
+Explanation: The entire string s is the minimum window.
+
+Example 3:
+
+Input: s = ""a"", t = ""aa""
+Output: """"
+Explanation: Both 'a's from t must be included in the window.
+Since the largest window of s only has one 'a', return empty string.
+
+Constraints:
+
+	m == s.length
+	n == t.length
+	1 <= m, n <= 105
+	s and t consist of uppercase and lowercase English letters.
+
+Follow up: Could you find an algorithm that runs in O(m + n) time?","			
+
+class Solution {
+ public:
+  string minWindow(string s, string t) {
+    vector<int> count(128);
+    int required = t.length();
+    int bestLeft = -1;
+    int minLength = s.length() + 1;
+
+    for (const char c : t)
+      ++count[c];
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      if (--count[s[r]] >= 0)
+        --required;
+      while (required == 0) {
+        if (r - l + 1 < minLength) {
+          bestLeft = l;
+          minLength = r - l + 1;
+        }
+        if (++count[s[l++]] > 0)
+          ++required;
+      }
+    }
+
+    return bestLeft == -1 ? """" : s.substr(bestLeft, minLength);
+  }
+};",https://leetcode.com/problems/minimum-window-substring,"class Solution {
+ public:
+  string minWindow(string s, string t) {
+    vector<int> count(128);
+    int required = t.length();
+    int bestLeft = -1;
+    int minLength = s.length() + 1;
+
+    for (const char c : t)
+      ++count[c];
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      if (--count[s[r]] >= 0)
+        --required;
+      while (required == 0) {
+        if (r - l + 1 < minLength) {
+          bestLeft = l;
+          minLength = r - l + 1;
+        }
+        if (++count[s[l++]] >= 0)
+          ++required;
+      }
+    }
+
+    return bestLeft == -1 ? """" : s.substr(bestLeft, minLength);
+  }
+};","[Logic – Wrong condition operator] Changed the shrink-window condition from `> 0` to `>= 0`, causing `required` to increase even when the removed character is still sufficiently covered.",Wrong Answer,"s =
+""ADOBECODEBANC""
+t =
+""ABC""","""ADOBEC""","""BANC""",,3,claude-opus-4-8,few-shot,Accepted,"""""","""""","""""",,diff,3,3
+String,Hard,49,"Given a string s and a dictionary of strings wordDict, add spaces in s to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in any order.
+
+Note that the same word in the dictionary may be reused multiple times in the segmentation.
+
+Example 1:
+
+Input: s = ""catsanddog"", wordDict = [""cat"",""cats"",""and"",""sand"",""dog""]
+Output: [""cats and dog"",""cat sand dog""]
+
+Example 2:
+
+Input: s = ""pineapplepenapple"", wordDict = [""apple"",""pen"",""applepen"",""pine"",""pineapple""]
+Output: [""pine apple pen apple"",""pineapple pen apple"",""pine applepen apple""]
+Explanation: Note that you are allowed to reuse a dictionary word.
+
+Example 3:
+
+Input: s = ""catsandog"", wordDict = [""cats"",""dog"",""sand"",""and"",""cat""]
+Output: []
+
+Constraints:
+
+	1 <= s.length <= 20
+	1 <= wordDict.length <= 1000
+	1 <= wordDict[i].length <= 10
+	s and wordDict[i] consist of only lowercase English letters.
+	All the strings of wordDict are unique.
+	Input is generated in a way that the length of the answer doesn't exceed 105.","			
+
+class Solution {
+ public:
+  vector<string> wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordSet{begin(wordDict), end(wordDict)};
+    unordered_map<string, vector<string>> memo;
+    return wordBreak(s, wordSet, memo);
+  }
+
+ private:
+  vector<string> wordBreak(const string& s,
+                           const unordered_set<string>& wordSet,
+                           unordered_map<string, vector<string>>& memo) {
+    if (memo.count(s))
+      return memo[s];
+
+    vector<string> ans;
+
+    // 1 <= prefix.length() < s.length()
+    for (int i = 1; i < s.length(); ++i) {
+      const string& prefix = s.substr(0, i);
+      const string& suffix = s.substr(i);
+      if (wordSet.count(prefix))
+        for (const string& word : wordBreak(suffix, wordSet, memo))
+          ans.push_back(prefix + "" "" + word);
+    }
+
+    // Contains whole string, so don't add any space
+    if (wordSet.count(s))
+      ans.push_back(s);
+
+    return memo[s] = ans;
+  }
+};",https://leetcode.com/problems/word-break-ii,"class Solution {
+ public:
+  vector<string> wordBreak(string s, vector<string>& wordDict) {
+    unordered_set<string> wordSet{begin(wordDict), end(wordDict)};
+    unordered_map<string, vector<string>> memo;
+    return wordBreak(s, wordSet, memo);
+  }
+
+ private:
+  vector<string> wordBreak(const string& s,
+                           const unordered_set<string>& wordSet,
+                           unordered_map<string, vector<string>>& memo) {
+    if (memo.count(s))
+      return memo[s];
+
+    vector<string> ans;
+
+    // 1 <= prefix.length() < s.length()
+    for (int i = 1; i < s.length(); ++i) {
+      const string& prefix = s.substr(0, i);
+      const string& suffix = s.substr(i);
+      if (wordSet.count(prefix))
+        for (const string& word : wordBreak(suffix, wordSet, memo))
+          ans.push_back(prefix + "" "" + word);
+    }
+
+    // Contains whole string, so don't add any space
+    if (!wordSet.count(s))
+      ans.push_back(s);
+
+    return memo[s] = ans;
+  }
+};",[Logic – Wrong condition operator] Changed the whole-string dictionary membership check to add the string when it is not in the word set.,Wrong Answer,"s =
+""catsanddog""
+wordDict =
+[""cat"",""cats"",""and"",""sand"",""dog""]","[""cat sanddog"",""cats anddog"",""catsanddog""]","[""cats and dog"",""cat sand dog""]",,2,claude-opus-4-8,few-shot,Wrong Answer,"""s = \""catsanddog\"", wordDict = [\""cat\"",\""cats\"",\""and\"",\""sand\"",\""dog\""]""","""[\""cat sanddog\"",\""cats anddog\"",\""catsanddog\""]""","""[\""cats and dog\"",\""cat sand dog\""]""","The base-case condition is inverted (`!wordSet.count(s)` instead of `wordSet.count(s)`), so it pushes non-dictionary strings as whole words and never terminates recursion on valid words correctly.",sim,1,1
+Bit manipulation,Easy,60,"Given the root of a complete binary tree, return the number of the nodes in the tree.
+
+According to Wikipedia, every level, except possibly the last, is completely filled in a complete binary tree, and all nodes in the last level are as far left as possible. It can have between 1 and 2h nodes inclusive at the last level h.
+
+Design an algorithm that runs in less than O(n) time complexity.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6]
+Output: 6
+
+Example 2:
+
+Input: root = []
+Output: 0
+
+Example 3:
+
+Input: root = [1]
+Output: 1
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 5 * 104].
+	0 <= Node.val <= 5 * 104
+	The tree is guaranteed to be complete.","                        
+
+class Solution {
+ public:
+  int countNodes(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};",https://leetcode.com/problems/count-complete-tree-nodes,"class Solution {
+ public:
+  int countNodes(TreeNode* root) {
+    if (root != nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};","[Logic – Wrong condition operator] Changed the null-root check from `root == nullptr` to `root != nullptr`, causing non-null trees to return 0 immediately.",Runtime Error,"root =
+[]",,,"Line 6: Char 33: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:15:33",3,claude-opus-4-8,few-shot,Runtime Error,"""root = [1]""","""SIGSEGV: null pointer dereference""","""1""","The condition is inverted: `if (root != nullptr) return 0;` returns 0 for non-null nodes and then dereferences a null root, causing a null pointer dereference.",sim,2,1
+Bit manipulation,Easy,63,"You are given two strings s and t.
+
+String t is generated by random shuffling string s and then add one more letter at a random position.
+
+Return the letter that was added to t.
+
+Example 1:
+
+Input: s = ""abcd"", t = ""abcde""
+Output: ""e""
+Explanation: 'e' is the letter that was added.
+
+Example 2:
+
+Input: s = """", t = ""y""
+Output: ""y""
+
+Constraints:
+
+	0 <= s.length <= 1000
+	t.length == s.length + 1
+	s and t consist of lowercase English letters.","			
+
+class Solution {
+ public:
+  char findTheDifference(string s, string t) {
+    char ans = 0;
+
+    for (const char c : s)
+      ans ^= c;
+
+    for (const char c : t)
+      ans ^= c;
+
+    return ans;
+  }
+};",https://leetcode.com/problems/find-the-difference,"class Solution {
+ public:
+  char findTheDifference(string s, string t) {
+    char ans = 0;
+
+    for (const char c : s)
+      ans ^= c;
+
+    for (const char c : t)
+      ans += c;
+
+    return ans;
+  }
+};","[Logic – Wrong arithmetic operator] Changed the XOR accumulation in the second loop to addition, which breaks the cancellation logic.",Runtime Error,"s =
+""abcd""
+t =
+""abcde""",,,"Line 66: Char 12: runtime error: index -13 out of bounds for type 'string[256]' (aka 'basic_string<char>[256]') (_Serializer_.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior _Serializer_.cpp:75:12",3,claude-opus-4-8,few-shot,Wrong Answer,"""s = \""abcd\"", t = \""abcde\""""","""garbage character (sum of t bytes XOR-mixed incorrectly, not 'e')""","""e""","The second loop uses += instead of ^=, so the XOR trick is broken and the result is corrupted.",diff,3,3
+Bit manipulation,Medium,72,"Given two integers left and right that represent the range [left, right], return the bitwise AND of all numbers in this range, inclusive.
+  
+  Example 1:
+  
+  Input: left = 5, right = 7
+  Output: 4
+  
+  Example 2:
+  
+  Input: left = 0, right = 0
+  Output: 0
+  
+  Example 3:
+  
+  Input: left = 1, right = 2147483647
+  Output: 0
+  
+  Constraints:
+  
+  0 <= left <= right <= 231 - 1","class Solution {
+  public:
+  int rangeBitwiseAnd(int m, int n) {
+  int shiftBits = 0;
+  
+  while (m != n) {
+  m >>= 1;
+  n >>= 1;
+  ++shiftBits;
+  }
+  
+  return m << shiftBits;
+  }
+  };",https://leetcode.com/problems/bitwise-and-of-numbers-range,"class Solution {
+  public:
+  int rangeBitwiseAnd(int m, int n) {
+  int shiftBits = 0;
+  
+  while (m == n) {
+  m >>= 1;
+  n >>= 1;
+  ++shiftBits;
+  }
+  
+  return m << shiftBits;
+  }
+  };",[Logic – Wrong condition operator] Changed the loop condition from `while (m != n)` to `while (m == n)`.,Runtime Error,"left =
+0
+right =
+0",,,"Line 9: Char 3: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:18:3",3,claude-opus-4-8,few-shot,Wrong Answer,"""left = 5, right = 7""","""5""","""4""","The loop condition should be while(m != n) to find the common prefix, but it uses while(m == n) which exits immediately for distinct values, returning m unshifted.",diff,3,1
+Bit manipulation,Hard,91,"We are given n different types of stickers. Each sticker has a lowercase English word on it.
+
+You would like to spell out the given string target by cutting individual letters from your collection of stickers and rearranging them. You can use each sticker more than once if you want, and you have infinite quantities of each sticker.
+
+Return the minimum number of stickers that you need to spell out target. If the task is impossible, return -1.
+
+Note: In all test cases, all words were chosen randomly from the 1000 most common US English words, and target was chosen as a concatenation of two random words.
+
+Example 1:
+
+Input: stickers = [""with"",""example"",""science""], target = ""thehat""
+Output: 3
+Explanation:
+We can use 2 ""with"" stickers, and 1 ""example"" sticker.
+After cutting and rearrange the letters of those stickers, we can form the target ""thehat"".
+Also, this is the minimum number of stickers necessary to form the target string.
+
+Example 2:
+
+Input: stickers = [""notice"",""possible""], target = ""basicbasic""
+Output: -1
+Explanation:
+We cannot form the target ""basicbasic"" from cutting letters from the given stickers.
+
+Constraints:
+
+	n == stickers.length
+	1 <= n <= 50
+	1 <= stickers[i].length <= 10
+	1 <= target.length <= 15
+	stickers[i] and target consist of lowercase English letters.","			
+
+class Solution {
+ public:
+  int minStickers(vector<string>& stickers, string target) {
+    const int n = target.size();
+    const int maxMask = 1 << n;
+    // dp[i] := min # of stickers to spell out i,
+    // Where i is the bit representation of target
+    vector<int> dp(maxMask, INT_MAX);
+    dp[0] = 0;
+
+    for (int mask = 0; mask < maxMask; ++mask) {
+      if (dp[mask] == INT_MAX)
+        continue;
+      // Try to expand from `mask` by using each sticker
+      for (const string& sticker : stickers) {
+        int superMask = mask;
+        for (const char c : sticker)
+          for (int i = 0; i < n; ++i)
+            // Try to apply it on a missing char
+            if (c == target[i] && !(superMask >> i & 1)) {
+              superMask |= 1 << i;
+              break;
+            }
+        dp[superMask] = min(dp[superMask], dp[mask] + 1);
+      }
+    }
+
+    return dp.back() == INT_MAX ? -1 : dp.back();
+  }
+};",https://leetcode.com/problems/stickers-to-spell-word,"class Solution {
+ public:
+  int minStickers(vector<string>& stickers, string target) {
+    const int n = target.size();
+    const int maxMask = 1 << n;
+    // dp[i] := min # of stickers to spell out i,
+    // Where i is the bit representation of target
+    vector<int> dp(maxMask, INT_MAX);
+    dp[0] = 0;
+
+    for (int mask = 0; mask < maxMask; ++mask) {
+      if (dp[mask] != INT_MAX)
+        continue;
+      // Try to expand from `mask` by using each sticker
+      for (const string& sticker : stickers) {
+        int superMask = mask;
+        for (const char c : sticker)
+          for (int i = 0; i < n; ++i)
+            // Try to apply it on a missing char
+            if (c == target[i] && !(superMask >> i & 1)) {
+              superMask |= 1 << i;
+              break;
+            }
+        dp[superMask] = min(dp[superMask], dp[mask] + 1);
+      }
+    }
+
+    return dp.back() == INT_MAX ? -1 : dp.back();
+  }
+};","[Logic – Wrong condition operator] Changed the DP skip condition from `dp[mask] == INT_MAX` to `dp[mask] != INT_MAX`, causing reachable states to be skipped.",Runtime Error,"stickers =
+[""with"",""example"",""science""]
+target =
+""thehat""",,,"Line 24: Char 53: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:33:53",3,claude-opus-4-8,few-shot,Wrong Answer,"""stickers = [\""with\"",\""example\"",\""science\""], target = \""thehat\""""","""-1""","""3""","The condition `if (dp[mask] != INT_MAX) continue;` is inverted, so reachable masks (including dp[0]=0) are skipped and never expanded, leaving all masks at INT_MAX and returning -1.",diff,3,3
+Bit manipulation,Hard,96,"Given an array of strings words, return the smallest string that contains each string in words as a substring. If there are multiple valid strings of the smallest length, return any of them.
+
+You may assume that no string in words is a substring of another string in words.
+
+Example 1:
+
+Input: words = [""alex"",""loves"",""leetcode""]
+Output: ""alexlovesleetcode""
+Explanation: All permutations of ""alex"",""loves"",""leetcode"" would also be accepted.
+
+Example 2:
+
+Input: words = [""catg"",""ctaagt"",""gcta"",""ttca"",""atgcatc""]
+Output: ""gctaagttcatgcatc""
+
+Constraints:
+
+	1 <= words.length <= 12
+	1 <= words[i].length <= 20
+	words[i] consists of lowercase English letters.
+	All the strings of words are unique.","			
+
+class Solution {
+ public:
+  string shortestSuperstring(vector<string>& A) {
+    const int n = A.size();
+    // cost[i][j] := cost to append A[j] after A[i]
+    vector<vector<int>> cost(n, vector<int>(n));
+
+    // GetCost(a, b) := cost to append b after a
+    auto getCost = [](const string& a, const string& b) {
+      int cost = b.length();
+      const int minLength = min(a.length(), b.length());
+      for (int k = 1; k <= minLength; ++k)
+        if (a.substr(a.length() - k) == b.substr(0, k))
+          cost = b.length() - k;
+      return cost;
+    };
+
+    // Pre-calculate cost array to save time
+    for (int i = 0; i < n; ++i)
+      for (int j = i + 1; j < n; ++j) {
+        cost[i][j] = getCost(A[i], A[j]);
+        cost[j][i] = getCost(A[j], A[i]);
+      }
+
+    vector<int> bestPath;
+    int minLength = n * 20;  // Given by problem
+
+    dfs(A, cost, {}, bestPath, 0, 0, 0, minLength);
+
+    string ans = A[bestPath[0]];
+
+    for (int k = 1; k < n; ++k) {
+      const int i = bestPath[k - 1];
+      const int j = bestPath[k];
+      ans += A[j].substr(A[j].length() - cost[i][j]);
+    }
+
+    return ans;
+  }
+
+ private:
+  // Used: i-th bit means A[i] is used or not
+  void dfs(const vector<string>& A, const vector<vector<int>>& cost,
+           vector<int>&& path, vector<int>& bestPath, int used, int depth,
+           int currLength, int& minLength) {
+    if (currLength >= minLength)
+      return;
+    if (depth == A.size()) {
+      minLength = currLength;
+      bestPath = path;
+      return;
+    }
+
+    for (int i = 0; i < A.size(); ++i) {
+      if (1 << i & used)
+        continue;
+      path.push_back(i);
+      const int newLength =
+          depth == 0 ? A[i].length() : currLength + cost[path[depth - 1]][i];
+      dfs(A, cost, move(path), bestPath, used | 1 << i, depth + 1, newLength,
+          minLength);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/find-the-shortest-superstring,"class Solution {
+ public:
+  string shortestSuperstring(vector<string>& A) {
+    const int n = A.size();
+    // cost[i][j] := cost to append A[j] after A[i]
+    vector<vector<int>> cost(n, vector<int>(n));
+
+    // GetCost(a, b) := cost to append b after a
+    auto getCost = [](const string& a, const string& b) {
+      int cost = b.length();
+      const int minLength = min(a.length(), b.length());
+      for (int k = 1; k < minLength; ++k)
+        if (a.substr(a.length() - k) == b.substr(0, k))
+          cost = b.length() - k;
+      return cost;
+    };
+
+    // Pre-calculate cost array to save time
+    for (int i = 0; i < n; ++i)
+      for (int j = i + 1; j < n; ++j) {
+        cost[i][j] = getCost(A[i], A[j]);
+        cost[j][i] = getCost(A[j], A[i]);
+      }
+
+    vector<int> bestPath;
+    int minLength = n * 20;  // Given by problem
+
+    dfs(A, cost, {}, bestPath, 0, 0, 0, minLength);
+
+    string ans = A[bestPath[0]];
+
+    for (int k = 1; k < n; ++k) {
+      const int i = bestPath[k - 1];
+      const int j = bestPath[k];
+      ans += A[j].substr(A[j].length() - cost[i][j]);
+    }
+
+    return ans;
+  }
+
+ private:
+  // Used: i-th bit means A[i] is used or not
+  void dfs(const vector<string>& A, const vector<vector<int>>& cost,
+           vector<int>&& path, vector<int>& bestPath, int used, int depth,
+           int currLength, int& minLength) {
+    if (currLength >= minLength)
+      return;
+    if (depth == A.size()) {
+      minLength = currLength;
+      bestPath = path;
+      return;
+    }
+
+    for (int i = 0; i < A.size(); ++i) {
+      if (1 << i & used)
+        continue;
+      path.push_back(i);
+      const int newLength =
+          depth == 0 ? A[i].length() : currLength + cost[path[depth - 1]][i];
+      dfs(A, cost, move(path), bestPath, used | 1 << i, depth + 1, newLength,
+          minLength);
+      path.pop_back();
+    }
+  }
+};","[Logic – Wrong condition operator] Changed the overlap loop condition from `k <= minLength` to `k < minLength`, causing full-length overlaps to be ignored.",Time Limit Exceeded,"words =
+[""aaaaaaaaaaaaaaaaaaaa"",""bbbbbbbbbbbbbbbbbbbb"",""cccccccccccccccccccc"",""dddddddddddddddddddd"",""eeeeeeeeeeeeeeeeeeee"",""ffffffffffffffffffff"",""gggggggggggggggggggg"",""hhhhhhhhhhhhhhhhhhhh"",""iiiiiiiiiiiiiiiiiiii"",""jjjjjjjjjjjjjjjjjjjj"",""kkkkkkkkkkkkkkkkkkkk"",""llllllllllllllllllll""]",,,,3,claude-opus-4-8,few-shot,Time Limit Exceeded,"""12 words with no overlaps, e.g. distinct 20-char strings so no shared prefixes/suffixes, forcing minimal pruning""",,,"The DFS explores all permutations of the words (O(n!) with n up to 12 = ~479M), which far exceeds feasible limits despite pruning; the standard intended solution uses bitmask DP in O(n²·2ⁿ).",sim,2,2
+Tree,Easy,108,"Given the root of a binary tree and an integer targetSum, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals targetSum.
+
+A leaf is a node with no children.
+
+Example 1:
+
+Input: root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22
+Output: true
+Explanation: The root-to-leaf path with the target sum is shown.
+
+Example 2:
+
+Input: root = [1,2,3], targetSum = 5
+Output: false
+Explanation: There are two root-to-leaf paths in the tree:
+(1 --> 2): The sum is 3.
+(1 --> 3): The sum is 4.
+There is no root-to-leaf path with sum = 5.
+
+Example 3:
+
+Input: root = [], targetSum = 0
+Output: false
+Explanation: Since the tree is empty, there are no root-to-leaf paths.
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 5000].
+	-1000 <= Node.val <= 1000
+	-1000 <= targetSum <= 1000","			
+
+class Solution {
+ public:
+  bool hasPathSum(TreeNode* root, int sum) {
+    if (root == nullptr)
+      return false;
+    if (root->val == sum && root->left == nullptr && root->right == nullptr)
+      return true;
+    return hasPathSum(root->left, sum - root->val) ||
+           hasPathSum(root->right, sum - root->val);
+  }
+};",https://leetcode.com/problems/path-sum,"class Solution {
+ public:
+  bool hasPathSum(TreeNode* root, int sum) {
+    if (root != nullptr)
+      return false;
+    if (root->val == sum && root->left == nullptr && root->right == nullptr)
+      return true;
+    return hasPathSum(root->left, sum - root->val) ||
+           hasPathSum(root->right, sum - root->val);
+  }
+};",[Logic – Wrong condition operator] Changed the null-root check to return false when the root is not null instead of when it is null.,Runtime Error,"root =
+[]
+targetSum =
+0",,,"Line 6: Char 15: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:15:15",3,claude-opus-4-8,few-shot,Wrong Answer,"""root = [1,2,3], targetSum = 3""","""false""","""true""","The base case condition is inverted (`if (root != nullptr) return false;`), so it returns false for any non-null root and never checks paths.",diff,3,1
+Tree,Easy,109,"Given the root of a binary tree, return the preorder traversal of its nodes' values.
+
+Example 1:
+
+Input: root = [1,null,2,3]
+
+Output: [1,2,3]
+
+Explanation:
+
+Example 2:
+
+Input: root = [1,2,3,4,5,null,8,null,null,6,7,9]
+
+Output: [1,2,4,5,6,7,3,8,9]
+
+Explanation:
+
+Example 3:
+
+Input: root = []
+
+Output: []
+
+Example 4:
+
+Input: root = [1]
+
+Output: [1]
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100
+
+Follow up: Recursive solution is trivial, could you do it iteratively?","			
+
+class Solution {
+ public:
+  vector<int> preorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    preorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void preorder(TreeNode* root, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    ans.push_back(root->val);
+    preorder(root->left, ans);
+    preorder(root->right, ans);
+  }
+};",https://leetcode.com/problems/binary-tree-preorder-traversal,"class Solution {
+ public:
+  vector<int> preorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    preorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void preorder(TreeNode* root, vector<int>& ans) {
+    if (root != nullptr)
+      return;
+
+    ans.push_back(root->val);
+    preorder(root->left, ans);
+    preorder(root->right, ans);
+  }
+};","[Logic – Wrong condition operator] Changed the null-check in the recursive preorder helper from `root == nullptr` to `root != nullptr`, causing the function to return for valid nodes.",Runtime Error,"root =
+[]",,,"Line 14: Char 25: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:23:25",3,claude-opus-4-8,few-shot,Wrong Answer,"""root = [1,null,2,3]""","""[]""","""[1,2,3]""","The base case condition is inverted: it returns when root != nullptr, so nothing is ever added.",diff,3,1
+Tree,Easy,111,"Given the root of a binary tree, invert the tree, and return its root.
+
+Example 1:
+
+Input: root = [4,2,7,1,3,6,9]
+Output: [4,7,2,9,6,3,1]
+
+Example 2:
+
+Input: root = [2,1,3]
+Output: [2,3,1]
+
+Example 3:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100","			
+
+class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(left);
+    return root;
+  }
+};",https://leetcode.com/problems/invert-binary-tree,"class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root != nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(left);
+    return root;
+  }
+};","[Logic – Wrong condition operator] Changed the null-check condition from `root == nullptr` to `root != nullptr`, causing non-null trees to return immediately.",Runtime Error,"root =
+[]",,,"Line 7: Char 34: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:16:34",3,claude-opus-4-8,few-shot,Wrong Answer,"""root = [4,2,7,1,3,6,9]""","""[]""","""[4,7,2,9,6,3,1]""","The base case condition is inverted (`if (root != nullptr) return nullptr;`), so it always returns nullptr for any non-null tree.",diff,3,1
+Tree,Medium,130,"Given the head of a singly linked list where elements are sorted in ascending order, convert it to a height-balanced binary search tree.
+
+Example 1:
+
+Input: head = [-10,-3,0,5,9]
+Output: [0,-3,9,-10,null,5]
+Explanation: One possible answer is [0,-3,9,-10,null,5], which represents the shown height balanced BST.
+
+Example 2:
+
+Input: head = []
+Output: []
+
+Constraints:
+
+	The number of nodes in head is in the range [0, 2 * 104].
+	-105 <= Node.val <= 105","			
+
+class Solution {
+ public:
+  TreeNode* sortedListToBST(ListNode* head) {
+    if (head == nullptr)
+      return nullptr;
+    if (!head->next)
+      return new TreeNode(head->val);
+
+    ListNode* mid = findMid(head);
+    TreeNode* root = new TreeNode(mid->val);
+    root->left = sortedListToBST(head);
+    root->right = sortedListToBST(mid->next);
+
+    return root;
+  }
+
+ private:
+  ListNode* findMid(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* slow = head;
+    ListNode* fast = head;
+
+    while (fast && fast->next) {
+      prev = slow;
+      slow = slow->next;
+      fast = fast->next->next;
+    }
+    prev->next = nullptr;
+
+    return slow;
+  }
+};",https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree,"class Solution {
+ public:
+  TreeNode* sortedListToBST(ListNode* head) {
+    if (head != nullptr)
+      return nullptr;
+    if (!head->next)
+      return new TreeNode(head->val);
+
+    ListNode* mid = findMid(head);
+    TreeNode* root = new TreeNode(mid->val);
+    root->left = sortedListToBST(head);
+    root->right = sortedListToBST(mid->next);
+
+    return root;
+  }
+
+ private:
+  ListNode* findMid(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* slow = head;
+    ListNode* fast = head;
+
+    while (fast && fast->next) {
+      prev = slow;
+      slow = slow->next;
+      fast = fast->next->next;
+    }
+    prev->next = nullptr;
+
+    return slow;
+  }
+};","[Logic – Wrong condition operator] Changed the null-head base case check from `head == nullptr` to `head != nullptr`, causing non-empty lists to return `nullptr` immediately.",Runtime Error,"head =
+[]",,,"Line 6: Char 16: runtime error: member access within null pointer of type 'ListNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:15:16",3,claude-opus-4-8,few-shot,Wrong Answer,"""head = [-10,-3,0,5,9]""","""[]""","""[0,-3,9,-10,null,5]""","The base case is inverted: `if (head != nullptr) return nullptr;` returns null for any non-empty list, so every valid input produces an empty tree.",diff,3,1
+Tree,Medium,132,"Given the root of a binary tree, flatten the tree into a ""linked list"":
+
+	The ""linked list"" should use the same TreeNode class where the right child pointer points to the next node in the list and the left child pointer is always null.
+	The ""linked list"" should be in the same order as a pre-order traversal of the binary tree.
+
+Example 1:
+
+Input: root = [1,2,5,3,4,null,6]
+Output: [1,null,2,null,3,null,4,null,5,null,6]
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Example 3:
+
+Input: root = [0]
+Output: [0]
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 2000].
+	-100 <= Node.val <= 100
+
+Follow up: Can you flatten the tree in-place (with O(1) extra space)?","			
+
+class Solution {
+ public:
+  void flatten(TreeNode* root) {
+    if (root == nullptr)
+      return;
+
+    flatten(root->left);
+    flatten(root->right);
+
+    TreeNode* const left = root->left;    // Flattened left
+    TreeNode* const right = root->right;  // Flattened right
+
+    root->left = nullptr;
+    root->right = left;
+
+    // Connect the original right subtree
+    // To the end of new right subtree
+    TreeNode* rightmost = root;
+    while (rightmost->right)
+      rightmost = rightmost->right;
+    rightmost->right = right;
+  }
+};",https://leetcode.com/problems/flatten-binary-tree-to-linked-list,"class Solution {
+ public:
+  void flatten(TreeNode* root) {
+    if (root != nullptr)
+      return;
+
+    flatten(root->left);
+    flatten(root->right);
+
+    TreeNode* const left = root->left;    // Flattened left
+    TreeNode* const right = root->right;  // Flattened right
+
+    root->left = nullptr;
+    root->right = left;
+
+    // Connect the original right subtree
+    // To the end of new right subtree
+    TreeNode* rightmost = root;
+    while (rightmost->right)
+      rightmost = rightmost->right;
+    rightmost->right = right;
+  }
+};","[Logic – Wrong condition operator] Changed the null-root guard from `root == nullptr` to `root != nullptr`, causing the function to return for non-null roots.",Runtime Error,"root =
+[]",,,"Line 7: Char 19: runtime error: member access within null pointer of type 'TreeNode' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:16:19",3,claude-opus-4-8,few-shot,Wrong Answer,"""root = [1,2,5,3,4,null,6]""","""[1,2,5,3,4,null,6] (tree unchanged)""","""[1,null,2,null,3,null,4,null,5,null,6]""","The base case is inverted: `if (root != nullptr) return;` causes the function to return immediately for any non-null node, so no flattening occurs.",diff,2,1
+Tree,Medium,133,"You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition:
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6,7]
+Output: [1,#,2,3,#,4,5,6,7,#]
+Explanation: Given the above perfect binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+        The number of nodes in the tree is in the range [0, 212 - 1].
+        -1000 <= Node.val <= 1000
+
+Follow-up:
+
+        You may only use constant extra space.
+        The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.","			
+
+class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p == nullptr)
+      return;
+    p->next = q;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};",https://leetcode.com/problems/populating-next-right-pointers-in-each-node,"class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p != nullptr)
+      return;
+    p->next = q;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};","[Logic – Wrong condition operator] Changed the null check in connectTwoNodes from p == nullptr to p != nullptr, causing the recursive connection logic to be skipped for valid nodes.",Wrong Answer,"root =
+[1,2,3,4,5,6,7]","[1,#,2,#,4,#]","[1,#,2,3,#,4,5,6,7,#]",,3,claude-opus-4-8,few-shot,Compilation Error,"""""","""""","""""","The class definition is missing the required semicolon... actually the semicolon is present, but the logic aside, the code compiles; however the condition `if (p != nullptr) return;` immediately returns when p is non-null, dereferencing p->next only when p is null, causing a null pointer dereference.",diff,3,3
+Tree,Medium,134,"Given a binary tree
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,null,7]
+Output: [1,#,2,3,#,4,5,7,#]
+Explanation: Given the above binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 6000].
+	-100 <= Node.val <= 100
+
+Follow-up:
+
+	You may only use constant extra space.
+	The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.","			
+
+class Solution {
+ public:
+  Node* connect(Node* root) {
+    Node* node = root;  // The node just above current needling
+
+    while (node) {
+      Node dummy(0);  // Dummy node before needling
+      // Needle children of node
+      for (Node* needle = &dummy; node; node = node->next) {
+        if (node->left) {  // Needle left child
+          needle->next = node->left;
+          needle = needle->next;
+        }
+        if (node->right) {  // Needle right child
+          needle->next = node->right;
+          needle = needle->next;
+        }
+      }
+      node = dummy.next;  // Move node to the next level
+    }
+
+    return root;
+  }
+};",https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii,"class Solution {
+ public:
+  Node* connect(Node* root) {
+    Node* node = root;  // The node just above current needling
+
+    while (node) {
+      Node dummy(0);  // Dummy node before needling
+      // Needle children of node
+      for (Node* needle = &dummy; node; node = node->next) {
+        if (node->left == nullptr) {  // Needle left child
+          needle->next = node->left;
+          needle = needle->next;
+        }
+        if (node->right) {  // Needle right child
+          needle->next = node->right;
+          needle = needle->next;
+        }
+      }
+      node = dummy.next;  // Move node to the next level
+    }
+
+    return root;
+  }
+};",[Logic – Wrong condition operator] Changed the left-child existence check from `if (node->left)` to `if (node->left == nullptr)`.,Runtime Error,"root =
+[1,2,3,4,5,null,7]",,,"Line 15: Char 19: runtime error: member access within null pointer of type 'Node' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:42:19",2,claude-opus-4-8,few-shot,Runtime Error,"""root = [1,2,3,4,5,null,7]""","""segfault (null pointer dereference when node 3 has null left child)""","""[1,#,2,3,#,4,5,7,#]""","The condition `if (node->left == nullptr)` is inverted, so when a node has a null left child it sets `needle` to nullptr and then dereferences it for the right child, causing a null pointer dereference.",sim,2,2

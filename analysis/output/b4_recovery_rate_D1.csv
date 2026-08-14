@@ -1,0 +1,10 @@
+﻿variant,stage,model,recovery_mean,recovery_std,n_run
+logic1,1.2,qwen3.7-max,0.6842,0.0,3
+logic1,1.3,claude-opus-4-8,0.5526,0.0372,2
+logic1,1.3,gpt-5.6-sol,0.7105,0.0,2
+logic2,1.2,qwen3.7-max,0.5854,0.0244,3
+logic2,1.3,claude-opus-4-8,0.5244,0.0518,2
+logic2,1.3,gpt-5.6-sol,0.5976,0.0173,2
+reference1,1.2,qwen3.7-max,0.5098,0.0519,3
+reference1,1.3,claude-opus-4-8,0.3922,0.0,2
+reference1,1.3,gpt-5.6-sol,0.5098,0.0277,2

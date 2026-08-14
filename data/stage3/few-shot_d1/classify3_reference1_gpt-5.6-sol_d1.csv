@@ -1,0 +1,4062 @@
+topic,level,id,problem,solution,url,buggy_submission,bug_description,gt_status,gt_input,gt_actual_output,gt_expected_output,gt_reason,llm_model,prompt_strategy,pred_status,pred_input,pred_actual_output,pred_expected_output,pred_reason,match,label
+String,Medium,18,"The string ""PAYPALISHIRING"" is written in a zigzag pattern on a given number of rows like this: (you may want to display this pattern in a fixed font for better legibility)
+ 
+ P A H N
+ A P L S I I G
+ Y I R
+ 
+ And then read line by line: ""PAHNAPLSIIGYIR""
+ 
+ Write the code that will take a string and make this conversion given a number of rows:
+ 
+ string convert(string s, int numRows);
+ 
+ Example 1:
+ 
+ Input: s = ""PAYPALISHIRING"", numRows = 3
+ Output: ""PAHNAPLSIIGYIR""
+ 
+ Example 2:
+ 
+ Input: s = ""PAYPALISHIRING"", numRows = 4
+ Output: ""PINALSIGYAHRPI""
+ Explanation:
+ P I N
+ A L S I G
+ Y A H R
+ P I
+ 
+ Example 3:
+ 
+ Input: s = ""A"", numRows = 1
+ Output: ""A""
+ 
+ Constraints:
+ 
+  1 <= s.length <= 1000
+  s consists of English letters (lower-case and upper-case), ',' and '.'.
+  1 <= numRows <= 1000","#pragma GCC optimize(""Ofast"")
+
+#include <iostream>
+
+static constexpr std::size_t max_align = alignof(std::max_align_t);
+alignas(max_align) static unsigned char BUFFER[64 * 1024 * 1024];
+static std::size_t pos = 0;
+
+void *operator new(const std::size_t size) {
+    const std::size_t padding = (max_align - (pos % max_align)) % max_align;
+    pos += padding + size;
+    return static_cast<void *>(&BUFFER[pos - size]);
+}
+
+void *operator new[](const std::size_t size) {
+    return operator new(size);
+}
+
+void operator delete(void *) noexcept {}
+
+void operator delete[](void *) noexcept {}
+
+void operator delete(void *, std::size_t) noexcept {}
+
+void operator delete[](void *, std::size_t) noexcept {}
+
+class Solution {
+public:
+    Solution() {
+        std::ios::sync_with_stdio(false);
+        std::cout.tie(nullptr);
+        std::cin.tie(nullptr);
+    }
+
+    std::string convert(const std::string& s, const int numRows) {
+        if (s.size() == 1 || numRows == 1) return s;
+
+        std::string res{};
+        res.resize(s.size());
+        std::uint16_t step = numRows, start_idx = 0, idx = start_idx;
+        std::uint16_t var = 0;
+
+        for (std::uint16_t i = 0; i < s.size(); ++i) {
+            res[i] = s[idx];
+            
+            if (var == 0 || var == numRows - 1) {
+                idx += 2 * numRows - 2;
+            } else {
+                idx += step;
+                step = 2 * numRows - 2 - step;
+            }
+
+            if (idx >= s.size()) {
+                idx = ++start_idx;
+                ++var;
+                step = 2 * (numRows - var) - 2;
+            }
+        }
+
+        return res;
+    }
+};",https://leetcode.com/problems/zigzag-conversion,"#pragma GCC optimize(""Ofast"")
+
+#include <iostream>
+
+static constexpr std::size_t max_align = alignof(std::max_align_t);
+alignas(max_align) static unsigned char BUFFER[64 * 1024 * 1024];
+static std::size_t pos = 0;
+
+void *operator new(const std::size_t size) {
+    const std::size_t padding = (max_align - (pos % max_align)) % max_align;
+    pos += padding + size;
+    return static_cast<void *>(&BUFFER[pos - size]);
+}
+
+void *operator new[](const std::size_t size) {
+    return operator new(size);
+}
+
+void operator delete(void *) noexcept {}
+
+void operator delete[](void *) noexcept {}
+
+void operator delete(void *, std::size_t) noexcept {}
+
+void operator delete[](void *, std::size_t) noexcept {}
+
+class Solution {
+public:
+    Solution() {
+        std::ios::sync_with_stdio(false);
+        std::cout.tie(nullptr);
+        std::cin.tie(nullptr);
+    }
+
+    std::string convert(const std::string& s, const int numRows) {
+        if (s.size() == 1 || numRows == 1) return s;
+
+        std::string res{};
+        res.resize(s.size());
+        std::uint16_t step = numRows, start_idx = 0, idx = start_idx;
+        std::uint16_t var = 0;
+
+        for (std::uint16_t i = 0; i <= s.size(); ++i) {
+            res[i] = s[idx];
+            
+            if (var == 0 || var == numRows - 1) {
+                idx += 2 * numRows - 2;
+            } else {
+                idx += step;
+                step = 2 * numRows - 2 - step;
+            }
+
+            if (idx >= s.size()) {
+                idx = ++start_idx;
+                ++var;
+                step = 2 * (numRows - var) - 2;
+            }
+        }
+
+        return res;
+    }
+};","[Reference – Off-by-one index] Changed the main reconstruction loop condition from `i < s.size()` to `i <= s.size()`, causing one extra iteration past the end of the result string.",Accepted,,,,,gpt-5.6-sol,few-shot,Compilation Error,"""""","""""","""""",The submission uses std::max_align_t and std::uint16_t without including the required <cstddef> and <cstdint> headers.,diff,3
+String,Medium,20,"The count-and-say sequence is a sequence of digit strings defined by the recursive formula:
+ 
+  countAndSay(1) = ""1""
+  countAndSay(n) is the run-length encoding of countAndSay(n - 1).
+ 
+ Run-length encoding (RLE) is a string compression method that works by replacing consecutive identical characters (repeated 2 or more times) with the concatenation of the character and the number marking the count of the characters (length of the run). For example, to compress the string ""3322251"" we replace ""33"" with ""23"", replace ""222"" with ""32"", replace ""5"" with ""15"" and replace ""1"" with ""11"". Thus the compressed string becomes ""23321511"".
+ 
+ Given a positive integer n, return the nth element of the count-and-say sequence.
+ 
+ Example 1:
+ 
+ Input: n = 4
+ 
+ Output: ""1211""
+ 
+ Explanation:
+ 
+ countAndSay(1) = ""1""
+ countAndSay(2) = RLE of ""1"" = ""11""
+ countAndSay(3) = RLE of ""11"" = ""21""
+ countAndSay(4) = RLE of ""21"" = ""1211""
+ 
+ Example 2:
+ 
+ Input: n = 1
+ 
+ Output: ""1""
+ 
+ Explanation:
+ 
+ This is the base case.
+ 
+ Constraints:
+ 
+  1 <= n <= 30
+ 
+ Follow up: Could you solve it iteratively?","class Solution {
+public:
+    string countAndSay(int n) {
+        if(n==1)return ""1"";
+        string s=countAndSay(n-1);
+        string b="""";
+        int c=0;
+        for(int i=0;i<s.size();i++){
+            c++;
+            if(i==s.size()-1||s[i]!=s[i+1]){
+                b+=c+48;
+                b+=s[i];
+                c=0;
+            }
+        }
+        return b;
+    }
+};",https://leetcode.com/problems/count-and-say,"class Solution {
+public:
+    string countAndSay(int n) {
+        if(n==1)return ""1"";
+        string s=countAndSay(n-1);
+        string b="""";
+        int c=0;
+        for(int i=0;i<=s.size();i++){
+            c++;
+            if(i==s.size()-1||s[i]!=s[i+1]){
+                b+=c+48;
+                b+=s[i];
+                c=0;
+            }
+        }
+        return b;
+    }
+};","[Reference – Off-by-one index] Changed the loop condition from `i < s.size()` to `i <= s.size()`, causing one past-the-end access.",Wrong Answer,"n =
+11","""111312211331121321132122211\u0000""","""11131221133112132113212221""",,gpt-5.6-sol,few-shot,Runtime Error,"""n = 2""",,"""\""11\""""","The loop executes with i == s.size() and evaluates s[i + 1], causing an out-of-bounds string access and undefined behavior.",diff,3
+String,Medium,21,"You have intercepted a secret message encoded as a string of numbers. The message is decoded via the following mapping:
+ 
+ ""1"" -> 'A'
+ ""2"" -> 'B'
+ ...
+ ""25"" -> 'Y'
+ ""26"" -> 'Z'
+ 
+ However, while decoding the message, you realize that there are many different ways you can decode the message because some codes are contained in other codes (""2"" and ""5"" vs ""25"").
+ 
+ For example, ""11106"" can be decoded into:
+ 
+  ""AAJF"" with the grouping (1, 1, 10, 6)
+  ""KJF"" with the grouping (11, 10, 6)
+  The grouping (1, 11, 06) is invalid because ""06"" is not a valid code (only ""6"" is valid).
+ 
+ Note: there may be strings that are impossible to decode.
+ 
+ Given a string s containing only digits, return the number of ways to decode it. If the entire string cannot be decoded in any valid way, return 0.
+ 
+ The test cases are generated so that the answer fits in a 32-bit integer.
+ 
+ Example 1:
+ 
+ Input: s = ""12""
+ 
+ Output: 2
+ 
+ Explanation:
+ 
+ ""12"" could be decoded as ""AB"" (1 2) or ""L"" (12).
+ 
+ Example 2:
+ 
+ Input: s = ""226""
+ 
+ Output: 3
+ 
+ Explanation:
+ 
+ ""226"" could be decoded as ""BZ"" (2 26), ""VF"" (22 6), or ""BBF"" (2 2 6).
+ 
+ Example 3:
+ 
+ Input: s = ""06""
+ 
+ Output: 0
+ 
+ Explanation:
+ 
+ ""06"" cannot be mapped to ""F"" because of the leading zero (""6"" is different from ""06""). In this case, the string is not a valid encoding, so return 0.
+ 
+ Constraints:
+ 
+  1 <= s.length <= 100
+  s contains only digits and may contain leading zero(s).","#pragma GCC optimize(""Ofast"")
+
+#include <iostream>
+#include <string>
+
+static constexpr std::size_t max_align = alignof(std::max_align_t);
+alignas(max_align) static unsigned char BUFFER[64 * 1024 * 1024];
+static std::size_t pos = 0;
+
+void *operator new(const std::size_t size) {
+    const std::size_t padding = (max_align - (pos % max_align)) % max_align;
+    pos += padding + size;
+    return static_cast<void *>(&BUFFER[pos - size]);
+}
+
+void *operator new[](const std::size_t size) {
+    return operator new(size);
+}
+
+void operator delete(void *) noexcept {}
+
+void operator delete[](void *) noexcept {}
+
+void operator delete(void *, std::size_t) noexcept {}
+
+void operator delete[](void *, std::size_t) noexcept {}
+
+class Solution {
+public:
+    Solution() {
+        std::ios::sync_with_stdio(false);
+        std::cout.tie(nullptr);
+        std::cin.tie(nullptr);
+    }
+
+    int numDecodings(const std::string& s) {
+        if (s[0] == '0') return 0;
+        if (s.length() == 1) return 1;
+
+        unsigned int dp[s.length()];
+        dp[0] = 1;
+
+        for (std::uint8_t i = 1; i < s.length(); ++i) {
+            char prev = s[i - 1], curr = s[i];
+            if (curr == '0' && (prev == '0' || prev > '2')) return 0;
+
+            if (prev == '0') dp[i] = dp[i - 1];
+            else {
+                if (curr == '0') dp[i] = dp[i - 1];
+
+                else {
+                    dp[i] = dp[i - 1];
+                    if (i == s.length() - 1 || s[i + 1] != '0') {
+                        std::uint8_t num = (prev - '0') * 10 + (curr - '0');
+
+                        if (num <= 26) {
+                            if (i > 1) dp[i] += dp[i - 2];
+                            else dp[i] += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        return static_cast<int>(dp[s.length() - 1]);
+    }
+};",https://leetcode.com/problems/decode-ways,"#pragma GCC optimize(""Ofast"")
+
+#include <iostream>
+#include <string>
+
+static constexpr std::size_t max_align = alignof(std::max_align_t);
+alignas(max_align) static unsigned char BUFFER[64 * 1024 * 1024];
+static std::size_t pos = 0;
+
+void *operator new(const std::size_t size) {
+    const std::size_t padding = (max_align - (pos % max_align)) % max_align;
+    pos += padding + size;
+    return static_cast<void *>(&BUFFER[pos - size]);
+}
+
+void *operator new[](const std::size_t size) {
+    return operator new(size);
+}
+
+void operator delete(void *) noexcept {}
+
+void operator delete[](void *) noexcept {}
+
+void operator delete(void *, std::size_t) noexcept {}
+
+void operator delete[](void *, std::size_t) noexcept {}
+
+class Solution {
+public:
+    Solution() {
+        std::ios::sync_with_stdio(false);
+        std::cout.tie(nullptr);
+        std::cin.tie(nullptr);
+    }
+
+    int numDecodings(const std::string& s) {
+        if (s[0] == '0') return 0;
+        if (s.length() == 1) return 1;
+
+        unsigned int dp[s.length()];
+        dp[0] = 1;
+
+        for (std::uint8_t i = 1; i <= s.length(); ++i) {
+            char prev = s[i - 1], curr = s[i];
+            if (curr == '0' && (prev == '0' || prev > '2')) return 0;
+
+            if (prev == '0') dp[i] = dp[i - 1];
+            else {
+                if (curr == '0') dp[i] = dp[i - 1];
+
+                else {
+                    dp[i] = dp[i - 1];
+                    if (i == s.length() - 1 || s[i + 1] != '0') {
+                        std::uint8_t num = (prev - '0') * 10 + (curr - '0');
+
+                        if (num <= 26) {
+                            if (i > 1) dp[i] += dp[i - 2];
+                            else dp[i] += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        return static_cast<int>(dp[s.length() - 1]);
+    }
+};","[Reference – Off-by-one index] Changed the DP loop condition from `i < s.length()` to `i <= s.length()`, causing one extra iteration past the end of the string/array.",Runtime Error,,,,"Line 52: Char 21: runtime error: index 2 out of bounds for type 'unsigned int[s.length()]' (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:61:21
+ 
+Last Executed Input
+s =
+""12""",gpt-5.6-sol,few-shot,Runtime Error,"""s = \""12\""""",,"""2""","The loop runs with i == s.length(), writing past dp and potentially reading s[s.length() + 1], causing undefined behavior from out-of-bounds access.",sim,1
+String,Medium,23,"Given a string s, find the length of the longest substring without duplicate characters.
+
+Example 1:
+
+Input: s = ""abcabcbb""
+Output: 3
+Explanation: The answer is ""abc"", with the length of 3.
+
+Example 2:
+
+Input: s = ""bbbbb""
+Output: 1
+Explanation: The answer is ""b"", with the length of 1.
+
+Example 3:
+
+Input: s = ""pwwkew""
+Output: 3
+Explanation: The answer is ""wke"", with the length of 3.
+Notice that the answer must be a substring, ""pwke"" is a subsequence and not a substring.
+
+Constraints:
+
+	0 <= s.length <= 5 * 104
+	s consists of English letters, digits, symbols and spaces.","class Solution {
+ public:
+  int lengthOfLongestSubstring(string s) {
+    int ans = 0;
+    vector<int> count(128);
+
+    for (int l = 0, r = 0; r < s.length(); ++r) {
+      ++count[s[r]];
+      while (count[s[r]] > 1)
+        --count[s[l++]];
+      ans = max(ans, r - l + 1);
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/longest-substring-without-repeating-characters,"class Solution {
+ public:
+  int lengthOfLongestSubstring(string s) {
+    int ans = 0;
+    vector<int> count(128);
+
+    for (int l = 0, r = 0; r <= s.length(); ++r) {
+      ++count[s[r]];
+      while (count[s[r]] > 1)
+        --count[s[l++]];
+      ans = max(ans, r - l + 1);
+    }
+
+    return ans;
+  }
+};","[Reference – Off-by-one index] Changed the right pointer loop condition from `r < s.length()` to `r <= s.length()`, causing one out-of-bounds access at the end.",Wrong Answer,"s =
+""bbbbb""",2,1,,gpt-5.6-sol,few-shot,Wrong Answer,"""s = \""\""""","""1""","""0""",,sim,1
+String,Medium,29,"Given an array of strings strs, group the anagrams together. You can return the answer in any order.
+
+Example 1:
+
+Input: strs = [""eat"",""tea"",""tan"",""ate"",""nat"",""bat""]
+
+Output: [[""bat""],[""nat"",""tan""],[""ate"",""eat"",""tea""]]
+
+Explanation:
+
+	There is no string in strs that can be rearranged to form ""bat"".
+	The strings ""nat"" and ""tan"" are anagrams as they can be rearranged to form each other.
+	The strings ""ate"", ""eat"", and ""tea"" are anagrams as they can be rearranged to form each other.
+
+Example 2:
+
+Input: strs = [""""]
+
+Output: [[""""]]
+
+Example 3:
+
+Input: strs = [""a""]
+
+Output: [[""a""]]
+
+Constraints:
+
+	1 <= strs.length <= 104
+	0 <= strs[i].length <= 100
+	strs[i] consists of lowercase English letters.","class Solution {
+ public:
+  vector<vector<string>> groupAnagrams(vector<string>& strs) {
+    vector<vector<string>> ans;
+    unordered_map<string, vector<string>> keyToAnagrams;
+
+    for (const string& str : strs) {
+      string key = str;
+      sort(begin(key), end(key));
+      keyToAnagrams[key].push_back(str);
+    }
+
+    for (const auto& [_, anagrams] : keyToAnagrams)
+      ans.push_back(anagrams);
+
+    return ans;
+  }
+};",https://leetcode.com/problems/group-anagrams,"class Solution {
+ public:
+  vector<vector<string>> groupAnagrams(vector<string>& strs) {
+    vector<vector<string>> ans;
+    unordered_map<string, vector<string>> keyToAnagrams;
+
+    for (const string& str : strs) {
+      string key = str;
+      sort(begin(key), end(key) + 1);
+      keyToAnagrams[key].push_back(str);
+    }
+
+    for (const auto& [_, anagrams] : keyToAnagrams)
+      ans.push_back(anagrams);
+
+    return ans;
+  }
+};","[Reference – Off-by-one index] Changed the sort range to use one past the string end iterator, causing sorting to access beyond the valid character range.",Wrong Answer,"strs = 
+[""cab"",""tin"",""pew"",""duh"",""may"",""ill"",""buy"",""bar"",""max"",""doc""]","[[""doc""],[""ill""],[""duh""],[""may"",""max""],[""pew""],[""tin""],[""buy""],[""cab"",""bar""]]","[[""max""],[""buy""],[""doc""],[""may""],[""ill""],[""duh""],[""tin""],[""bar""],[""pew""],[""cab""]]",,gpt-5.6-sol,few-shot,Wrong Answer,"""strs = [\""a\"", \""b\""]""","""[[\""a\"", \""b\""]]""","""[[\""a\""], [\""b\""]]""",,sim,1
+String,Hard,35,"Given a string s, return whether s is a valid number.
+ 
+ For example, all the following are valid numbers: ""2"", ""0089"", ""-0.1"", ""+3.14"", ""4."", ""-.9"", ""2e10"", ""-90E3"", ""3e+7"", ""+6e-1"", ""53.5e93"", ""-123.456e789"", while the following are not valid numbers: ""abc"", ""1a"", ""1e"", ""e3"", ""99e2.5"", ""--6"", ""-+3"", ""95a54e53"".
+ 
+ Formally, aÂ valid number is defined using one of the following definitions:
+ 
+  An integer number followed by an optional exponent.
+  A decimal number followed by an optional exponent.
+ 
+ An integer number is defined with an optional sign '-' or '+' followed by digits.
+ 
+ A decimal number is defined with an optional sign '-' or '+' followed by one of the following definitions:
+ 
+  Digits followed by a dot '.'.
+  Digits followed by a dot '.' followed by digits.
+  A dot '.' followed by digits.
+ 
+ An exponent is defined with an exponent notation 'e' or 'E' followed by an integer number.
+ 
+ The digits are defined as one or more digits.
+ 
+ Example 1:
+ 
+ Input: s = ""0""
+ 
+ Output: true
+ 
+ Example 2:
+ 
+ Input: s = ""e""
+ 
+ Output: false
+ 
+ Example 3:
+ 
+ Input: s = "".""
+ 
+ Output: false
+ 
+ Constraints:
+ 
+  1 <= s.length <= 20
+  s consists of only English letters (both uppercase and lowercase), digits (0-9), plus '+', minus '-', or dot '.'.","class Solution {
+public:
+    bool isNumber(span<char> s) {
+        if (s[0] == '+' || s[0] == '-') s = s.subspan(1);
+
+        auto s_ = strip_int(s);
+
+        if (s_[0] == '.') {
+            bool empty_before_dot = s_.size() == s.size();
+            s = s_.subspan(1);
+            s_ = strip_int(s);
+            if (empty_before_dot && s_.size() == s.size()) return false;
+        } else if (s_.size() == s.size()) return false;
+
+        if (s_.empty()) return true;
+        if (s_[0] == 'e' || s_[0] == 'E') {
+            s = s_.subspan(1);
+            if (!s.empty() && (s[0] == '+' || s[0] == '-')) s = s.subspan(1);
+            s_ = strip_int(s);
+            if (s_.size() == s.size()) return false;
+        }
+
+        return s_.empty();
+    }
+
+    span<char> strip_int(span<char> s) {
+        size_t i = 0;
+
+        while (i < s.size() && is_digit(s[i])) ++i;
+        
+        return s.subspan(i);
+    }
+
+    bool is_digit(char c) {
+        return isdigit(c);
+    }
+};",https://leetcode.com/problems/valid-number,"class Solution {
+public:
+    bool isNumber(span<char> s) {
+        if (s[0] == '+' || s[0] == '-') s = s.subspan(1);
+
+        auto s_ = strip_int(s);
+
+        if (s_[0] == '.') {
+            bool empty_before_dot = s_.size() == s.size();
+            s = s_.subspan(1);
+            s_ = strip_int(s);
+            if (empty_before_dot && s_.size() == s.size()) return false;
+        } else if (s_.size() == s.size()) return false;
+
+        if (s_.empty()) return true;
+        if (s_[0] == 'e' || s_[0] == 'E') {
+            s = s_.subspan(1);
+            if (!s.empty() && (s[0] == '+' || s[0] == '-')) s = s.subspan(1);
+            s_ = strip_int(s);
+            if (s_.size() == s.size()) return false;
+        }
+
+        return s_.empty();
+    }
+
+    span<char> strip_int(span<char> s) {
+        size_t i = 0;
+
+        while (i <= s.size() && is_digit(s[i])) ++i;
+        
+        return s.subspan(i);
+    }
+
+    bool is_digit(char c) {
+        return isdigit(c);
+    }
+};","[Reference – Off-by-one index] Changed the digit-stripping loop bound from `i < s.size()` to `i <= s.size()`, causing an out-of-bounds access when `i == s.size()`.",Accepted,,,,,gpt-5.6-sol,few-shot,Runtime Error,"""s = \""0\""""",,"""true""","In strip_int, the condition i <= s.size() accesses s[s.size()] after consuming all digits, causing an out-of-bounds read and undefined behavior.",diff,3
+String,Hard,36,"We can scramble a string s to get a string t using the following algorithm:
+ 
+  If the length of the string is 1, stop.
+  If the length of the string is > 1, do the following:
+ 
+  Split the string into two non-empty substrings at a random index, i.e., if the string is s, divide it to x and y where s = x + y.
+  RandomlyÂ decide to swap the two substrings or to keep them in the same order. i.e., after this step, s may become s = x + y or s = y + x.
+  Apply step 1 recursively on each of the two substrings x and y.
+ 
+ Given two strings s1 and s2 of the same length, return true if s2 is a scrambled string of s1, otherwise, return false.
+ 
+ Example 1:
+ 
+ Input: s1 = ""great"", s2 = ""rgeat""
+ Output: true
+ Explanation: One possible scenario applied on s1 is:
+ ""great"" --> ""gr/eat"" // divide at random index.
+ ""gr/eat"" --> ""gr/eat"" // random decision is not to swap the two substrings and keep them in order.
+ ""gr/eat"" --> ""g/r / e/at"" // apply the same algorithm recursively on both substrings. divide at random index each of them.
+ ""g/r / e/at"" --> ""r/g / e/at"" // random decision was to swap the first substring and to keep the second substring in the same order.
+ ""r/g / e/at"" --> ""r/g / e/ a/t"" // again apply the algorithm recursively, divide ""at"" to ""a/t"".
+ ""r/g / e/ a/t"" --> ""r/g / e/ a/t"" // random decision is to keep both substrings in the same order.
+ The algorithm stops now, and the result string is ""rgeat"" which is s2.
+ As one possible scenario led s1 to be scrambled to s2, we return true.
+ 
+ Example 2:
+ 
+ Input: s1 = ""abcde"", s2 = ""caebd""
+ Output: false
+ 
+ Example 3:
+ 
+ Input: s1 = ""a"", s2 = ""a""
+ Output: true
+ 
+ Constraints:
+ 
+  s1.length == s2.length
+  1 <= s1.length <= 30
+  s1 and s2 consist of lowercase English letters.","class Solution {
+    std::string_view s1, s2;
+    std::array<char, 1 << 15> memo{};
+
+    constexpr bool R(int o1, int o2, int l) noexcept {
+        if (l == 1)
+            return s1[o1] == s2[o2];
+        char& r = memo[(o1 << 10) | (o2 << 5) | l];
+        if (r)
+            return r == 2;
+
+        for (int t = 1; t != l && !r; ++t) {
+            r = (R(o1, o2, t) && R(o1 + t, o2 + t, l - t)) ||
+                (R(o1, o2 + l - t, t) && R(o1 + t, o2, l - t));
+        }
+
+        return r++;
+    }
+
+public:
+    [[nodiscard]] constexpr bool isScramble(string_view a,
+                                            string_view b) noexcept {
+        s1 = a, s2 = b;
+        return R(0, 0, s1.size());
+    }
+};",https://leetcode.com/problems/scramble-string,"class Solution {
+    std::string_view s1, s2;
+    std::array<char, 1 << 15> memo{};
+
+    constexpr bool R(int o1, int o2, int l) noexcept {
+        if (l == 1)
+            return s1[o1] == s2[o2];
+        char& r = memo[(o1 << 10) | (o2 << 5) | l];
+        if (r)
+            return r == 2;
+
+        for (int t = 1; t <= l && !r; ++t) {
+            r = (R(o1, o2, t) && R(o1 + t, o2 + t, l - t)) ||
+                (R(o1, o2 + l - t, t) && R(o1 + t, o2, l - t));
+        }
+
+        return r++;
+    }
+
+public:
+    [[nodiscard]] constexpr bool isScramble(string_view a,
+                                            string_view b) noexcept {
+        s1 = a, s2 = b;
+        return R(0, 0, s1.size());
+    }
+};","[Reference – Off-by-one index] Changed the split loop condition from `t != l` to `t <= l`, allowing an invalid split at `t == l`.",Runtime Error,,,,"Line 5:
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==22==ERROR: AddressSanitizer: stack-overflow on address 0x7ffe14274ff8 (pc 0x560c79b52134 bp 0x7ffe14275000 sp 0x7ffe14275000 T0)
+Last Executed Input
+s1 =
+""abcde""
+s2 =
+""caebd""",gpt-5.6-sol,few-shot,Runtime Error,"""s1 = \""ab\"", s2 = \""cd\""""",,"""false""","The loop allows t == l, causing R(o1, o2, l) to recursively call itself with the same arguments before memoization and eventually overflow the stack.",sim,1
+String,Hard,46,"A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:
+
+	Every adjacent pair of words differs by a single letter.
+	Every si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.
+	sk == endWord
+
+Given two words, beginWord and endWord, and a dictionary wordList, return all the shortest transformation sequences from beginWord to endWord, or an empty list if no such sequence exists. Each sequence should be returned as a list of the words [beginWord, s1, s2, ..., sk].
+
+Example 1:
+
+Input: beginWord = ""hit"", endWord = ""cog"", wordList = [""hot"",""dot"",""dog"",""lot"",""log"",""cog""]
+Output: [[""hit"",""hot"",""dot"",""dog"",""cog""],[""hit"",""hot"",""lot"",""log"",""cog""]]
+Explanation: There are 2 shortest transformation sequences:
+""hit"" -> ""hot"" -> ""dot"" -> ""dog"" -> ""cog""
+""hit"" -> ""hot"" -> ""lot"" -> ""log"" -> ""cog""
+
+Example 2:
+
+Input: beginWord = ""hit"", endWord = ""cog"", wordList = [""hot"",""dot"",""dog"",""lot"",""log""]
+Output: []
+Explanation: The endWord ""cog"" is not in wordList, therefore there is no valid transformation sequence.
+
+Constraints:
+
+	1 <= beginWord.length <= 5
+	endWord.length == beginWord.length
+	1 <= wordList.length <= 500
+	wordList[i].length == beginWord.length
+	beginWord, endWord, and wordList[i] consist of lowercase English letters.
+	beginWord != endWord
+	All the words in wordList are unique.
+	The sum of all shortest transformation sequences does not exceed 105.","class Solution {
+ public:
+  vector<vector<string>> findLadders(string beginWord, string endWord,
+                                     vector<string>& wordList) {
+    unordered_set<string> wordSet{begin(wordList), end(wordList)};
+    if (!wordSet.count(endWord))
+      return {};
+
+    // {""hit"": [""hot""], ""hot"": [""dot"", ""lot""], ...}
+    unordered_map<string, vector<string>> graph;
+
+    // Build graph from beginWord -> endWord
+    if (!bfs(beginWord, endWord, wordSet, graph))
+      return {};
+
+    vector<vector<string>> ans;
+
+    dfs(graph, beginWord, endWord, {beginWord}, ans);
+    return ans;
+  }
+
+ private:
+  bool bfs(const string& beginWord, const string& endWord,
+           unordered_set<string>& wordSet,
+           unordered_map<string, vector<string>>& graph) {
+    unordered_set<string> currentLevelWords{beginWord};
+
+    while (!currentLevelWords.empty()) {
+      for (const string& word : currentLevelWords)
+        wordSet.erase(word);
+      unordered_set<string> nextLevelWords;
+      bool reachEndWord = false;
+      for (const string& parent : currentLevelWords) {
+        vector<string> children;
+        getChildren(parent, wordSet, children);
+        for (const string& child : children) {
+          if (wordSet.count(child)) {
+            nextLevelWords.insert(child);
+            graph[parent].push_back(child);
+          }
+          if (child == endWord)
+            reachEndWord = true;
+        }
+      }
+      if (reachEndWord)
+        return true;
+      currentLevelWords = move(nextLevelWords);
+    }
+
+    return true;
+  }
+
+  void getChildren(const string& parent, const unordered_set<string>& wordSet,
+                   vector<string>& children) {
+    string s(parent);
+
+    for (int i = 0; i < s.length(); ++i) {
+      const char cache = s[i];
+      for (char c = 'a'; c <= 'z'; ++c) {
+        if (c == cache)
+          continue;
+        s[i] = c;  // Now is `child`
+        if (wordSet.count(s))
+          children.push_back(s);
+      }
+      s[i] = cache;
+    }
+  }
+
+  void dfs(const unordered_map<string, vector<string>>& graph,
+           const string& word, const string& endWord, vector<string>&& path,
+           vector<vector<string>>& ans) {
+    if (word == endWord) {
+      ans.push_back(path);
+      return;
+    }
+    if (!graph.count(word))
+      return;
+
+    for (const string& child : graph.at(word)) {
+      path.push_back(child);
+      dfs(graph, child, endWord, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/word-ladder-ii,"class Solution {
+ public:
+  vector<vector<string>> findLadders(string beginWord, string endWord,
+                                     vector<string>& wordList) {
+    unordered_set<string> wordSet{begin(wordList), end(wordList)};
+    if (!wordSet.count(endWord))
+      return {};
+
+    // {""hit"": [""hot""], ""hot"": [""dot"", ""lot""], ...}
+    unordered_map<string, vector<string>> graph;
+
+    // Build graph from beginWord -> endWord
+    if (!bfs(beginWord, endWord, wordSet, graph))
+      return {};
+
+    vector<vector<string>> ans;
+
+    dfs(graph, beginWord, endWord, {beginWord}, ans);
+    return ans;
+  }
+
+ private:
+  bool bfs(const string& beginWord, const string& endWord,
+           unordered_set<string>& wordSet,
+           unordered_map<string, vector<string>>& graph) {
+    unordered_set<string> currentLevelWords{beginWord};
+
+    while (!currentLevelWords.empty()) {
+      for (const string& word : currentLevelWords)
+        wordSet.erase(word);
+      unordered_set<string> nextLevelWords;
+      bool reachEndWord = false;
+      for (const string& parent : currentLevelWords) {
+        vector<string> children;
+        getChildren(parent, wordSet, children);
+        for (const string& child : children) {
+          if (wordSet.count(child)) {
+            nextLevelWords.insert(child);
+            graph[parent].push_back(child);
+          }
+          if (child == endWord)
+            reachEndWord = true;
+        }
+      }
+      if (reachEndWord)
+        return true;
+      currentLevelWords = move(nextLevelWords);
+    }
+
+    return true;
+  }
+
+  void getChildren(const string& parent, const unordered_set<string>& wordSet,
+                   vector<string>& children) {
+    string s(parent);
+
+    for (int i = 0; i <= s.length(); ++i) {
+      const char cache = s[i];
+      for (char c = 'a'; c <= 'z'; ++c) {
+        if (c == cache)
+          continue;
+        s[i] = c;  // Now is `child`
+        if (wordSet.count(s))
+          children.push_back(s);
+      }
+      s[i] = cache;
+    }
+  }
+
+  void dfs(const unordered_map<string, vector<string>>& graph,
+           const string& word, const string& endWord, vector<string>&& path,
+           vector<vector<string>>& ans) {
+    if (word == endWord) {
+      ans.push_back(path);
+      return;
+    }
+    if (!graph.count(word))
+      return;
+
+    for (const string& child : graph.at(word)) {
+      path.push_back(child);
+      dfs(graph, child, endWord, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Reference – Off-by-one index] Changed the character-position loop in getChildren from i < s.length() to i <= s.length(), causing an out-of-bounds access at i == s.length().",Time Limit Exceeded,,,,"Last Executed Input
+beginWord =
+""aaaaa""
+endWord =
+""ggggg""
+wordList =
+[""aaaaa"",""caaaa"",""cbaaa"",""daaaa"",""dbaaa"",""eaaaa"",""ebaaa"",""faaaa"",""fbaaa"",""gaaaa"",""gbaaa"",""haaaa"",""hbaaa"",""iaaaa"",""ibaaa"",""jaaaa"",""jbaaa"",""kaaaa"",""kbaaa"",""laaaa"",""lbaaa"",""maaaa"",""mbaaa"",""naaaa"",""nbaaa"",""oaaaa"",""obaaa"",""paaaa"",""pbaaa"",""bbaaa"",""bbcaa"",""bbcba"",""bbdaa"",""bbdba"",""bbeaa"",""bbeba"",""bbfaa"",""bbfba"",""bbgaa"",""bbgba"",""bbhaa"",""bbhba"",""bbiaa"",""bbiba"",""bbjaa"",""bbjba"",""bbkaa"",""bbkba"",""bblaa"",""bblba"",""bbmaa"",""bbmba"",""bbnaa"",""bbnba"",""bboaa"",""bboba"",""bbpaa"",""bbpba"",""bbbba"",""abbba"",""acbba"",""dbbba"",""dcbba"",""ebbba"",""ecbba"",""fbbba"",""fcbba"",""gbbba"",""gcbba"",""hbbba"",""hcbba"",""ibbba"",""icbba"",""jbbba"",""jcbba"",""kbbba"",""kcbba"",""lbbba"",""lcbba"",""mbbba"",""mcbba"",""nbbba"",""ncbba"",""obbba"",""ocbba"",""pbbba"",""pcbba"",""ccbba"",""ccaba"",""ccaca"",""ccdba"",""ccdca"",""cceba"",""cceca"",""ccfba"",""ccfca"",""ccgba"",""ccgca"",""cchba"",""cchca"",""cciba"",""ccica"",""ccjba"",""ccjca"",""cckba"",""cckca"",""cclba"",""cclca"",""ccmba"",""ccmca"",""ccnba"",""ccnca"",""ccoba"",""ccoca"",""ccpba"",""ccpca"",""cccca"",""accca"",""adcca"",""bccca"",""bdcca"",""eccca"",""edcca"",""fccca"",""fdcca"",""gccca"",""gdcca"",""hccca"",""hdcca"",""iccca"",""idcca"",""jccca"",""jdcca"",""kccca"",""kdcca"",""lccca"",""ldcca"",""mccca"",""mdcca"",""nccca"",""ndcca"",""occca"",""odcca"",""pccca"",""pdcca"",""ddcca"",""ddaca"",""ddada"",""ddbca"",""ddbda"",""ddeca"",""ddeda"",""ddfca"",""ddfda"",""ddgca"",""ddgda"",""ddhca"",""ddhda"",""ddica"",""ddida"",""ddjca"",""ddjda"",""ddkca"",""ddkda"",""ddlca"",""ddlda"",""ddmca"",""ddmda"",""ddnca"",""ddnda"",""ddoca"",""ddoda"",""ddpca"",""ddpda"",""dddda"",""addda"",""aedda"",""bddda"",""bedda"",""cddda"",""cedda"",""fddda"",""fedda"",""gddda"",""gedda"",""hddda"",""hedda"",""iddda"",""iedda"",""jddda"",""jedda"",""kddda"",""kedda"",""lddda"",""ledda"",""mddda"",""medda"",""nddda"",""nedda"",""oddda"",""oedda"",""pddda"",""pedda"",""eedda"",""eeada"",""eeaea"",""eebda"",""eebea"",""eecda"",""eecea"",""eefda"",""eefea"",""eegda"",""eegea"",""eehda"",""eehea"",""eeida"",""eeiea"",""eejda"",""eejea"",""eekda"",""eekea"",""eelda"",""eelea"",""eemda"",""eemea"",""eenda"",""eenea"",""eeoda"",""eeoea"",""eepda"",""eepea"",""eeeea"",""ggggg"",""agggg"",""ahggg"",""bgggg"",""bhggg"",""cgggg"",""chggg"",""dgggg"",""dhggg"",""egggg"",""ehggg"",""fgggg"",""fhggg"",""igggg"",""ihggg"",""jgggg"",""jhggg"",""kgggg"",""khggg"",""lgggg"",""lhggg"",""mgggg"",""mhggg"",""ngggg"",""nhggg"",""ogggg"",""ohggg"",""pgggg"",""phggg"",""hhggg"",""hhagg"",""hhahg"",""hhbgg"",""hhbhg"",""hhcgg"",""hhchg"",""hhdgg"",""hhdhg"",""hhegg"",""hhehg"",""hhfgg"",""hhfhg"",""hhigg"",""hhihg"",""hhjgg"",""hhjhg"",""hhkgg"",""hhkhg"",""hhlgg"",""hhlhg"",""hhmgg"",""hhmhg"",""hhngg"",""hhnhg"",""hhogg"",""hhohg"",""hhpgg"",""hhphg"",""hhhhg"",""ahhhg"",""aihhg"",""bhhhg"",""bihhg"",""chhhg"",""cihhg"",""dhhhg"",""dihhg"",""ehhhg"",""eihhg"",""fhhhg"",""fihhg"",""ghhhg"",""gihhg"",""jhhhg"",""jihhg"",""khhhg"",""kihhg"",""lhhhg"",""lihhg"",""mhhhg"",""mihhg"",""nhhhg"",""nihhg"",""ohhhg"",""oihhg"",""phhhg"",""pihhg"",""iihhg"",""iiahg"",""iiaig"",""iibhg"",""iibig"",""iichg"",""iicig"",""iidhg"",""iidig"",""iiehg"",""iieig"",""iifhg"",""iifig"",""iighg"",""iigig"",""iijhg"",""iijig"",""iikhg"",""iikig"",""iilhg"",""iilig"",""iimhg"",""iimig"",""iinhg"",""iinig"",""iiohg"",""iioig"",""iiphg"",""iipig"",""iiiig"",""aiiig"",""ajiig"",""biiig"",""bjiig"",""ciiig"",""cjiig"",""diiig"",""djiig"",""eiiig"",""ejiig"",""fiiig"",""fjiig"",""giiig"",""gjiig"",""hiiig"",""hjiig"",""kiiig"",""kjiig"",""liiig"",""ljiig"",""miiig"",""mjiig"",""niiig"",""njiig"",""oiiig"",""ojiig"",""piiig"",""pjiig"",""jjiig"",""jjaig"",""jjajg"",""jjbig"",""jjbjg"",""jjcig"",""jjcjg"",""jjdig"",""jjdjg"",""jjeig"",""jjejg"",""jjfig"",""jjfjg"",""jjgig"",""jjgjg"",""jjhig"",""jjhjg"",""jjkig"",""jjkjg"",""jjlig"",""jjljg"",""jjmig"",""jjmjg"",""jjnig"",""jjnjg"",""jjoig"",""jjojg"",""jjpig"",""jjpjg"",""jjjjg"",""ajjjg"",""akjjg"",""bjjjg"",""bkjjg"",""cjjjg"",""ckjjg"",""djjjg"",""dkjjg"",""ejjjg"",""ekjjg"",""fjjjg"",""fkjjg"",""gjjjg"",""gkjjg"",""hjjjg"",""hkjjg"",""ijjjg"",""ikjjg"",""ljjjg"",""lkjjg"",""mjjjg"",""mkjjg"",""njjjg"",""nkjjg"",""ojjjg"",""okjjg"",""pjjjg"",""pkjjg"",""kkjjg"",""kkajg"",""kkakg"",""kkbjg"",""kkbkg"",""kkcjg"",""kkckg"",""kkdjg"",""kkdkg"",""kkejg"",""kkekg"",""kkfjg"",""kkfkg"",""kkgjg"",""kkgkg"",""kkhjg"",""kkhkg"",""kkijg"",""kkikg"",""kkljg"",""kklkg"",""kkmjg"",""kkmkg"",""kknjg"",""kknkg"",""kkojg"",""kkokg"",""kkpjg"",""kkpkg"",""kkkkg"",""ggggx"",""gggxx"",""ggxxx"",""gxxxx"",""xxxxx"",""xxxxy"",""xxxyy"",""xxyyy"",""xyyyy"",""yyyyy"",""yyyyw"",""yyyww"",""yywww"",""ywwww"",""wwwww"",""wwvww"",""wvvww"",""vvvww"",""vvvwz"",""avvwz"",""aavwz"",""aaawz"",""aaaaz""]",gpt-5.6-sol,few-shot,Runtime Error,"""beginWord = \""a\"", endWord = \""b\"", wordList = [\""b\""]""",,"""[[\""a\"",\""b\""]]""","getChildren iterates with i <= s.length() and writes a non-null character to s[s.length()], which invokes undefined behavior by modifying the string's null terminator.",diff,3
+Bit manipulation,Easy,53,"Reverse bits of a given 32 bits unsigned integer.
+  
+  Note:
+  
+  Note that in some languages, such as Java, there is no unsigned integer type. In this case, both input and output will be given as a signed integer type. They should not affect your implementation, as the integer's internal binary representation is the same, whether it is signed or unsigned.
+  In Java, the compiler represents the signed integers using 2's complement notation. Therefore, in Example 2 above, the input represents the signed integer -3 and the output represents the signed integer -1073741825.
+  
+  Example 1:
+  
+  Input: n = 00000010100101000001111010011100
+  Output: 964176192 (00111001011110000010100101000000)
+  Explanation: The input binary string 00000010100101000001111010011100 represents the unsigned integer 43261596, so return 964176192 which its binary representation is 00111001011110000010100101000000.
+  
+  Example 2:
+  
+  Input: n = 11111111111111111111111111111101
+  Output: 3221225471 (10111111111111111111111111111111)
+  Explanation: The input binary string 11111111111111111111111111111101 represents the unsigned integer 4294967293, so return 3221225471 which its binary representation is 10111111111111111111111111111111.
+  
+  Constraints:
+  
+  The input must be a binary string of length 32
+  
+  Follow up: If this function is called many times, how would you optimize it?","class Solution {
+public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t res = 0;
+        for (int i = 0; i < 32; i++) {
+            res <<= 1;
+            res |= (n & 1);
+            n >>= 1;
+        }
+        return res;
+    }
+};",https://leetcode.com/problems/reverse-bits,"class Solution {
+public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t res = 0;
+        for (int i = 0; i <= 32; i++) {
+            res <<= 1;
+            res |= (n & 1);
+            n >>= 1;
+        }
+        return res;
+    }
+};","[Reference – Off-by-one index] Changed the loop condition from i < 32 to i <= 32, causing one extra bit-processing iteration.",Wrong Answer,"n =
+00000010100101000001111010011100",01110010111100000101001010000000,00111001011110000010100101000000,,gpt-5.6-sol,few-shot,Wrong Answer,"""n = 00000000000000000000000000000001""","""0""","""2147483648""","The loop executes 33 times because of `i <= 32`, causing one extra left shift that corrupts the correctly reversed 32-bit result.",sim,1
+Bit manipulation,Easy,54,"Given a positive integer n, write a function that returns the number of set bits in its binary representation (also known as the Hamming weight).
+ 
+ Example 1:
+ 
+ Input: n = 11
+ 
+ Output: 3
+ 
+ Explanation:
+ 
+ The input binary string 1011 has a total of three set bits.
+ 
+ Example 2:
+ 
+ Input: n = 128
+ 
+ Output: 1
+ 
+ Explanation:
+ 
+ The input binary string 10000000 has a total of one set bit.
+ 
+ Example 3:
+ 
+ Input: n = 2147483645
+ 
+ Output: 30
+ 
+ Explanation:
+ 
+ The input binary string 1111111111111111111111111111101 has a total of thirty set bits.
+ 
+ Constraints:
+ 
+  1 <= n <= 231 - 1
+ 
+ Follow up: If this function is called many times, how would you optimize it?","class Solution {
+  public:
+  int hammingWeight(uint32_t n) {
+  int ans = 0;
+ 
+  for (int i = 0; i < 32; ++i)
+  if ((n >> i) & 1)
+  ++ans;
+ 
+  return ans;
+  }
+ };",https://leetcode.com/problems/number-of-1-bits,"class Solution {
+  public:
+  int hammingWeight(uint32_t n) {
+  int ans = 0;
+ 
+  for (int i = 0; i <= 32; ++i)
+  if ((n >> i) & 1)
+  ++ans;
+ 
+  return ans;
+  }
+ };","[Reference – Off-by-one index] Changed the loop condition from i < 32 to i <= 32, causing one extra iteration.",Runtime Error,,,,"Line 7: Char 10: runtime error: shift exponent 32 is too large for 32-bit type 'uint32_t' (aka 'unsigned int') (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:16:10
+Last Executed Input
+n =
+11",gpt-5.6-sol,few-shot,Wrong Answer,"""n = 11""","""4""","""3""",,diff,3
+Bit manipulation,Easy,57,"The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
+ 
+ Given two integers x and y, return the Hamming distance between them.
+ 
+ Example 1:
+ 
+ Input: x = 1, y = 4
+ Output: 2
+ Explanation:
+ 1 (0 0 0 1)
+ 4 (0 1 0 0)
+  â†‘ â†‘
+ The above arrows point to positions where the corresponding bits are different.
+ 
+ Example 2:
+ 
+ Input: x = 3, y = 1
+ Output: 1
+ 
+ Constraints:
+ 
+  0 <=Â x, y <= 231 - 1
+ 
+ Note: This question is the same as 2220: Minimum Bit Flips to Convert Number.","class Solution {
+  public:
+  int hammingDistance(int x, int y) {
+  int ans = 0;
+ 
+  while (x || y) {
+  ans += (x & 1) ^ (y & 1);
+  x >>= 1;
+  y >>= 1;
+  }
+ 
+  return ans;
+  }
+ };",https://leetcode.com/problems/hamming-distance,"class Solution {
+  public:
+  int hammingDistance(int x, int y) {
+  int ans;
+ 
+  while (x || y) {
+  ans += (x & 1) ^ (y & 1);
+  x >>= 1;
+  y >>= 1;
+  }
+ 
+  return ans;
+  }
+ };",[Reference – Uninitialized variable] Changed `ans` from being initialized to `0` to being declared without initialization before accumulation.,Accepted,,,,,gpt-5.6-sol,few-shot,Wrong Answer,"""x = 0, y = 0""","""indeterminate value""","""0""","The local variable ans is uninitialized, so reading and returning it causes undefined behavior.",diff,3
+Bit manipulation,Easy,60,"Given the root of a complete binary tree, return the number of the nodes in the tree.
+
+According to Wikipedia, every level, except possibly the last, is completely filled in a complete binary tree, and all nodes in the last level are as far left as possible. It can have between 1 and 2h nodes inclusive at the last level h.
+
+Design an algorithm that runs in less than O(n) time complexity.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6]
+Output: 6
+
+Example 2:
+
+Input: root = []
+Output: 0
+
+Example 3:
+
+Input: root = [1]
+Output: 1
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 5 * 104].
+	0 <= Node.val <= 5 * 104
+	The tree is guaranteed to be complete.","class Solution {
+ public:
+  int countNodes(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+  }
+};",https://leetcode.com/problems/count-complete-tree-nodes,"class Solution {
+ public:
+  int countNodes(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    int node_count;
+    return node_count + countNodes(root->left) + countNodes(root->right);
+  }
+};",[Reference – Uninitialized variable] Replaced the constant node count `1` with an uninitialized local variable used in the return computation.,Wrong Answer,"root =
+[1,2,3,4,5,6]",-2,6,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""indeterminate""","""1""","The local variable node_count is uninitialized, so every non-empty tree returns an undefined value instead of counting the current node.",sim,1
+Bit manipulation,Easy,61,"Given an array nums containing n distinct numbers in the range [0, n], return the only number in the range that is missing from the array.
+
+Example 1:
+
+Input: nums = [3,0,1]
+
+Output: 2
+
+Explanation:
+
+n = 3 since there are 3 numbers, so all numbers are in the range [0,3]. 2 is the missing number in the range since it does not appear in nums.
+
+Example 2:
+
+Input: nums = [0,1]
+
+Output: 2
+
+Explanation:
+
+n = 2 since there are 2 numbers, so all numbers are in the range [0,2]. 2 is the missing number in the range since it does not appear in nums.
+
+Example 3:
+
+Input: nums = [9,6,4,2,3,5,7,0,1]
+
+Output: 8
+
+Explanation:
+
+n = 9 since there are 9 numbers, so all numbers are in the range [0,9]. 8 is the missing number in the range since it does not appear in nums.
+
+Constraints:
+
+	n == nums.length
+	1 <= n <= 104
+	0 <= nums[i] <= n
+	All the numbers of nums are unique.
+
+Follow up: Could you implement a solution using only O(1) extra space complexity and O(n) runtime complexity?","class Solution {
+ public:
+  int missingNumber(vector<int>& nums) {
+    int ans = nums.size();
+
+    for (int i = 0; i < nums.size(); ++i)
+      ans ^= i ^ nums[i];
+
+    return ans;
+  }
+};",https://leetcode.com/problems/missing-number,"class Solution {
+ public:
+  int missingNumber(vector<int>& nums) {
+    int ans = nums.size();
+
+    for (int i = 0; i <= nums.size(); ++i)
+      ans ^= i ^ nums[i];
+
+    return ans;
+  }
+};","[Reference – Off-by-one index] Changed the loop condition from `i < nums.size()` to `i <= nums.size()`, causing one out-of-bounds access.",Wrong Answer,"nums =
+[3,0,1]",-1094795585,2,,gpt-5.6-sol,few-shot,Runtime Error,"""nums = [0]""",,"""1""","The loop runs through i == nums.size() and accesses nums[i], causing an out-of-bounds read and undefined behavior.",diff,3
+Bit manipulation,Easy,63,"You are given two strings s and t.
+
+String t is generated by random shuffling string s and then add one more letter at a random position.
+
+Return the letter that was added to t.
+
+Example 1:
+
+Input: s = ""abcd"", t = ""abcde""
+Output: ""e""
+Explanation: 'e' is the letter that was added.
+
+Example 2:
+
+Input: s = """", t = ""y""
+Output: ""y""
+
+Constraints:
+
+	0 <= s.length <= 1000
+	t.length == s.length + 1
+	s and t consist of lowercase English letters.","class Solution {
+ public:
+  char findTheDifference(string s, string t) {
+    char ans = 0;
+
+    for (const char c : s)
+      ans ^= c;
+
+    for (const char c : t)
+      ans ^= c;
+
+    return ans;
+  }
+};",https://leetcode.com/problems/find-the-difference,"class Solution {
+ public:
+  char findTheDifference(string s, string t) {
+    char ans;
+
+    for (const char c : s)
+      ans ^= c;
+
+    for (const char c : t)
+      ans ^= c;
+
+    return ans;
+  }
+};","[Reference – Uninitialized variable] Changed `char ans = 0;` to `char ans;`, causing `ans` to be used in XOR computations before initialization.",Wrong Answer,"s =
+""abcd""
+t =
+""abcde""","""U""","""e""",,gpt-5.6-sol,few-shot,Wrong Answer,"""s = \""\"", t = \""y\""""","""indeterminate due to undefined behavior""","""\""y\""""","The local variable ans is uninitialized before it is read by the XOR operation, so the result is undefined rather than reliably equal to the added character.",sim,1
+Bit manipulation,Easy,66,"Given an n x n binary matrix image, flip the image horizontally, then invert it, and return the resulting image.
+
+To flip an image horizontally means that each row of the image is reversed.
+
+	For example, flipping [1,1,0] horizontally results in [0,1,1].
+
+To invert an image means that each 0 is replaced by 1, and each 1 is replaced by 0.
+
+	For example, inverting [0,1,1] results in [1,0,0].
+
+Example 1:
+
+Input: image = [[1,1,0],[1,0,1],[0,0,0]]
+Output: [[1,0,0],[0,1,0],[1,1,1]]
+Explanation: First reverse each row: [[0,1,1],[1,0,1],[0,0,0]].
+Then, invert the image: [[1,0,0],[0,1,0],[1,1,1]]
+
+Example 2:
+
+Input: image = [[1,1,0,0],[1,0,0,1],[0,1,1,1],[1,0,1,0]]
+Output: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+Explanation: First reverse each row: [[0,0,1,1],[1,0,0,1],[1,1,1,0],[0,1,0,1]].
+Then invert the image: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+
+Constraints:
+
+	n == image.length
+	n == image[i].length
+	1 <= n <= 20
+	images[i][j] is either 0 or 1.","class Solution {
+ public:
+  vector<vector<int>> flipAndInvertImage(vector<vector<int>>& A) {
+    const int n = A.size();
+
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < (n + 1) / 2; ++j) {
+        const int temp = A[i][j];
+        A[i][j] = A[i][n - j - 1] ^ 1;
+        A[i][n - j - 1] = temp ^ 1;
+      }
+
+    return A;
+  }
+};",https://leetcode.com/problems/flipping-an-image,"class Solution {
+ public:
+  vector<vector<int>> flipAndInvertImage(vector<vector<int>>& A) {
+    const int n = A.size();
+
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j <= (n + 1) / 2; ++j) {
+        const int temp = A[i][j];
+        A[i][j] = A[i][n - j - 1] ^ 1;
+        A[i][n - j - 1] = temp ^ 1;
+      }
+
+    return A;
+  }
+};","[Reference – Off-by-one index] Changed the inner loop condition from `j < (n + 1) / 2` to `j <= (n + 1) / 2`, causing one extra iteration.",Wrong Answer,"image =
+[[1,1,0],[1,0,1],[0,0,0]]","[[1,0,0],[1,1,1],[0,1,0]]","[[1,0,0],[0,1,0],[1,1,1]]",,gpt-5.6-sol,few-shot,Runtime Error,"""image = [[1]]""",,"""[[0]]""","The loop executes with j = 1 when n = 1, causing out-of-bounds access at A[0][1] and A[0][-1].",diff,3
+Bit manipulation,Easy,69,"You are given a binary array nums (0-indexed).
+
+We define xi as the number whose binary representation is the subarray nums[0..i] (from most-significant-bit to least-significant-bit).
+
+	For example, if nums = [1,0,1], then x0 = 1, x1 = 2, and x2 = 5.
+
+Return an array of booleans answer where answer[i] is true if xi is divisible by 5.
+
+Example 1:
+
+Input: nums = [0,1,1]
+Output: [true,false,false]
+Explanation: The input numbers in binary are 0, 01, 011; which are 0, 1, and 3 in base-10.
+Only the first number is divisible by 5, so answer[0] is true.
+
+Example 2:
+
+Input: nums = [1,1,1]
+Output: [false,false,false]
+
+Constraints:
+
+	1 <= nums.length <= 105
+	nums[i] is either 0 or 1.","class Solution {
+ public:
+  vector<bool> prefixesDivBy5(vector<int>& A) {
+    vector<bool> ans;
+    int num = 0;
+
+    for (int a : A) {
+      num = (num * 2 + a) % 5;
+      ans.push_back(num % 5 == 0);
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/binary-prefix-divisible-by-5,"class Solution {
+ public:
+  vector<bool> prefixesDivBy5(vector<int>& A) {
+    vector<bool> ans;
+    int num;
+
+    for (int a : A) {
+      num = (num * 2 + a) % 5;
+      ans.push_back(num % 5 == 0);
+    }
+
+    return ans;
+  }
+};",[Reference – Uninitialized variable] Changed `num` from initialized to 0 to an uninitialized local variable before it is used in the computation.,Wrong Answer,"nums =
+[0,1,1]","[false,false,true]","[true,false,false]",,gpt-5.6-sol,few-shot,Wrong Answer,"""nums = [0]""","""undefined (depends on the uninitialized value of num)""","""[true]""",,sim,1
+Bit manipulation,Medium,70,"Given two integers dividend and divisor, divide two integers without using multiplication, division, and mod operator.
+  
+  The integer division should truncate toward zero, which means losing its fractional part. For example, 8.345 would be truncated to 8, and -2.7335 would be truncated to -2.
+  
+  Return the quotient after dividing dividend by divisor.
+  
+  Note: Assume we are dealing with an environment that could only store integers within the 32-bit signed integer range: [âˆ’231, 231 âˆ’ 1]. For this problem, if the quotient is strictly greater than 231 - 1, then return 231 - 1, and if the quotient is strictly less than -231, then return -231.
+  
+  Example 1:
+  
+  Input: dividend = 10, divisor = 3
+  Output: 3
+  Explanation: 10/3 = 3.33333.. which is truncated to 3.
+  
+  Example 2:
+  
+  Input: dividend = 7, divisor = -3
+  Output: -2
+  Explanation: 7/-3 = -2.33333.. which is truncated to -2.
+  
+  Constraints:
+  
+  -231 <= dividend, divisor <= 231 - 1
+  divisor != 0","class Solution {
+public:
+    int divide(int dividend, int divisor) {
+        if(dividend == INT_MIN && divisor == -1)
+            return INT_MAX;
+        if(dividend==divisor) return 1;
+        bool sign=true;
+        if(dividend>=0&&divisor<0) sign=false;
+        else if(dividend<=0&&divisor>0) sign=false;
+        long n=labs((long)dividend);
+        long d=labs((long)divisor);
+        long ans=0;
+        while(n>=d){
+            int c=0;
+            while(n>(d<<(c+1)))
+                c++;
+            ans+=1<<c;
+            n-=(d<<c);
+        }
+        if(ans==(1<<31)&&sign) return INT_MAX;
+        if(ans==(1<<31)&&!sign) return INT_MIN;
+        return sign?ans:-ans;
+    }
+};",https://leetcode.com/problems/divide-two-integers,"class Solution {
+public:
+    int divide(int dividend, int divisor) {
+        if(dividend == INT_MIN && divisor == -1)
+            return INT_MAX;
+        if(dividend==divisor) return 1;
+        bool sign=true;
+        if(dividend>=0&&divisor<0) sign=false;
+        else if(dividend<=0&&divisor>0) sign=false;
+        long n=labs((long)dividend);
+        long d=labs((long)divisor);
+        long ans=0;
+        while(n>=d){
+            int c=0;
+            while(n>=(d<<(c+1)))
+                c++;
+            ans+=1<<c;
+            n-=(d<<c);
+        }
+        if(ans==(1<<31)&&sign) return INT_MAX;
+        if(ans==(1<<31)&&!sign) return INT_MIN;
+        return sign?ans:-ans;
+    }
+};","[Reference – Off-by-one index] Changed the inner loop condition from `n > (d << (c + 1))` to `n >= (d << (c + 1))`, causing one extra shift when the values are exactly equal.",Accepted,,,,,gpt-5.6-sol,few-shot,Accepted,"""""","""""","""""",,sim,1
+Bit manipulation,Medium,71,"Given an integer array nums whereÂ every element appears three times except for one, which appears exactly once. Find the single element and return it.
+  
+  You mustÂ implement a solution with a linear runtime complexity and useÂ only constantÂ extra space.
+  
+  Example 1:
+  Input: nums = [2,2,3,2]
+  Output: 3
+  Example 2:
+  Input: nums = [0,1,0,1,0,1,99]
+  Output: 99
+  
+  Constraints:
+  
+  1 <= nums.length <= 3 * 104
+  -231 <= nums[i] <= 231 - 1
+  Each element in nums appears exactly three times except for one element which appears once.","static const bool __boost = []() {
+   cin.tie(nullptr);
+   cout.tie(nullptr);
+   return std::ios_base::sync_with_stdio(false);
+}();
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+   constexpr std::size_t alignment = alignof(std::max_align_t);
+   size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+   size_t total_size = size + padding;
+   char* aligned_ptr = &buffer[buffer_pos + padding];
+   buffer_pos += total_size;
+   return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}
+
+class Solution {
+ public:
+  int singleNumber(vector<int>& nums) {
+    int ones = 0;
+    int twos = 0;
+
+    for (const int num : nums) {
+      ones ^= (num & ~twos);
+      twos ^= (num & ~ones);
+    }
+
+    return ones;
+  }
+};",https://leetcode.com/problems/single-number-ii,"static const bool __boost = []() {
+   cin.tie(nullptr);
+   cout.tie(nullptr);
+   return std::ios_base::sync_with_stdio(false);
+}();
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+   constexpr std::size_t alignment = alignof(std::max_align_t);
+   size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+   size_t total_size = size + padding;
+   char* aligned_ptr = &buffer[buffer_pos + padding];
+   buffer_pos += total_size;
+   return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}
+
+class Solution {
+ public:
+  int singleNumber(vector<int>& nums) {
+    int ones = 0;
+    int twos;
+
+    for (const int num : nums) {
+      ones ^= (num & ~twos);
+      twos ^= (num & ~ones);
+    }
+
+    return ones;
+  }
+};",[Reference – Uninitialized variable] Changed `twos` from being initialized to `0` to being declared without initialization before use.,Accepted,,,,,gpt-5.6-sol,few-shot,Wrong Answer,"""nums = [1]""","""undefined""","""1""","The variable `twos` is used before initialization, causing undefined behavior and potentially an incorrect result.",diff,3
+Bit manipulation,Medium,72,"Given two integers left and right that represent the range [left, right], return the bitwise AND of all numbers in this range, inclusive.
+  
+  Example 1:
+  
+  Input: left = 5, right = 7
+  Output: 4
+  
+  Example 2:
+  
+  Input: left = 0, right = 0
+  Output: 0
+  
+  Example 3:
+  
+  Input: left = 1, right = 2147483647
+  Output: 0
+  
+  Constraints:
+  
+  0 <= left <= right <= 231 - 1","class Solution {
+  public:
+  int rangeBitwiseAnd(int m, int n) {
+  int shiftBits = 0;
+  
+  while (m != n) {
+  m >>= 1;
+  n >>= 1;
+  ++shiftBits;
+  }
+  
+  return m << shiftBits;
+  }
+  };",https://leetcode.com/problems/bitwise-and-of-numbers-range,"class Solution {
+  public:
+  int rangeBitwiseAnd(int m, int n) {
+  int shiftBits;
+  
+  while (m != n) {
+  m >>= 1;
+  n >>= 1;
+  ++shiftBits;
+  }
+  
+  return m << shiftBits;
+  }
+  };",[Reference – Uninitialized variable] Changed `shiftBits` to be declared without initialization before it is incremented and used in the return shift.,Runtime Error,,,,"Line 12: Char 12: runtime error: shift exponent -1087406069 is negative (solution.cpp)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior prog_joined.cpp:21:12
+Last Executed Input
+left =
+5
+right =
+7",gpt-5.6-sol,few-shot,Wrong Answer,"""left = 5, right = 7""","""undefined (depends on the indeterminate value of shiftBits)""","""4""","shiftBits is never initialized, so incrementing it and using it as a shift count causes undefined behavior.",diff,3
+Bit manipulation,Medium,73,"Given an integer array nums, in which exactly two elements appear only once and all the other elements appear exactly twice. Find the two elements that appear only once. You can return the answer in any order.
+  
+  You must write anÂ algorithm that runs in linear runtime complexity and usesÂ only constant extra space.
+  
+  Example 1:
+  
+  Input: nums = [1,2,1,3,2,5]
+  Output: [3,5]
+  Explanation: [5, 3] is also a valid answer.
+  
+  Example 2:
+  
+  Input: nums = [-1,0]
+  Output: [-1,0]
+  
+  Example 3:
+  
+  Input: nums = [0,1]
+  Output: [1,0]
+  
+  Constraints:
+  
+  2 <= nums.length <= 3 * 104
+  -231 <= nums[i] <= 231 - 1
+  Each integer in nums will appear twice, only two integers will appear once.","class Solution {
+public:
+    vector<int> singleNumber(vector<int>& nums) {
+        long long xorAll = 0;
+        for(const int& e : nums) {
+            xorAll = xorAll ^ e;
+        }
+        long long diff = xorAll & (-xorAll);
+        int x = 0;
+        int y = 0;
+        for(const int& e : nums) {
+            if((e&diff) != 0) {
+                x = x^e;
+            } else {
+                y = y^e;
+            }
+        }
+        return {x, y};
+    }
+};",https://leetcode.com/problems/single-number-iii,"class Solution {
+public:
+    vector<int> singleNumber(vector<int>& nums) {
+        long long xorAll = 0;
+        for(const int& e : nums) {
+            xorAll = xorAll ^ e;
+        }
+        long long diff = xorAll & (-xorAll);
+        int x;
+        int y = 0;
+        for(const int& e : nums) {
+            if((e&diff) != 0) {
+                x = x^e;
+            } else {
+                y = y^e;
+            }
+        }
+        return {x, y};
+    }
+};","[Reference – Uninitialized variable] Changed `int x = 0;` to `int x;`, causing `x` to be used in XOR computations without initialization.",Wrong Answer,"nums =
+[1,2,1,3,2,5]","[6,5]","[3,5]",,gpt-5.6-sol,few-shot,Wrong Answer,"""nums = [1,2,1,3,2,5]""","""indeterminate (x is uninitialized before x = x ^ e)""","""[3,5] in any order""","The accumulator x is never initialized, so reading it in x = x ^ e causes undefined behavior and can produce an incorrect result.",sim,1
+Bit manipulation,Medium,76,"Given an integer array nums of unique elements, return all possible subsets (the power set).
+
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+
+Input: nums = [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+Example 2:
+
+Input: nums = [0]
+Output: [[],[0]]
+
+Constraints:
+
+	1 <= nums.length <= 10
+	-10 <= nums[i] <= 10
+	All the numbers of nums are unique.","class Solution {
+ public:
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/subsets,"class Solution {
+ public:
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> ans;
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i <= nums.size(); ++i) {
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Reference – Off-by-one index] Changed the DFS loop bound from `i < nums.size()` to `i <= nums.size()`, allowing an out-of-bounds access at `nums[nums.size()]`.",Wrong Answer,"nums =
+[1,2,3]","[[],[1],[1,2],[1,2,3],[1,2,3,-1094795586],[1,2,-1094795586],[1,3],[1,3,-1094795586],[1,-1094795586],[2],[2,3],[2,3,-1094795586],[2,-1094795586],[3],[3,-1094795586],[-1094795586]]","[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]",,gpt-5.6-sol,few-shot,Runtime Error,"""nums = [0]""",,"""[[],[0]]""","The loop condition i <= nums.size() permits i == nums.size(), causing an out-of-bounds access at nums[i].",diff,3
+Bit manipulation,Medium,78,"Given an integer array nums that may contain duplicates, return all possible subsets (the power set).
+
+The solution set must not contain duplicate subsets. Return the solution in any order.
+
+Example 1:
+Input: nums = [1,2,2]
+Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]
+Example 2:
+Input: nums = [0]
+Output: [[],[0]]
+
+Constraints:
+
+	1 <= nums.length <= 10
+	-10 <= nums[i] <= 10","class Solution {
+ public:
+  vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(begin(nums), end(nums));
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i < nums.size(); ++i) {
+      if (i > s && nums[i] == nums[i - 1])
+        continue;
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/subsets-ii,"class Solution {
+ public:
+  vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(begin(nums), end(nums));
+    dfs(nums, 0, {}, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<int>& nums, int s, vector<int>&& path,
+           vector<vector<int>>& ans) {
+    ans.push_back(path);
+
+    for (int i = s; i <= nums.size(); ++i) {
+      if (i > s && nums[i] == nums[i - 1])
+        continue;
+      path.push_back(nums[i]);
+      dfs(nums, i + 1, move(path), ans);
+      path.pop_back();
+    }
+  }
+};","[Reference – Off-by-one index] Changed the DFS loop condition from `i < nums.size()` to `i <= nums.size()`, allowing an out-of-bounds access at `nums[nums.size()]`.",Wrong Answer,"nums =
+[1,2,2]","[[],[1],[1,2],[1,2,2],[1,2,2,-1094795586],[1,2,-1094795586],[1,-1094795586],[2],[2,2],[2,2,-1094795586],[2,-1094795586],[-1094795586]]","[[],[1],[1,2],[1,2,2],[2],[2,2]]",,gpt-5.6-sol,few-shot,Runtime Error,"""nums = [0]""","""undefined behavior due to out-of-bounds access""","""[[],[0]]""","The loop condition i <= nums.size() allows i == nums.size(), causing nums[i] to access past the end of the vector.",diff,3
+Bit manipulation,Medium,80,"Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive.
+
+There is only one repeated number in nums, return this repeated number.
+
+You must solve the problem without modifying the array nums and using only constant extra space.
+
+Example 1:
+
+Input: nums = [1,3,4,2,2]
+Output: 2
+
+Example 2:
+
+Input: nums = [3,1,3,4,2]
+Output: 3
+
+Example 3:
+
+Input: nums = [3,3,3,3,3]
+Output: 3
+
+Constraints:
+
+	1 <= n <= 105
+	nums.length == n + 1
+	1 <= nums[i] <= n
+	All the integers in nums appear only once except for precisely one integer which appears two or more times.
+
+Follow up:
+
+	How can we prove that at least one duplicate number must exist in nums?
+	Can you solve the problem in linear runtime complexity?","class Solution {
+ public:
+  int findDuplicate(vector<int>& nums) {
+    int slow = nums[nums[0]];
+    int fast = nums[nums[nums[0]]];
+
+    while (slow != fast) {
+      slow = nums[slow];
+      fast = nums[nums[fast]];
+    }
+
+    slow = nums[0];
+
+    while (slow != fast) {
+      slow = nums[slow];
+      fast = nums[fast];
+    }
+
+    return slow;
+  }
+};",https://leetcode.com/problems/find-the-duplicate-number,"class Solution {
+ public:
+  int findDuplicate(vector<int>& nums) {
+    int slow = nums[nums[0] + 1];
+    int fast = nums[nums[nums[0]]];
+
+    while (slow != fast) {
+      slow = nums[slow];
+      fast = nums[nums[fast]];
+    }
+
+    slow = nums[0];
+
+    while (slow != fast) {
+      slow = nums[slow];
+      fast = nums[fast];
+    }
+
+    return slow;
+  }
+};",[Reference – Off-by-one index] Changed the initial slow pointer lookup to access nums[0] + 1 instead of nums[0].,Time Limit Exceeded,,,,"Last Executed Input
+nums =
+[3,1,3,4,2]",gpt-5.6-sol,few-shot,Runtime Error,"""nums = [2, 1, 1]""",,"""1""","When nums[0] equals n, the initialization nums[nums[0] + 1] accesses index n + 1, which is out of bounds for an array of length n + 1.",diff,3
+Bit manipulation,Medium,81,"Given a string array words, return the maximum value of length(word[i]) * length(word[j]) where the two words do not share common letters. If no such two words exist, return 0.
+
+Example 1:
+
+Input: words = [""abcw"",""baz"",""foo"",""bar"",""xtfn"",""abcdef""]
+Output: 16
+Explanation: The two words can be ""abcw"", ""xtfn"".
+
+Example 2:
+
+Input: words = [""a"",""ab"",""abc"",""d"",""cd"",""bcd"",""abcd""]
+Output: 4
+Explanation: The two words can be ""ab"", ""cd"".
+
+Example 3:
+
+Input: words = [""a"",""aa"",""aaa"",""aaaa""]
+Output: 0
+Explanation: No such pair of words.
+
+Constraints:
+
+	2 <= words.length <= 1000
+	1 <= words[i].length <= 1000
+	words[i] consists only of lowercase English letters.","class Solution {
+ public:
+  int maxProduct(vector<string>& words) {
+    size_t ans = 0;
+    vector<int> masks;
+
+    for (const string& word : words)
+      masks.push_back(getMask(word));
+
+    for (int i = 0; i < words.size(); ++i)
+      for (int j = 0; j < i; ++j)
+        if ((masks[i] & masks[j]) == 0)
+          ans = max(ans, words[i].length() * words[j].length());
+
+    return ans;
+  }
+
+ private:
+  int getMask(const string& word) {
+    int mask = 0;
+    for (const char c : word)
+      mask |= 1 << c - 'a';
+    return mask;
+  }
+};",https://leetcode.com/problems/maximum-product-of-word-lengths,"class Solution {
+ public:
+  int maxProduct(vector<string>& words) {
+    size_t ans = 0;
+    vector<int> masks;
+
+    for (const string& word : words)
+      masks.push_back(getMask(word));
+
+    for (int i = 0; i <= words.size(); ++i)
+      for (int j = 0; j < i; ++j)
+        if ((masks[i] & masks[j]) == 0)
+          ans = max(ans, words[i].length() * words[j].length());
+
+    return ans;
+  }
+
+ private:
+  int getMask(const string& word) {
+    int mask = 0;
+    for (const char c : word)
+      mask |= 1 << c - 'a';
+    return mask;
+  }
+};","[Reference – Off-by-one index] Changed the outer loop bound from `i < words.size()` to `i <= words.size()`, causing an out-of-bounds access when `i == words.size()`.",Wrong Answer,"words =
+[""a"",""ab"",""abc"",""d"",""cd"",""bcd"",""abcd""]",-1094795586,4,,gpt-5.6-sol,few-shot,Runtime Error,"""words = [\""a\"", \""b\""]""","""out-of-bounds access""","""1""","The outer loop uses i <= words.size(), so its final iteration accesses masks[words.size()] and words[words.size()] out of bounds.",diff,3
+Bit manipulation,Hard,96,"Given an array of strings words, return the smallest string that contains each string in words as a substring. If there are multiple valid strings of the smallest length, return any of them.
+
+You may assume that no string in words is a substring of another string in words.
+
+Example 1:
+
+Input: words = [""alex"",""loves"",""leetcode""]
+Output: ""alexlovesleetcode""
+Explanation: All permutations of ""alex"",""loves"",""leetcode"" would also be accepted.
+
+Example 2:
+
+Input: words = [""catg"",""ctaagt"",""gcta"",""ttca"",""atgcatc""]
+Output: ""gctaagttcatgcatc""
+
+Constraints:
+
+	1 <= words.length <= 12
+	1 <= words[i].length <= 20
+	words[i] consists of lowercase English letters.
+	All the strings of words are unique.","class Solution {
+ public:
+  string shortestSuperstring(vector<string>& A) {
+    const int n = A.size();
+    // cost[i][j] := cost to append A[j] after A[i]
+    vector<vector<int>> cost(n, vector<int>(n));
+
+    // GetCost(a, b) := cost to append b after a
+    auto getCost = [](const string& a, const string& b) {
+      int cost = b.length();
+      const int minLength = min(a.length(), b.length());
+      for (int k = 1; k <= minLength; ++k)
+        if (a.substr(a.length() - k) == b.substr(0, k))
+          cost = b.length() - k;
+      return cost;
+    };
+
+    // Pre-calculate cost array to save time
+    for (int i = 0; i < n; ++i)
+      for (int j = i + 1; j < n; ++j) {
+        cost[i][j] = getCost(A[i], A[j]);
+        cost[j][i] = getCost(A[j], A[i]);
+      }
+
+    vector<int> bestPath;
+    int minLength = n * 20;  // Given by problem
+
+    dfs(A, cost, {}, bestPath, 0, 0, 0, minLength);
+
+    string ans = A[bestPath[0]];
+
+    for (int k = 1; k < n; ++k) {
+      const int i = bestPath[k - 1];
+      const int j = bestPath[k];
+      ans += A[j].substr(A[j].length() - cost[i][j]);
+    }
+
+    return ans;
+  }
+
+ private:
+  // Used: i-th bit means A[i] is used or not
+  void dfs(const vector<string>& A, const vector<vector<int>>& cost,
+           vector<int>&& path, vector<int>& bestPath, int used, int depth,
+           int currLength, int& minLength) {
+    if (currLength >= minLength)
+      return;
+    if (depth == A.size()) {
+      minLength = currLength;
+      bestPath = path;
+      return;
+    }
+
+    for (int i = 0; i < A.size(); ++i) {
+      if (1 << i & used)
+        continue;
+      path.push_back(i);
+      const int newLength =
+          depth == 0 ? A[i].length() : currLength + cost[path[depth - 1]][i];
+      dfs(A, cost, move(path), bestPath, used | 1 << i, depth + 1, newLength,
+          minLength);
+      path.pop_back();
+    }
+  }
+};",https://leetcode.com/problems/find-the-shortest-superstring,"class Solution {
+ public:
+  string shortestSuperstring(vector<string>& A) {
+    const int n = A.size();
+    // cost[i][j] := cost to append A[j] after A[i]
+    vector<vector<int>> cost(n, vector<int>(n));
+
+    // GetCost(a, b) := cost to append b after a
+    auto getCost = [](const string& a, const string& b) {
+      int cost = b.length();
+      const int minLength = min(a.length(), b.length());
+      for (int k = 1; k < minLength; ++k)
+        if (a.substr(a.length() - k) == b.substr(0, k))
+          cost = b.length() - k;
+      return cost;
+    };
+
+    // Pre-calculate cost array to save time
+    for (int i = 0; i < n; ++i)
+      for (int j = i + 1; j < n; ++j) {
+        cost[i][j] = getCost(A[i], A[j]);
+        cost[j][i] = getCost(A[j], A[i]);
+      }
+
+    vector<int> bestPath;
+    int minLength = n * 20;  // Given by problem
+
+    dfs(A, cost, {}, bestPath, 0, 0, 0, minLength);
+
+    string ans = A[bestPath[0]];
+
+    for (int k = 1; k < n; ++k) {
+      const int i = bestPath[k - 1];
+      const int j = bestPath[k];
+      ans += A[j].substr(A[j].length() - cost[i][j]);
+    }
+
+    return ans;
+  }
+
+ private:
+  // Used: i-th bit means A[i] is used or not
+  void dfs(const vector<string>& A, const vector<vector<int>>& cost,
+           vector<int>&& path, vector<int>& bestPath, int used, int depth,
+           int currLength, int& minLength) {
+    if (currLength >= minLength)
+      return;
+    if (depth == A.size()) {
+      minLength = currLength;
+      bestPath = path;
+      return;
+    }
+
+    for (int i = 0; i < A.size(); ++i) {
+      if (1 << i & used)
+        continue;
+      path.push_back(i);
+      const int newLength =
+          depth == 0 ? A[i].length() : currLength + cost[path[depth - 1]][i];
+      dfs(A, cost, move(path), bestPath, used | 1 << i, depth + 1, newLength,
+          minLength);
+      path.pop_back();
+    }
+  }
+};","[Reference – Off-by-one index] Changed the overlap-checking loop bound from `k <= minLength` to `k < minLength`, skipping the maximum possible overlap length.",Time Limit Exceeded,,,,"Last Executed Input
+words =
+[""bccbacbcbabb"",""wuyhrlvbvzfrop"",""baaaaaabbbaaabbab"",""kjhajgsbic"",""eccge"",""ccac"",""fdgfgccfcefedfeda"",""babcba"",""ghahcebhgceecgfia"",""baaabbabbac"",""beaddcdabeafbfc"",""rsaac""]",gpt-5.6-sol,few-shot,Runtime Error,"""words = [\""abcdefghijklmnopqrst\""]""",,"""\""abcdefghijklmnopqrst\""""","For a 20-character word, currLength equals the initial minLength of 20, so DFS prunes before recording a complete path and bestPath[0] is accessed while bestPath is empty.",diff,3
+Tree,Easy,103,"Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+ 
+ Example 1:
+ 
+ Input: root = [1,2,2,3,4,4,3]
+ Output: true
+ 
+ Example 2:
+ 
+ Input: root = [1,2,2,null,3,null,3]
+ Output: false
+ 
+ Constraints:
+ 
+ The number of nodes in the tree is in the range [1, 1000].
+ -100 <= Node.val <= 100
+ 
+ Follow up: Could you solve it both recursively and iteratively?","class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        return root==NULL || isSymmetrichelp(root->left,root->right);
+    }
+    bool isSymmetrichelp(TreeNode*left, TreeNode*right){
+if(left==NULL ||right==NULL){
+    return left==right;
+}
+if(left->val!=right->val)return false;
+return isSymmetrichelp(left->left,right->right)&&isSymmetrichelp(left->right,right->left);
+    }
+};
+
+static const bool __boost = []() {
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}",https://leetcode.com/problems/symmetric-tree,"class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        return root==NULL || isSymmetrichelp(root->left,root->right);
+    }
+    bool isSymmetrichelp(TreeNode*left, TreeNode*right){
+if(left==NULL ||right==NULL){
+    bool same;
+    return same;
+}
+if(left->val!=right->val)return false;
+return isSymmetrichelp(left->left,right->right)&&isSymmetrichelp(left->right,right->left);
+    }
+};
+
+static const bool __boost = []() {
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x6fafffff;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+void operator delete(void* ptr, unsigned long) {}
+void operator delete(void* ptr) {}
+void operator delete[](void* ptr) {}",[Reference – Uninitialized variable] Replaced the null-child comparison return value with an uninitialized boolean variable.,Runtime Error,,,,"Line 11: Char 10:
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==23==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x55aa2f83fa90 bp 0x7ffcf18df0b0 sp 0x7ffcf18df090 T0)
+==23==The signal is caused by a READ memory access.
+==23==Hint: address points to the zero page.
+Last Executed Input
+root =
+[1,2,2,3,4,4,3]",gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""indeterminate (may be false)""","""true""","When either subtree pointer is null, the helper returns the uninitialized local variable `same`, causing undefined and potentially incorrect results.",diff,3
+Tree,Easy,105,"Given an integer array nums where the elements are sorted in ascending order, convert it to a height-balanced binary search tree.
+ 
+ Example 1:
+ 
+ Input: nums = [-10,-3,0,5,9]
+ Output: [0,-3,9,-10,null,5]
+ Explanation: [0,-10,5,null,-3,null,9] is also accepted:
+ 
+ Example 2:
+ 
+ Input: nums = [1,3]
+ Output: [3,1]
+ Explanation: [1,null,3] and [3,1] are both height-balanced BSTs.
+ 
+ Constraints:
+ 
+ 1 <= nums.length <= 104
+ -104 <= nums[i] <= 104
+ nums is sorted in a strictly increasing order.","static const bool __boost = []()
+{
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void *
+operator new(size_t size)
+{
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char *aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void operator delete(void * /*unused*/, unsigned long /*unused*/) noexcept
+{
+}
+void operator delete(void * /*unused*/) noexcept
+{
+}
+void operator delete[](void * /*unused*/) noexcept
+{
+}
+void operator delete[](void * /*unused*/, size_t /*unused*/) noexcept
+{
+}
+
+class Solution {
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        return constructBST(nums, 0, nums.size() - 1);
+    }
+
+    TreeNode* constructBST(vector<int>& nums, int left, int right) {
+        if (left > right) return nullptr;
+        int mid = left + (right - left)/2;
+        TreeNode* root = new TreeNode(nums[mid]);
+        root->left = constructBST(nums, left, mid - 1);
+        root->right = constructBST(nums, mid + 1, right);
+        return root;
+    }
+};",https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree,"static const bool __boost = []()
+{
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void *
+operator new(size_t size)
+{
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char *aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void operator delete(void * /*unused*/, unsigned long /*unused*/) noexcept
+{
+}
+void operator delete(void * /*unused*/) noexcept
+{
+}
+void operator delete[](void * /*unused*/) noexcept
+{
+}
+void operator delete[](void * /*unused*/, size_t /*unused*/) noexcept
+{
+}
+
+class Solution {
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        return constructBST(nums, 0, nums.size());
+    }
+
+    TreeNode* constructBST(vector<int>& nums, int left, int right) {
+        if (left > right) return nullptr;
+        int mid = left + (right - left)/2;
+        TreeNode* root = new TreeNode(nums[mid]);
+        root->left = constructBST(nums, left, mid - 1);
+        root->right = constructBST(nums, mid + 1, right);
+        return root;
+    }
+};","[Reference – Off-by-one index] Changed the initial right bound from nums.size() - 1 to nums.size(), causing recursion to potentially access nums[nums.size()].",Wrong Answer,"nums =
+[-10,-3,0,5,9]","[0,-10,9,null,-3,5,0]","[0,-3,9,-10,null,5]",,gpt-5.6-sol,few-shot,Runtime Error,"""nums = [1]""",,"""[1]""","The initial right bound is nums.size() even though constructBST treats it as inclusive, causing an out-of-bounds access to nums[1].",diff,3
+Tree,Easy,107,"Given a binary tree, find its minimum depth.
+
+The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.
+
+Note: A leaf is a node with no children.
+
+Example 1:
+
+Input: root = [3,9,20,null,null,15,7]
+Output: 2
+
+Example 2:
+
+Input: root = [2,null,3,null,4,null,5,null,6]
+Output: 5
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 105].
+	-1000 <= Node.val <= 1000","class Solution {
+ public:
+  int minDepth(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+    if (root->left == nullptr)
+      return minDepth(root->right) + 1;
+    if (root->right == nullptr)
+      return minDepth(root->left) + 1;
+    return min(minDepth(root->left), minDepth(root->right)) + 1;
+  }
+};",https://leetcode.com/problems/minimum-depth-of-binary-tree,"class Solution {
+ public:
+  int minDepth(TreeNode* root) {
+    if (root == nullptr) {
+      int depth;
+      return depth;
+    }
+    if (root->left == nullptr)
+      return minDepth(root->right) + 1;
+    if (root->right == nullptr)
+      return minDepth(root->left) + 1;
+    return min(minDepth(root->left), minDepth(root->right)) + 1;
+  }
+};",[Reference – Uninitialized variable] Changed the null-root base case to return an uninitialized local variable instead of 0.,Runtime Error,,,,"Line 8:
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==22==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000008 (pc 0x55a4c31018e9 bp 0x7ffec294a090 sp 0x7ffec294a060 T0)
+==22==The signal is caused by a READ memory access.
+==22==Hint: address points to the zero page.
+Last Executed Input
+root =
+[3,9,20,null,null,15,7]",gpt-5.6-sol,few-shot,Wrong Answer,"""root = []""","""indeterminate value""","""0""","For an empty tree, the function returns an uninitialized local variable instead of 0, causing undefined behavior and an incorrect result.",diff,3
+Tree,Easy,109,"Given the root of a binary tree, return the preorder traversal of its nodes' values.
+
+Example 1:
+
+Input: root = [1,null,2,3]
+
+Output: [1,2,3]
+
+Explanation:
+
+Example 2:
+
+Input: root = [1,2,3,4,5,null,8,null,null,6,7,9]
+
+Output: [1,2,4,5,6,7,3,8,9]
+
+Explanation:
+
+Example 3:
+
+Input: root = []
+
+Output: []
+
+Example 4:
+
+Input: root = [1]
+
+Output: [1]
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100
+
+Follow up: Recursive solution is trivial, could you do it iteratively?","class Solution {
+ public:
+  vector<int> preorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    preorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void preorder(TreeNode* root, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    ans.push_back(root->val);
+    preorder(root->left, ans);
+    preorder(root->right, ans);
+  }
+};",https://leetcode.com/problems/binary-tree-preorder-traversal,"class Solution {
+ public:
+  vector<int> preorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    preorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void preorder(TreeNode* root, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    int val;
+    ans.push_back(val);
+    preorder(root->left, ans);
+    preorder(root->right, ans);
+  }
+};",[Reference – Uninitialized variable] Replaced pushing root->val with pushing an uninitialized local integer variable.,Wrong Answer,"root =
+[1,null,2,3]","[32589,2566,2566]","[1,2,3]",,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""[indeterminate value]""","""[1]""",,sim,1
+Tree,Easy,110,"Given the root of a binary tree, return the postorder traversal of its nodes' values.
+
+Example 1:
+
+Input: root = [1,null,2,3]
+
+Output: [3,2,1]
+
+Explanation:
+
+Example 2:
+
+Input: root = [1,2,3,4,5,null,8,null,null,6,7,9]
+
+Output: [4,6,7,5,2,9,8,3,1]
+
+Explanation:
+
+Example 3:
+
+Input: root = []
+
+Output: []
+
+Example 4:
+
+Input: root = [1]
+
+Output: [1]
+
+Constraints:
+
+	The number of the nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100
+
+Follow up: Recursive solution is trivial, could you do it iteratively?","class Solution {
+ public:
+  vector<int> postorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    postorder(root, ans);
+    return ans;
+  }
+
+ private:
+  void postorder(TreeNode* root, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    postorder(root->left, ans);
+    postorder(root->right, ans);
+    ans.push_back(root->val);
+  }
+};",https://leetcode.com/problems/binary-tree-postorder-traversal,"class Solution {
+ public:
+  vector<int> postorderTraversal(TreeNode* root) {
+    vector<int> ans;
+    TreeNode* node;
+    postorder(node, ans);
+    return ans;
+  }
+
+ private:
+  void postorder(TreeNode* root, vector<int>& ans) {
+    if (root == nullptr)
+      return;
+
+    postorder(root->left, ans);
+    postorder(root->right, ans);
+    ans.push_back(root->val);
+  }
+};",[Reference – Uninitialized variable] Replaced the recursive traversal argument with an uninitialized TreeNode* variable.,Wrong Answer,"root =
+[1,null,2,3]",[],"[3,2,1]",,gpt-5.6-sol,few-shot,Runtime Error,"""root = [1]""","""undefined behavior (typically a segmentation fault)""","""[1]""","The function passes the uninitialized pointer `node` to `postorder` instead of passing `root`, causing undefined behavior when the pointer is inspected or dereferenced.",diff,3
+Tree,Easy,111,"Given the root of a binary tree, invert the tree, and return its root.
+
+Example 1:
+
+Input: root = [4,2,7,1,3,6,9]
+Output: [4,7,2,9,6,3,1]
+
+Example 2:
+
+Input: root = [2,1,3]
+Output: [2,3,1]
+
+Example 3:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 100].
+	-100 <= Node.val <= 100","class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr)
+      return nullptr;
+
+    TreeNode* const left = root->left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(left);
+    return root;
+  }
+};",https://leetcode.com/problems/invert-binary-tree,"class Solution {
+ public:
+  TreeNode* invertTree(TreeNode* root) {
+    if (root == nullptr)
+      return nullptr;
+
+    TreeNode* left;
+    TreeNode* const right = root->right;
+    root->left = invertTree(right);
+    root->right = invertTree(left);
+    return root;
+  }
+};",[Reference – Uninitialized variable] Replaced the initialized left child pointer with an uninitialized local pointer before it is used in the recursive assignment.,Wrong Answer,"root =
+[4,2,7,1,3,6,9]","[4,7,null,9]","[4,7,2,9,6,3,1]",,gpt-5.6-sol,few-shot,Runtime Error,"""root = [1]""","""undefined behavior (likely segmentation fault)""","""[1]""","The uninitialized local pointer `left` is passed to `invertTree`, causing undefined behavior and potentially dereferencing an invalid address.",diff,3
+Tree,Easy,112,"Given the root of a binary tree, return the sum of all left leaves.
+
+A leaf is a node with no children. A left leaf is a leaf that is the left child of another node.
+
+Example 1:
+
+Input: root = [3,9,20,null,null,15,7]
+Output: 24
+Explanation: There are two left leaves in the binary tree, with values 9 and 15 respectively.
+
+Example 2:
+
+Input: root = [1]
+Output: 0
+
+Constraints:
+
+	The number of nodes in the tree is in the range [1, 1000].
+	-1000 <= Node.val <= 1000","class Solution {
+ public:
+  int sumOfLeftLeaves(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+
+    int ans = 0;
+
+    if (root->left) {
+      if (root->left->left == nullptr && root->left->right == nullptr)
+        ans += root->left->val;
+      else
+        ans += sumOfLeftLeaves(root->left);
+    }
+    ans += sumOfLeftLeaves(root->right);
+
+    return ans;
+  }
+};",https://leetcode.com/problems/sum-of-left-leaves,"class Solution {
+ public:
+  int sumOfLeftLeaves(TreeNode* root) {
+    if (root == nullptr)
+      return 0;
+
+    int ans;
+
+    if (root->left) {
+      if (root->left->left == nullptr && root->left->right == nullptr)
+        ans += root->left->val;
+      else
+        ans += sumOfLeftLeaves(root->left);
+    }
+    ans += sumOfLeftLeaves(root->right);
+
+    return ans;
+  }
+};",[Reference – Uninitialized variable] Changed `ans` from being initialized to `0` to an uninitialized local variable before it is used in accumulation.,Wrong Answer,"root =
+[3,9,20,null,null,15,7]",-3,24,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""indeterminate""","""0""","The local variable `ans` is never initialized before being read and modified, causing undefined behavior and potentially an incorrect result.",sim,1
+Tree,Easy,114,"Given the root of a Binary Search Tree (BST), return the minimum absolute difference between the values of any two different nodes in the tree.
+
+Example 1:
+
+Input: root = [4,2,6,1,3]
+Output: 1
+
+Example 2:
+
+Input: root = [1,0,48,null,null,12,49]
+Output: 1
+
+Constraints:
+
+	The number of nodes in the tree is in the range [2, 104].
+	0 <= Node.val <= 105
+
+Note: This question is the same as 783: https://leetcode.com/problems/minimum-distance-between-bst-nodes/","class Solution {
+ public:
+  // Very simliar to 94. Binary Tree Inorder Traversal
+  int getMinimumDifference(TreeNode* root) {
+    int ans = INT_MAX;
+    int prev = -1;
+    stack<TreeNode*> stack;
+
+    while (root || !stack.empty()) {
+      while (root) {
+        stack.push(root);
+        root = root->left;
+      }
+      root = stack.top(), stack.pop();
+      if (prev >= 0)
+        ans = min(ans, root->val - prev);
+      prev = root->val;
+      root = root->right;
+    }
+
+    return ans;
+  }
+};",https://leetcode.com/problems/minimum-absolute-difference-in-bst,"class Solution {
+ public:
+  // Very simliar to 94. Binary Tree Inorder Traversal
+  int getMinimumDifference(TreeNode* root) {
+    int ans = INT_MAX;
+    int prev;
+    stack<TreeNode*> stack;
+
+    while (root || !stack.empty()) {
+      while (root) {
+        stack.push(root);
+        root = root->left;
+      }
+      root = stack.top(), stack.pop();
+      if (prev >= 0)
+        ans = min(ans, root->val - prev);
+      prev = root->val;
+      root = root->right;
+    }
+
+    return ans;
+  }
+};",[Reference – Uninitialized variable] Changed `prev` from an initialized value to an uninitialized local variable that is used in the comparison and subtraction.,Wrong Answer,"root =
+[4,2,6,1,3]",-32765,1,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [100,null,200]""","""undefined/nondeterministic (for example, 50 if the uninitialized prev contains 50)""","""100""","The local variable prev is read before initialization during the first inorder visit, causing undefined behavior and potentially an incorrect minimum.",sim,1
+Tree,Easy,115,"Given the root of a binary tree, return the length of the diameter of the tree.
+
+The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+
+The length of a path between two nodes is represented by the number of edges between them.
+
+Example 1:
+
+Input: root = [1,2,3,4,5]
+Output: 3
+Explanation: 3 is the length of the path [4,2,1,3] or [5,2,1,3].
+
+Example 2:
+
+Input: root = [1,2]
+Output: 1
+
+Constraints:
+
+	The number of nodes in the tree is in the range [1, 104].
+	-100 <= Node.val <= 100","class Solution {
+ public:
+  int diameterOfBinaryTree(TreeNode* root) {
+    int ans = 0;
+    maxDepth(root, ans);
+    return ans;
+  }
+
+ private:
+  int maxDepth(TreeNode* root, int& ans) {
+    if (root == nullptr)
+      return 0;
+
+    const int l = maxDepth(root->left, ans);
+    const int r = maxDepth(root->right, ans);
+    ans = max(ans, l + r);
+    return 1 + max(l, r);
+  }
+};",https://leetcode.com/problems/diameter-of-binary-tree,"class Solution {
+ public:
+  int diameterOfBinaryTree(TreeNode* root) {
+    int ans;
+    maxDepth(root, ans);
+    return ans;
+  }
+
+ private:
+  int maxDepth(TreeNode* root, int& ans) {
+    if (root == nullptr)
+      return 0;
+
+    const int l = maxDepth(root->left, ans);
+    const int r = maxDepth(root->right, ans);
+    ans = max(ans, l + r);
+    return 1 + max(l, r);
+  }
+};","[Reference – Uninitialized variable] Changed `int ans = 0;` to `int ans;`, causing `ans` to be used before initialization.",Wrong Answer,"root =
+[1,2]",3,1,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""indeterminate""","""0""","The local variable ans is uninitialized before maxDepth reads it, causing undefined behavior and potentially returning an arbitrary diameter.",sim,1
+Tree,Easy,116,"Given a n-ary tree, find its maximum depth.
+
+The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+Nary-Tree input serialization is represented in their level order traversal, each group of children is separated by the null value (See examples).
+
+Example 1:
+
+Input: root = [1,null,3,2,4,null,5,6]
+Output: 3
+
+Example 2:
+
+Input: root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]
+Output: 5
+
+Constraints:
+
+	The total number of nodes is in the range [0, 104].
+	The depth of the n-ary tree is less than or equal to 1000.","class Solution {
+ public:
+  int maxDepth(Node* root) {
+    if (root == nullptr)
+      return 0;
+
+    int ans = 0;
+
+    for (Node* child : root->children)
+      ans = max(ans, maxDepth(child));
+
+    return 1 + ans;
+  }
+};",https://leetcode.com/problems/maximum-depth-of-n-ary-tree,"class Solution {
+ public:
+  int maxDepth(Node* root) {
+    if (root == nullptr)
+      return 0;
+
+    int ans;
+
+    for (Node* child : root->children)
+      ans = max(ans, maxDepth(child));
+
+    return 1 + ans;
+  }
+};","[Reference – Uninitialized variable] Changed `int ans = 0;` to `int ans;`, causing `ans` to be used in `max` before initialization.",Wrong Answer,"root =
+[1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]",9,5,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""undefined/indeterminate""","""1""","The variable ans is uninitialized, so a leaf node returns 1 plus an indeterminate value instead of 1.",sim,1
+Tree,Easy,117,"Given the root of a binary tree, return the sum of every tree node's tilt.
+
+The tilt of a tree node is the absolute difference between the sum of all left subtree node values and all right subtree node values. If a node does not have a left child, then the sum of the left subtree node values is treated as 0. The rule is similar if the node does not have a right child.
+
+Example 1:
+
+Input: root = [1,2,3]
+Output: 1
+Explanation: 
+Tilt of node 2 : |0-0| = 0 (no children)
+Tilt of node 3 : |0-0| = 0 (no children)
+Tilt of node 1 : |2-3| = 1 (left subtree is just left child, so sum is 2; right subtree is just right child, so sum is 3)
+Sum of every tilt : 0 + 0 + 1 = 1
+
+Example 2:
+
+Input: root = [4,2,9,3,5,null,7]
+Output: 15
+Explanation: 
+Tilt of node 3 : |0-0| = 0 (no children)
+Tilt of node 5 : |0-0| = 0 (no children)
+Tilt of node 7 : |0-0| = 0 (no children)
+Tilt of node 2 : |3-5| = 2 (left subtree is just left child, so sum is 3; right subtree is just right child, so sum is 5)
+Tilt of node 9 : |0-7| = 7 (no left child, so sum is 0; right subtree is just right child, so sum is 7)
+Tilt of node 4 : |(3+5+2)-(9+7)| = |10-16| = 6 (left subtree values are 3, 5, and 2, which sums to 10; right subtree values are 9 and 7, which sums to 16)
+Sum of every tilt : 0 + 0 + 0 + 2 + 7 + 6 = 15
+
+Example 3:
+
+Input: root = [21,7,14,1,1,2,2,3,3]
+Output: 9
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 104].
+	-1000 <= Node.val <= 1000","class Solution {
+ public:
+  int findTilt(TreeNode* root) {
+    int ans = 0;
+    sum(root, ans);
+    return ans;
+  }
+
+ private:
+  int sum(TreeNode* root, int& ans) {
+    if (root == nullptr)
+      return 0;
+
+    const int l = sum(root->left, ans);
+    const int r = sum(root->right, ans);
+    ans += abs(l - r);
+    return root->val + l + r;
+  }
+};",https://leetcode.com/problems/binary-tree-tilt,"class Solution {
+ public:
+  int findTilt(TreeNode* root) {
+    int ans;
+    sum(root, ans);
+    return ans;
+  }
+
+ private:
+  int sum(TreeNode* root, int& ans) {
+    if (root == nullptr)
+      return 0;
+
+    const int l = sum(root->left, ans);
+    const int r = sum(root->right, ans);
+    ans += abs(l - r);
+    return root->val + l + r;
+  }
+};","[Reference – Uninitialized variable] Changed `int ans = 0;` to `int ans;`, causing `ans` to be used without initialization in the tilt accumulation.",Wrong Answer,"root =
+[4,2,9,3,5,null,7]",16,15,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = []""","""indeterminate value""","""0""","The local variable ans is uninitialized before being read by ans += abs(l - r) or returned for an empty tree, causing undefined behavior and an indeterminate result.",sim,1
+Tree,Easy,118,"Given the roots of two binary trees root and subRoot, return true if there is a subtree of root with the same structure and node values of subRoot and false otherwise.
+
+A subtree of a binary tree tree is a tree that consists of a node in tree and all of this node's descendants. The tree tree could also be considered as a subtree of itself.
+
+Example 1:
+
+Input: root = [3,4,5,1,2], subRoot = [4,1,2]
+Output: true
+
+Example 2:
+
+Input: root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]
+Output: false
+
+Constraints:
+
+	The number of nodes in the root tree is in the range [1, 2000].
+	The number of nodes in the subRoot tree is in the range [1, 1000].
+	-104 <= root.val <= 104
+	-104 <= subRoot.val <= 104","class Solution {
+ public:
+  bool isSubtree(TreeNode* s, TreeNode* t) {
+    if (s == nullptr)
+      return false;
+    if (isSameTree(s, t))
+      return true;
+    return isSubtree(s->left, t) || isSubtree(s->right, t);
+  }
+
+ private:
+  bool isSameTree(TreeNode* p, TreeNode* q) {
+    if (!p || !q)
+      return p == q;
+    return p->val == q->val &&
+           isSameTree(p->left, q->left) &&
+           isSameTree(p->right, q->right);
+  }
+};",https://leetcode.com/problems/subtree-of-another-tree,"class Solution {
+ public:
+  bool isSubtree(TreeNode* s, TreeNode* t) {
+    if (s == nullptr)
+      return false;
+    if (isSameTree(s, t))
+      return true;
+    return isSubtree(s->left, t) || isSubtree(s->right, t);
+  }
+
+ private:
+  bool isSameTree(TreeNode* p, TreeNode* q) {
+    if (!p || !q)
+      return p == q;
+    bool same;
+    if (p->val == q->val)
+      same = isSameTree(p->left, q->left) &&
+             isSameTree(p->right, q->right);
+    return same;
+  }
+};",[Reference – Uninitialized variable] Introduced an uninitialized boolean in isSameTree that is returned when node values differ.,Wrong Answer,"root =
+[1]
+subRoot =
+[0]",TRUE,FALSE,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1], subRoot = [2]""","""indeterminate (may be true)""","""false""","isSameTree returns the uninitialized local variable same when the node values differ, causing undefined and potentially incorrect results.",sim,1
+Tree,Medium,124,"Given the root of a binary tree, return the zigzag level order traversal of its nodes' values. (i.e., from left to right, then right to left for the next level and alternate between).
+ 
+ Example 1:
+ 
+ Input: root = [3,9,20,null,null,15,7]
+ Output: [[3],[20,9],[15,7]]
+ 
+ Example 2:
+ 
+ Input: root = [1]
+ Output: [[1]]
+ 
+ Example 3:
+ 
+ Input: root = []
+ Output: []
+ 
+ Constraints:
+ 
+ The number of nodes in the tree is in the range [0, 2000].
+ -100 <= Node.val <= 100","class Solution {
+public:
+    void tereversal(TreeNode* node, int curr_depth, vector<vector<int>> &res) {
+        if (res.size() <= curr_depth) {
+            res.resize(curr_depth + 1);
+        }
+        if (!node) {
+            return;
+        }
+        res[curr_depth].push_back(node->val);
+        tereversal(node->left, curr_depth + 1, res);
+        tereversal(node->right, curr_depth + 1, res);
+    }
+
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        tereversal(root, 0, res);
+        if (res.back().empty()) {
+            res.pop_back();
+        }
+        for (int i = 1; i < res.size(); i += 2) {
+            std::reverse(res[i].begin(), res[i].end());
+        }
+        return res;
+    }
+};",https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal,"class Solution {
+public:
+    void tereversal(TreeNode* node, int curr_depth, vector<vector<int>> &res) {
+        if (res.size() <= curr_depth) {
+            res.resize(curr_depth + 1);
+        }
+        if (!node) {
+            return;
+        }
+        res[curr_depth].push_back(node->val);
+        tereversal(node->left, curr_depth + 1, res);
+        tereversal(node->right, curr_depth + 1, res);
+    }
+
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        tereversal(root, 0, res);
+        if (res.back().empty()) {
+            res.pop_back();
+        }
+        for (int i = 1; i <= res.size(); i += 2) {
+            std::reverse(res[i].begin(), res[i].end());
+        }
+        return res;
+    }
+};","[Reference – Off-by-one index] Changed the zigzag reversal loop condition from `i < res.size()` to `i <= res.size()`, allowing an out-of-bounds access when `i == res.size()`.",Accepted,,,,,gpt-5.6-sol,few-shot,Runtime Error,"""root = []""",,"""[]""","For an empty tree, traversal leaves res empty and res.back() dereferences an invalid element, causing undefined behavior and typically a crash.",diff,3
+Tree,Medium,125,"Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.
+ 
+ Example 1:
+ 
+ Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+ Output: [3,9,20,null,null,15,7]
+ 
+ Example 2:
+ 
+ Input: preorder = [-1], inorder = [-1]
+ Output: [-1]
+ 
+ Constraints:
+ 
+ 1 <= preorder.length <= 3000
+ inorder.length == preorder.length
+ -3000 <= preorder[i], inorder[i] <= 3000
+ preorder and inorder consist of unique values.
+ Each value of inorder also appears in preorder.
+ preorder is guaranteed to be the preorder traversal of the tree.
+ inorder is guaranteed to be the inorder traversal of the tree.","class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if (inorder.size() == 1) return new TreeNode(inorder[0]);
+        return build(preorder, inorder, 0, inorder.size() - 1, 0, preorder.size() - 1);
+    }
+
+    TreeNode* build(vector<int>& preorder, vector<int>& inorder, int inorderStart, int inorderEnd, int preorderStart, int preorderEnd) {
+        if (inorderStart > inorderEnd || preorderStart > preorderEnd) return nullptr;
+
+        int rootValue = preorder[preorderStart];
+        TreeNode* root = new TreeNode(rootValue);
+        auto it = find(inorder.begin(), inorder.end(), rootValue);
+        int rootIndex = std::distance(inorder.begin(), it);
+        int left = rootIndex - inorderStart;
+        root->left = build(preorder, inorder, inorderStart, rootIndex - 1, preorderStart + 1, preorderStart + left);
+        root->right = build(preorder, inorder, rootIndex + 1, inorderEnd, preorderStart + left + 1, preorderEnd);
+        return root;
+     }
+};
+static const bool __boost = []() {
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void operator delete(void* /*unused*/, unsigned long /*unused*/) noexcept {}
+void operator delete(void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/, size_t /*unused*/) noexcept {}",https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal,"class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if (inorder.size() == 1) return new TreeNode(inorder[0]);
+        return build(preorder, inorder, 0, inorder.size() - 1, 0, preorder.size() - 1);
+    }
+
+    TreeNode* build(vector<int>& preorder, vector<int>& inorder, int inorderStart, int inorderEnd, int preorderStart, int preorderEnd) {
+        if (inorderStart > inorderEnd || preorderStart > preorderEnd) return nullptr;
+
+        int rootValue = preorder[preorderStart];
+        TreeNode* root = new TreeNode(rootValue);
+        auto it = find(inorder.begin(), inorder.end(), rootValue);
+        int rootIndex = std::distance(inorder.begin(), it);
+        int left = rootIndex - inorderStart;
+        root->left = build(preorder, inorder, inorderStart, rootIndex - 1, preorderStart + 1, preorderStart + left - 1);
+        root->right = build(preorder, inorder, rootIndex + 1, inorderEnd, preorderStart + left + 1, preorderEnd);
+        return root;
+     }
+};
+static const bool __boost = []() {
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    return std::ios_base::sync_with_stdio(false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas(std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void* operator new(size_t size) {
+    constexpr std::size_t alignment = alignof(std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char* aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void operator delete(void* /*unused*/, unsigned long /*unused*/) noexcept {}
+void operator delete(void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/) noexcept {}
+void operator delete[](void* /*unused*/, size_t /*unused*/) noexcept {}",[Reference – Off-by-one index] Changed the left subtree preorder end index from preorderStart + left to preorderStart + left - 1.,Wrong Answer,"preorder =
+[3,9,20,15,7]
+inorder =
+[9,3,15,20,7]","[3,null,20,null,7]","[3,9,20,null,null,15,7]",,gpt-5.6-sol,few-shot,Wrong Answer,"""preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]""","""[3,null,20,null,7]""","""[3,9,20,null,null,15,7]""",,sim,1
+Tree,Medium,126,"Given an integer n, return the number of structurally unique BST's (binary search trees) which has exactly n nodes of unique values from 1 to n.
+
+Example 1:
+
+Input: n = 3
+Output: 5
+
+Example 2:
+
+Input: n = 1
+Output: 1
+
+Constraints:
+
+	1 <= n <= 19","class Solution {
+ public:
+  int numTrees(int n) {
+    // G[i] := # of unique BST's that store values 1..i
+    vector<int> G(n + 1);
+    G[0] = 1;
+    G[1] = 1;
+
+    for (int i = 2; i <= n; ++i)
+      for (int j = 0; j < i; ++j)
+        G[i] += G[j] * G[i - j - 1];
+
+    return G[n];
+  }
+};",https://leetcode.com/problems/unique-binary-search-trees,"class Solution {
+ public:
+  int numTrees(int n) {
+    // G[i] := # of unique BST's that store values 1..i
+    vector<int> G(n + 1);
+    G[0] = 1;
+    G[1] = 1;
+
+    for (int i = 2; i <= n; ++i)
+      for (int j = 0; j <= i; ++j)
+        G[i] += G[j] * G[i - j - 1];
+
+    return G[n];
+  }
+};","[Reference – Off-by-one index] Changed the inner loop condition from `j < i` to `j <= i`, causing an out-of-bounds access when `j == i`.",Runtime Error,,,,"Line 1122: Char 34: runtime error: addition of unsigned offset to 0x502000000010 overflowed to 0x50200000000c (stl_vector.h)
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /usr/lib/gcc/x86_64-linux-gnu/14/../../../../include/c++/14/bits/stl_vector.h:1131:34
+Last Executed Input
+n =
+3",gpt-5.6-sol,few-shot,Runtime Error,"""n = 2""","""undefined behavior due to out-of-bounds vector access""","""2""","When j equals i, the expression G[i - j - 1] accesses G[-1], causing undefined behavior.",sim,1
+Tree,Medium,127,"You are given the root of a binary search tree (BST), where the values of exactly two nodes of the tree were swapped by mistake. Recover the tree without changing its structure.
+
+Example 1:
+
+Input: root = [1,3,null,null,2]
+Output: [3,1,null,null,2]
+Explanation: 3 cannot be a left child of 1 because 3 > 1. Swapping 1 and 3 makes the BST valid.
+
+Example 2:
+
+Input: root = [3,1,4,null,null,2]
+Output: [2,1,4,null,null,3]
+Explanation: 2 cannot be in the right subtree of 3 because 2 < 3. Swapping 2 and 3 makes the BST valid.
+
+Constraints:
+
+	The number of nodes in the tree is in the range [2, 1000].
+	-231 <= Node.val <= 231 - 1
+
+Follow up: A solution using O(n) space is pretty straight-forward. Could you devise a constant O(1) space solution?","class Solution {
+ public:
+  void recoverTree(TreeNode* root) {
+    inorder(root);
+    swap(x, y);
+  }
+
+ private:
+  TreeNode* pred = nullptr;
+  TreeNode* x = nullptr;  // 1st wrong node
+  TreeNode* y = nullptr;  // 2nd wrond node
+
+  void inorder(TreeNode* root) {
+    if (root == nullptr)
+      return;
+
+    inorder(root->left);
+
+    if (pred && root->val < pred->val) {
+      y = root;
+      if (x == nullptr)
+        x = pred;
+      else
+        return;
+    }
+    pred = root;
+
+    inorder(root->right);
+  }
+
+  void swap(TreeNode* x, TreeNode* y) {
+    const int temp = x->val;
+    x->val = y->val;
+    y->val = temp;
+  }
+};",https://leetcode.com/problems/recover-binary-search-tree,"class Solution {
+ public:
+  void recoverTree(TreeNode* root) {
+    inorder(root);
+    swap(x, y);
+  }
+
+ private:
+  TreeNode* pred = nullptr;
+  TreeNode* x = nullptr;  // 1st wrong node
+  TreeNode* y = nullptr;  // 2nd wrond node
+
+  void inorder(TreeNode* root) {
+    if (root == nullptr)
+      return;
+
+    inorder(root->left);
+
+    if (pred && root->val < pred->val) {
+      y = root;
+      if (x == nullptr)
+        x = pred;
+      else
+        return;
+    }
+    pred = root;
+
+    inorder(root->right);
+  }
+
+  void swap(TreeNode* x, TreeNode* y) {
+    int temp;
+    x->val = y->val;
+    y->val = temp;
+  }
+};",[Reference – Uninitialized variable] Changed the temporary variable in swap to be declared without initialization before assigning it back to y->val.,Wrong Answer,"root =
+[1,3,null,null,2]","[1,1,null,null,2]","[3,1,null,null,2]",,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1,2]""","""[indeterminate,1]""","""[2,1]""",,sim,1
+Tree,Medium,133,"You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition:
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6,7]
+Output: [1,#,2,3,#,4,5,6,7,#]
+Explanation: Given the above perfect binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Constraints:
+
+	The number of nodes in the tree is in the range [0, 212 - 1].
+	-1000 <= Node.val <= 1000
+
+Follow-up:
+
+	You may only use constant extra space.
+	The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.","class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr)
+      return nullptr;
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p == nullptr)
+      return;
+    p->next = q;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};",https://leetcode.com/problems/populating-next-right-pointers-in-each-node,"class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr) {
+      Node* res;
+      return res;
+    }
+    connectTwoNodes(root->left, root->right);
+    return root;
+  }
+
+ private:
+  void connectTwoNodes(Node* p, Node* q) {
+    if (p == nullptr)
+      return;
+    p->next = q;
+    connectTwoNodes(p->left, p->right);
+    connectTwoNodes(q->left, q->right);
+    connectTwoNodes(p->right, q->left);
+  }
+};",[Reference – Uninitialized variable] Replaced the null-root return value with an uninitialized Node* variable.,Accepted,,,,,gpt-5.6-sol,few-shot,Runtime Error,"""root = []""","""undefined behavior from returning an uninitialized pointer""","""[]""","For an empty tree, connect returns the uninitialized local pointer res instead of nullptr, causing undefined behavior.",diff,3
+Tree,Medium,135,"You are given the root of a binary tree containing digits from 0 to 9 only.
+
+Each root-to-leaf path in the tree represents a number.
+
+	For example, the root-to-leaf path 1 -> 2 -> 3 represents the number 123.
+
+Return the total sum of all root-to-leaf numbers. Test cases are generated so that the answer will fit in a 32-bit integer.
+
+A leaf node is a node with no children.
+
+Example 1:
+
+Input: root = [1,2,3]
+Output: 25
+Explanation:
+The root-to-leaf path 1->2 represents the number 12.
+The root-to-leaf path 1->3 represents the number 13.
+Therefore, sum = 12 + 13 = 25.
+
+Example 2:
+
+Input: root = [4,9,0,5,1]
+Output: 1026
+Explanation:
+The root-to-leaf path 4->9->5 represents the number 495.
+The root-to-leaf path 4->9->1 represents the number 491.
+The root-to-leaf path 4->0 represents the number 40.
+Therefore, sum = 495 + 491 + 40 = 1026.
+
+Constraints:
+
+	The number of nodes in the tree is in the range [1, 1000].
+	0 <= Node.val <= 9
+	The depth of the tree will not exceed 10.","class Solution {
+ public:
+  int sumNumbers(TreeNode* root) {
+    int ans = 0;
+    dfs(root, 0, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(TreeNode* root, int path, int& ans) {
+    if (root == nullptr)
+      return;
+    if (root->left == nullptr && root->right == nullptr) {
+      ans += path * 10 + root->val;
+      return;
+    }
+
+    dfs(root->left, path * 10 + root->val, ans);
+    dfs(root->right, path * 10 + root->val, ans);
+  }
+};",https://leetcode.com/problems/sum-root-to-leaf-numbers,"class Solution {
+ public:
+  int sumNumbers(TreeNode* root) {
+    int ans;
+    dfs(root, 0, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(TreeNode* root, int path, int& ans) {
+    if (root == nullptr)
+      return;
+    if (root->left == nullptr && root->right == nullptr) {
+      ans += path * 10 + root->val;
+      return;
+    }
+
+    dfs(root->left, path * 10 + root->val, ans);
+    dfs(root->right, path * 10 + root->val, ans);
+  }
+};","[Reference – Uninitialized variable] Changed `int ans = 0;` to `int ans;`, causing the accumulated sum to be computed from an uninitialized value.",Wrong Answer,"root =
+[4,9,0,5,1]",1051,1026,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""indeterminate due to uninitialized ans""","""1""",,sim,1
+Tree,Medium,139,"Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
+
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+
+Example 1:
+
+Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+Output: 6
+Explanation: The LCA of nodes 2 and 8 is 6.
+
+Example 2:
+
+Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+Output: 2
+Explanation: The LCA of nodes 2 and 4 is 2, since a node can be a descendant of itself according to the LCA definition.
+
+Example 3:
+
+Input: root = [2,1], p = 2, q = 1
+Output: 2
+
+Constraints:
+
+	The number of nodes in the tree is in the range [2, 105].
+	-109 <= Node.val <= 109
+	All Node.val are unique.
+	p != q
+	p and q will exist in the BST.","class Solution {
+ public:
+  TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root->val > max(p->val, q->val))
+      return lowestCommonAncestor(root->left, p, q);
+    if (root->val < min(p->val, q->val))
+      return lowestCommonAncestor(root->right, p, q);
+    return root;
+  }
+};",https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree,"class Solution {
+ public:
+  TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    int offset;
+    if (root->val + offset > max(p->val, q->val))
+      return lowestCommonAncestor(root->left, p, q);
+    if (root->val < min(p->val, q->val))
+      return lowestCommonAncestor(root->right, p, q);
+    return root;
+  }
+};",[Reference – Uninitialized variable] Introduced an uninitialized integer variable and used it in the first comparison.,Wrong Answer,"root =
+[6,2,8,0,4,7,9,null,null,3,5]
+p =
+2
+q =
+4",6,2,,gpt-5.6-sol,few-shot,Runtime Error,"""root = [2,1], p = 2, q = 1""",,"""2""","The uninitialized local variable `offset` is read, causing undefined behavior that can direct recursion to a null child and then dereference `root`.",diff,2
+Tree,Medium,140,"Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+
+Example 1:
+
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+Output: 3
+Explanation: The LCA of nodes 5 and 1 is 3.
+
+Example 2:
+
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
+Output: 5
+Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according to the LCA definition.
+
+Example 3:
+
+Input: root = [1,2], p = 1, q = 2
+Output: 1
+
+Constraints:
+
+	The number of nodes in the tree is in the range [2, 105].
+	-109 <= Node.val <= 109
+	All Node.val are unique.
+	p != q
+	p and q will exist in the tree.","class Solution {
+ public:
+  TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root == nullptr || root == p || root == q)
+      return root;
+
+    TreeNode* l = lowestCommonAncestor(root->left, p, q);
+    TreeNode* r = lowestCommonAncestor(root->right, p, q);
+
+    if (l && r)
+      return root;
+    return l ? l : r;
+  }
+};",https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree,"class Solution {
+ public:
+  TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root == nullptr || root == p || root == q)
+      return root;
+
+    TreeNode* l;
+    TreeNode* r = lowestCommonAncestor(root->right, p, q);
+
+    if (l && r)
+      return root;
+    return l ? l : r;
+  }
+};",[Reference – Uninitialized variable] Replaced the initialized left-subtree result with an uninitialized `TreeNode* l` that is later used in the LCA checks and return.,Runtime Error,,,,"process exited with signal SIGTRAP
+Last Executed Input
+root =
+[3,5,1,6,2,0,8,null,null,7,4]
+p =
+5
+q =
+1",gpt-5.6-sol,few-shot,Runtime Error,"""root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1""","""undefined behavior (may return an invalid pointer or crash)""","""3""","The local pointer l is never initialized or assigned from a left-subtree recursion before being read, causing undefined behavior.",sim,1
+Tree,Hard,141,"A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.
+ 
+ The path sum of a path is the sum of the node's values in the path.
+ 
+ Given the root of a binary tree, return the maximum path sum of any non-empty path.
+ 
+ Example 1:
+ 
+ Input: root = [1,2,3]
+ Output: 6
+ Explanation: The optimal path is 2 -> 1 -> 3 with a path sum of 2 + 1 + 3 = 6.
+ 
+ Example 2:
+ 
+ Input: root = [-10,9,20,null,null,15,7]
+ Output: 42
+ Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 42.
+ 
+ Constraints:
+ 
+ The number of nodes in the tree is in the range [1, 3 * 104].
+ -1000 <= Node.val <= 1000","static const bool __boost = [] ()
+{
+    std::cin.tie (nullptr);
+    std::cout.tie (nullptr);
+    return std::ios_base::sync_with_stdio (false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas (std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void *
+operator new (size_t size)
+{
+    constexpr std::size_t alignment = alignof (std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char *aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void
+operator delete (void * /*unused*/, unsigned long /*unused*/) noexcept
+{
+}
+void
+operator delete (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/, size_t /*unused*/) noexcept
+{
+}
+
+class Solution {
+public:
+    int pathSum(TreeNode* root,int &sum){
+        if(root==NULL)return 0;
+        int ls=max(0,pathSum(root->left,sum));
+        int rs=max(0,pathSum(root->right,sum));
+        sum=max(ls+rs+root->val,sum);
+        return max(ls,rs)+root->val;
+    }
+    int maxPathSum(TreeNode* root) {
+        int sum=INT_MIN;
+        pathSum(root,sum);
+        return sum;
+    }
+};",https://leetcode.com/problems/binary-tree-maximum-path-sum,"static const bool __boost = [] ()
+{
+    std::cin.tie (nullptr);
+    std::cout.tie (nullptr);
+    return std::ios_base::sync_with_stdio (false);
+}();
+
+const size_t BUFFER_SIZE = 0x30000000;
+alignas (std::max_align_t) char buffer[BUFFER_SIZE];
+size_t buffer_pos = 0;
+
+void *
+operator new (size_t size)
+{
+    constexpr std::size_t alignment = alignof (std::max_align_t);
+    size_t padding = (alignment - (buffer_pos % alignment)) % alignment;
+    size_t total_size = size + padding;
+    char *aligned_ptr = &buffer[buffer_pos + padding];
+    buffer_pos += total_size;
+    return aligned_ptr;
+}
+
+void
+operator delete (void * /*unused*/, unsigned long /*unused*/) noexcept
+{
+}
+void
+operator delete (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/) noexcept
+{
+}
+void
+operator delete[] (void * /*unused*/, size_t /*unused*/) noexcept
+{
+}
+
+class Solution {
+public:
+    int pathSum(TreeNode* root,int &sum){
+        if(root==NULL)return 0;
+        int ls=max(0,pathSum(root->left,sum));
+        int rs=max(0,pathSum(root->right,sum));
+        sum=max(ls+rs+root->val,sum);
+        return max(ls,rs)+root->val;
+    }
+    int maxPathSum(TreeNode* root) {
+        int sum;
+        pathSum(root,sum);
+        return sum;
+    }
+};",[Reference – Uninitialized variable] Changed the initialization of `sum` in `maxPathSum` from `INT_MIN` to an uninitialized local variable.,Wrong Answer,"root =
+[0]",42,0,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [1]""","""indeterminate""","""1""","The local variable `sum` is uninitialized before being read by `max`, causing undefined behavior and potentially an incorrect result.",sim,1
+Tree,Hard,143,"Given an integer array nums, return an integer array counts where counts[i] is the number of smaller elements to the right of nums[i].
+ 
+ Example 1:
+ 
+ Input: nums = [5,2,6,1]
+ Output: [2,1,1,0]
+ Explanation:
+ To the right of 5 there are 2 smaller elements (2 and 1).
+ To the right of 2 there is only 1 smaller element (1).
+ To the right of 6 there is 1 smaller element (1).
+ To the right of 1 there is 0 smaller element.
+ 
+ Example 2:
+ 
+ Input: nums = [-1]
+ Output: [0]
+ 
+ Example 3:
+ 
+ Input: nums = [-1,-1]
+ Output: [0,0]
+ 
+ Constraints:
+ 
+ 1 <= nums.length <= 105
+ -104 <= nums[i] <= 104","class Solution {
+public:
+    vector<int> countSmaller(vector<int>& nums) {
+        BinaryIndexedTree tree{};
+        vector<int> ans(nums.size());
+        for (auto i{nums.size() - 1}; ~i; --i) {
+            const auto num{nums[i]};
+            ans[i] = tree.Query(num);
+            tree.Update(num);
+        }
+
+        return ans;
+    }
+
+private:
+    class BinaryIndexedTree {
+    public:
+
+        BinaryIndexedTree() { }
+
+        void Update(int val) {
+            auto i{val + 10001};
+            while (i < n_) {
+                ++data_[i];
+                i += i & -i;
+            }
+        }
+
+        int Query(int val) {
+            int result{0};
+            auto i{val + 10000};
+            while (i > 0) {
+                result += data_[i];
+                i -= i & -i;
+            }
+            return result;
+        }
+
+    private:
+        static constexpr size_t n_{20001};
+        array<int, n_> data_{};
+    };
+};",https://leetcode.com/problems/count-of-smaller-numbers-after-self,"class Solution {
+public:
+    vector<int> countSmaller(vector<int>& nums) {
+        BinaryIndexedTree tree{};
+        vector<int> ans(nums.size());
+        for (auto i{nums.size() - 1}; ~i; --i) {
+            const auto num{nums[i]};
+            ans[i] = tree.Query(num);
+            tree.Update(num);
+        }
+
+        return ans;
+    }
+
+private:
+    class BinaryIndexedTree {
+    public:
+
+        BinaryIndexedTree() { }
+
+        void Update(int val) {
+            auto i{val + 10001};
+            while (i < n_) {
+                ++data_[i];
+                i += i & -i;
+            }
+        }
+
+        int Query(int val) {
+            int result{0};
+            auto i{val + 10001};
+            while (i > 0) {
+                result += data_[i];
+                i -= i & -i;
+            }
+            return result;
+        }
+
+    private:
+        static constexpr size_t n_{20001};
+        array<int, n_> data_{};
+    };
+};","[Reference – Off-by-one index] Changed the Fenwick tree query starting index from val + 10000 to val + 10001, causing equal values to be counted as smaller.",Wrong Answer,"nums =
+[-1,-1]","[1,0]","[0,0]",,gpt-5.6-sol,few-shot,Wrong Answer,"""nums = [-1, -1]""","""[1, 0]""","""[0, 0]""",,sim,1
+Tree,Hard,144,"Given an integer array nums and two integers lower and upper, return the number of range sums that lie in [lower, upper] inclusive.
+ 
+ Range sum S(i, j) is defined as the sum of the elements in nums between indices i and j inclusive, where i <= j.
+ 
+ Example 1:
+ 
+ Input: nums = [-2,5,-1], lower = -2, upper = 2
+ Output: 3
+ Explanation: The three ranges are: [0,0], [2,2], and [0,2] and their respective sums are: -2, -1, 2.
+ 
+ Example 2:
+ 
+ Input: nums = [0], lower = 0, upper = 0
+ Output: 1
+ 
+ Constraints:
+ 
+ 1 <= nums.length <= 105
+ -231 <= nums[i] <= 231 - 1
+ -105 <= lower <= upper <= 105
+ The answer is guaranteed to fit in a 32-bit integer.","using ll = long long;
+int upper, lower;
+const int MAXN = 1e5 + 1;
+
+ll s[MAXN];
+ll aux[MAXN];
+int dnc(int l, int r)
+{
+    if (l == r) return 0;
+
+    int m = (l + r) / 2;
+    int ans = dnc(l, m) + dnc(m+1, r);
+    
+    int wl = l, wr = l;
+    for (int i = m+1; i <= r; ++i)
+    {
+        ll a = s[i] - upper;
+        ll b = s[i] - lower;
+        while (wl <= m and s[wl] < a) wl++;
+        while (wr <= m and s[wr] <= b) wr++;
+        ans += wr - wl;
+    }
+
+    int i = l, j = m+1, k = 0;
+    while (i <= m and j <= r)
+        if (s[i] <= s[j])
+            aux[k++] = s[i++];
+        else
+            aux[k++] = s[j++];
+    while (i <= m) aux[k++] = s[i++];
+    while (j <= r) aux[k++] = s[j++];
+    for (int i = l, k = 0; i <= r; ++i, ++k) s[i] = aux[k];
+
+    return ans;
+}
+
+
+class Solution {
+public:
+    int countRangeSum(vector<int>& nums, int lo, int up) {
+        lower = lo; upper = up;
+        s[0] = 0;
+        for (int i = 1; i <= nums.size(); ++i)
+            s[i] = s[i - 1] + nums[i - 1];
+        return dnc(0, nums.size());
+    }
+};",https://leetcode.com/problems/count-of-range-sum,"using ll = long long;
+int upper, lower;
+const int MAXN = 1e5 + 1;
+
+ll s[MAXN];
+ll aux[MAXN];
+int dnc(int l, int r)
+{
+    if (l == r) return 0;
+
+    int m = (l + r) / 2;
+    int ans = dnc(l, m) + dnc(m+1, r);
+    
+    int wl = l, wr = l;
+    for (int i = m+1; i <= r; ++i)
+    {
+        ll a = s[i] - upper;
+        ll b = s[i] - lower;
+        while (wl <= m and s[wl] < a) wl++;
+        while (wr <= m and s[wr] <= b) wr++;
+        ans += wr - wl;
+    }
+
+    int i = l, j = m+1, k = 0;
+    while (i <= m and j <= r)
+        if (s[i] <= s[j])
+            aux[k++] = s[i++];
+        else
+            aux[k++] = s[j++];
+    while (i <= m) aux[k++] = s[i++];
+    while (j <= r) aux[k++] = s[j++];
+    for (int i = l, k = 0; i <= r; ++i, ++k) s[i] = aux[k];
+
+    return ans;
+}
+
+
+class Solution {
+public:
+    int countRangeSum(vector<int>& nums, int lo, int up) {
+        lower = lo; upper = up;
+        s[0] = 0;
+        for (int i = 1; i < nums.size(); ++i)
+            s[i] = s[i - 1] + nums[i - 1];
+        return dnc(0, nums.size());
+    }
+};","[Reference – Off-by-one index] Changed the prefix-sum construction loop to stop at i < nums.size(), leaving the final prefix sum uncomputed.",Wrong Answer,"nums =
+[2147483647,-2147483648,-1,0]
+lower =
+-1
+upper =
+0",3,4,,gpt-5.6-sol,few-shot,Wrong Answer,"""nums = [1], lower = 1, upper = 1""","""0""","""1""","The prefix-sum loop uses i < nums.size(), leaving s[nums.size()] uncomputed even though dnc processes it.",sim,1
+Tree,Hard,148,"You are given the root of a binary tree. We install cameras on the tree nodes where each camera at a node can monitor its parent, itself, and its immediate children.
+
+Return the minimum number of cameras needed to monitor all nodes of the tree.
+
+Example 1:
+
+Input: root = [0,0,null,0,0]
+Output: 1
+Explanation: One camera is enough to monitor all nodes if placed as shown.
+
+Example 2:
+
+Input: root = [0,0,null,0,null,0,null,null,0]
+Output: 2
+Explanation: At least two cameras are needed to monitor all nodes of the tree. The above image shows one of the valid configurations of camera placement.
+
+Constraints:
+
+	The number of nodes in the tree is in the range [1, 1000].
+	Node.val == 0","class Solution {
+ public:
+  int minCameraCover(TreeNode* root) {
+    vector<int> ans = dfs(root);
+    return min(ans[1], ans[2]);
+  }
+
+ private:
+  // 0 := all nodes below root are covered except root
+  // 1 := all nodes below and including root are covered w/o camera here
+  // 2 := all nodes below and including root are covered w/ camera here
+  vector<int> dfs(TreeNode* root) {
+    if (root == nullptr)
+      return {0, 0, 1000};
+
+    vector<int> l = dfs(root->left);
+    vector<int> r = dfs(root->right);
+
+    const int s0 = l[1] + r[1];
+    const int s1 = min(l[2] + min(r[1], r[2]),  //
+                       r[2] + min(l[1], l[2]));
+    const int s2 = min({l[0], l[1], l[2]}) +  //
+                   min({r[0], r[1], r[2]}) + 1;
+    return {s0, s1, s2};
+  }
+};",https://leetcode.com/problems/binary-tree-cameras,"class Solution {
+ public:
+  int minCameraCover(TreeNode* root) {
+    vector<int> ans = dfs(root);
+    return min(ans[1], ans[2]);
+  }
+
+ private:
+  // 0 := all nodes below root are covered except root
+  // 1 := all nodes below and including root are covered w/o camera here
+  // 2 := all nodes below and including root are covered w/ camera here
+  vector<int> dfs(TreeNode* root) {
+    if (root == nullptr)
+      return {0, 0, 1000};
+
+    vector<int> l = dfs(root->left);
+    vector<int> r = dfs(root->right);
+
+    int s0;
+    const int s1 = min(l[2] + min(r[1], r[2]),  //
+                       r[2] + min(l[1], l[2]));
+    const int s2 = min({l[0], l[1], l[2]}) +  //
+                   min({r[0], r[1], r[2]}) + 1;
+    return {s0, s1, s2};
+  }
+};",[Reference – Uninitialized variable] Replaced the initialization of `s0` with an uninitialized declaration while still using it in the returned state vector.,Wrong Answer,"root =
+[0,0,null,0,null,0,null,null,0]",1,2,,gpt-5.6-sol,few-shot,Wrong Answer,"""root = [0]""","""indeterminate""","""1""","The local variable s0 is never initialized before being returned, so its indeterminate value is used by the parent DP computation and can produce an incorrect result.",sim,1
+Graph,Medium,164,"There are n rooms labeled from 0 to n - 1 and all the rooms are locked except for room 0. Your goal is to visit all the rooms. However, you cannot enter a locked room without having its key.
+
+When you visit a room, you may find a set of distinct keys in it. Each key has a number on it, denoting which room it unlocks, and you can take all of them with you to unlock the other rooms.
+
+Given an array rooms where rooms[i] is the set of keys that you can obtain if you visited room i, return true if you can visit all the rooms, or false otherwise.
+
+Example 1:
+
+Input: rooms = [[1],[2],[3],[]]
+Output: true
+Explanation: 
+We visit room 0 and pick up key 1.
+We then visit room 1 and pick up key 2.
+We then visit room 2 and pick up key 3.
+We then visit room 3.
+Since we were able to visit every room, we return true.
+
+Example 2:
+
+Input: rooms = [[1,3],[3,0,1],[2],[0]]
+Output: false
+Explanation: We can not enter room number 2 since the only key that unlocks it is in that room.
+
+Constraints:
+
+	n == rooms.length
+	2 <= n <= 1000
+	0 <= rooms[i].length <= 1000
+	1 <= sum(rooms[i].length) <= 3000
+	0 <= rooms[i][j] < n
+	All the values of rooms[i] are unique.","class Solution {
+ public:
+  bool canVisitAllRooms(vector<vector<int>>& rooms) {
+    vector<bool> seen(rooms.size());
+    dfs(rooms, 0, seen);
+    return all_of(begin(seen), end(seen), [](int s) { return s == true; });
+  }
+
+ private:
+  void dfs(const vector<vector<int>>& rooms, int node, vector<bool>& seen) {
+    seen[node] = true;
+    for (const int child : rooms[node])
+      if (!seen[child])
+        dfs(rooms, child, seen);
+  }
+};",https://leetcode.com/problems/keys-and-rooms,"class Solution {
+ public:
+  bool canVisitAllRooms(vector<vector<int>>& rooms) {
+    vector<bool> seen(rooms.size() - 1);
+    dfs(rooms, 0, seen);
+    return all_of(begin(seen), end(seen), [](int s) { return s == true; });
+  }
+
+ private:
+  void dfs(const vector<vector<int>>& rooms, int node, vector<bool>& seen) {
+    seen[node] = true;
+    for (const int child : rooms[node])
+      if (!seen[child])
+        dfs(rooms, child, seen);
+  }
+};","[Reference – Off-by-one index] Changed the seen vector size from rooms.size() to rooms.size() - 1, causing the last room index to be out of bounds when visited.",Wrong Answer,"rooms =
+[[1],[2],[],[3]]",TRUE,FALSE,,gpt-5.6-sol,few-shot,Runtime Error,"""rooms = [[1], []]""",,"""true""","The seen vector is allocated with size n - 1, so DFS accesses seen[1] out of bounds when visiting room 1, causing undefined behavior and potentially a crash.",diff,2
+Graph,Hard,172,"There is a safe protected by a password. The password is a sequence of n digits where each digit can be in the range [0, k - 1].
+ 
+ The safe has a peculiar way of checking the password. When you enter in a sequence, it checks the most recent n digits that were entered each time you type a digit.
+ 
+ For example, the correct password is ""345"" and you enter in ""012345"":
+ 
+ After typing 0, the most recent 3 digits is ""0"", which is incorrect.
+ After typing 1, the most recent 3 digits is ""01"", which is incorrect.
+ After typing 2, the most recent 3 digits is ""012"", which is incorrect.
+ After typing 3, the most recent 3 digits is ""123"", which is incorrect.
+ After typing 4, the most recent 3 digits is ""234"", which is incorrect.
+ After typing 5, the most recent 3 digits is ""345"", which is correct and the safe unlocks.
+ 
+ Return any string of minimum length that will unlock the safe at some point of entering it.
+ 
+ Example 1:
+ 
+ Input: n = 1, k = 2
+ Output: ""10""
+ Explanation: The password is a single digit, so enter each digit. ""01"" would also unlock the safe.
+ 
+ Example 2:
+ 
+ Input: n = 2, k = 2
+ Output: ""01100""
+ Explanation: For each possible password:
+ - ""00"" is typed in starting from the 4th digit.
+ - ""01"" is typed in starting from the 1st digit.
+ - ""10"" is typed in starting from the 3rd digit.
+ - ""11"" is typed in starting from the 2nd digit.
+ Thus ""01100"" will unlock the safe. ""10011"", and ""11001"" would also unlock the safe.
+ 
+ Constraints:
+ 
+ 1 <= n <= 4
+ 1 <= k <= 10
+ 1 <= kn <= 4096","namespace {
+constexpr int ipow(int k, int n) noexcept {
+    int result = 1;
+    while (n--)
+        result *= k;
+    return result;
+}
+
+struct Solution {
+    static constexpr std::string crackSafe(int n, int k) noexcept {
+        int size = k == 1 ? n : ipow(k, n) + n - 1;
+        std::string result(size, '\0');
+        auto write = result.begin();
+        if (k == 1) {
+            std::fill(result.begin(), result.end(), '0');
+        } else {
+            std::string a(k*n, '0');
+            [&](this const auto& de_bruijn, int t, int p) noexcept -> void {
+                if (t > n) {
+                    if (n % p == 0)
+                        write = std::copy(a.begin() + 1, a.begin() + p + 1, write);
+                    return;
+                }
+                a[t] = a[t-p];
+                de_bruijn(t+1, p);
+                for (char j = a[t-p] + 1; j < k+'0'; ++j) {
+                    a[t] = j;
+                    de_bruijn(t+1, t);
+                }
+            }(1, 1);
+            std::copy(result.begin(), result.begin() + (n-1), write);
+        }
+        return result;
+    }
+};
+}",https://leetcode.com/problems/cracking-the-safe,"namespace {
+constexpr int ipow(int k, int n) noexcept {
+    int result = 1;
+    while (n--)
+        result *= k;
+    return result;
+}
+
+struct Solution {
+    static constexpr std::string crackSafe(int n, int k) noexcept {
+        int size = k == 1 ? n : ipow(k, n) + n - 1;
+        std::string result(size, '\0');
+        auto write = result.begin();
+        if (k == 1) {
+            std::fill(result.begin(), result.end(), '0');
+        } else {
+            std::string a(k*n, '0');
+            [&](this const auto& de_bruijn, int t, int p) noexcept -> void {
+                if (t > n) {
+                    if (n % p == 0)
+                        write = std::copy(a.begin() + 1, a.begin() + p + 1, write);
+                    return;
+                }
+                a[t] = a[t-p];
+                de_bruijn(t+1, p);
+                for (char j = a[t-p] + 1; j < k+'0'; ++j) {
+                    a[t] = j;
+                    de_bruijn(t+1, t);
+                }
+            }(1, 1);
+            std::copy(result.begin(), result.begin() + n, write);
+        }
+        return result;
+    }
+};
+}","[Reference – Off-by-one index] Changed the final copy length from n-1 characters to n characters, causing one extra character to be copied.",Accepted,,,,,gpt-5.6-sol,few-shot,Runtime Error,"""n = 2, k = 2""","""Heap-buffer-overflow/undefined behavior""","""Any valid minimum-length sequence, e.g. \""00110\""""","After generating k^n digits, the final std::copy appends n digits into a string with space for only n-1, writing one element past result.end().",diff,3
