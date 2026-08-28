@@ -1,4 +1,0 @@
-﻿variant,acc_S0_qwen_zs,acc_sau_S1,acc_cuoi_pipeline,con_lai_khong_giai_duoc
-logic1,0.7877,0.9106,0.9497,9
-logic2,0.7709,0.8771,0.9385,11
-reference1,0.7151,0.8045,0.8939,19

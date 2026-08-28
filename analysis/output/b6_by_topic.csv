@@ -1,5 +1,0 @@
-﻿topic,n,acc_S0,rate_D1,rate_D2,rate_residual
-Bit manipulation,150,0.74,0.26,0.16,0.1133
-String,150,0.8,0.2,0.1133,0.04
-Tree,150,0.6733,0.3267,0.18,0.1
-Graph,87,0.8621,0.1379,0.0575,0.0115

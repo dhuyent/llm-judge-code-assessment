@@ -1,6 +1,0 @@
-﻿gt_status,n,acc_S0,rate_D1,rate_D2,rate_residual
-Wrong Answer,330,0.7909,0.2091,0.103,0.0333
-Runtime Error,112,0.6786,0.3214,0.1786,0.125
-Accepted,87,0.8046,0.1954,0.1379,0.092
-Time Limit Exceeded,7,0.0,1.0,0.8571,0.7143
-Memory Limit Exceeded,1,0.0,1.0,1.0,1.0
